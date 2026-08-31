@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
+  <title>C.W.B Business Management System</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    header {
+      background: #111827;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      opacity: 0.8;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .welcome {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    .welcome h2 {
+      margin-top: 0;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    .card strong {
+      display: block;
+      font-size: 28px;
+      margin-top: 8px;
+    }
+
+    .modules {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+    }
+
+    .module {
+      background: white;
+      border: none;
+      border-radius: 15px;
+      padding: 25px 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    .module:hover {
+      transform: translateY(-2px);
+    }
+
+    .icon {
+      display: block;
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    #message {
+      display: none;
+      background: white;
+      margin-top: 20px;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: #6b7280;
+    }
+
+    @media (max-width: 700px) {
+      .cards,
+      .modules {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 400px) {
+      .cards,
+      .modules {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>C. W. B</h1>
+    <p>Business Management System</p>
+  </header>
+
+  <div class="container">
+
+    <section class="welcome">
+      <h2>Welcome to C.W.B</h2>
+      <p>
+        Your connected business management system.
+      </p>
+    </section>
+
+    <section class="cards">
+
+      <div class="card">
+        Sales
+        <strong>0</strong>
+      </div>
+
+      <div class="card">
+        Expenses
+        <strong>0</strong>
+      </div>
+
+      <div class="card">
+        Employees
+        <strong>0</strong>
+      </div>
+
+      <div class="card">
+        Partners
+        <strong>0</strong>
+      </div>
+
+    </section>
+
+    <section class="modules">
+
+      <button class="module" onclick="showModule('Accounting')">
+        <span class="icon">📊</span>
+        Accounting
+      </button>
+
+      <button class="module" onclick="showModule('Payroll')">
+        <span class="icon">👥</span>
+        Payroll
+      </button>
+
+      <button class="module" onclick="showModule('Inventory')">
+        <span class="icon">📦</span>
+        Inventory
+      </button>
+
+      <button class="module" onclick="showModule('Sales & Invoices')">
+        <span class="icon">🧾</span>
+        Sales & Invoices
+      </button>
+
+      <button class="module" onclick="showModule('Partners')">
+        <span class="icon">🤝</span>
+        Partners
+      </button>
+
+      <button class="module" onclick="showModule('Website')">
+        <span class="icon">🌐</span>
+        Website
+      </button>
+
+      <button class="module" onclick="showModule('Social Connections')">
+        <span class="icon">📱</span>
+        Social Connections
+      </button>
+
+      <button class="module" onclick="showModule('Reports')">
+        <span class="icon">📈</span>
+        Reports
+      </button>
+
+    </section>
+
+    <section id="message">
+      <h2 id="moduleTitle"></h2>
+      <p>
+        This C.W.B module is ready to be developed and connected to
+        the complete business management system.
+      </p>
+    </section>
+
+  </div>
+
+  <footer>
+    C.W.B Business Management System
+  </footer>
+
+  <script>
+    function showModule(name) {
+      document.getElementById("message").style.display = "block";
+      document.getElementById("moduleTitle").textContent = name;
+      document.getElementById("message").scrollIntoView({
+        behavior: "smooth"
+      });
+    }
+  </script>
+
+</body>
+</html>
