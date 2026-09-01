@@ -6,7 +6,27 @@
   <title>C.W.B - Camel Work and Business</title>
   <style>
     body {
-      margin: 0;
+      margin: 0;Number(document.getElementById("quantity").value);
+  const price = Number(document.getElementById("price").value);
+
+  if (!customer || !product || !quantity || !price) {
+    document.getElementById("invoiceResult").innerText =
+      "Please enter all information.";
+    return;
+  }
+
+  const total = quantity * price;
+
+  document.getElementById("invoiceResult").innerText =
+    "Invoice created — Customer: " + customer +
+    " | Product: " + product +
+    " | Total: " + total;
+}
+</script>
+Yes 👍 I’ll tell you exactly what to do.
+Since you are on the index.html editor and you can see Our Services, find the Business Planner card.
+Immediately after the Business Planner card’s closing </div>, paste this:
+HTML
       font-family: Arial, sans-serif;
       background: #f5f5f5;
       color: #222;
