@@ -6,7 +6,7 @@
 <title>C.W.B System</title>
 <style>
 body{font-family:Arial;background:#f3f4f6;margin:0;color:#111827}
-header{background:#111827;color:white;text-align:center;padding:25px}
+header{background:#111827;color:white;text-align:center;padding:25px} 
 .container{padding:20px;max-width:1000px;margin:auto}
 .dashboard{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .card,.section{background:white;padding:20px;margin-top:15px;border-radius:12px;box-shadow:0 2px 8px #0002}
