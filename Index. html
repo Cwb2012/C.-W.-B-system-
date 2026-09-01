@@ -2,28 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#111827">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>C.W.B System</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
-header{background:linear-gradient(135deg,#111827,#b91c1c);color:white;padding:25px 18px;text-align:center}
-header h1{font-size:30px}
-header p{margin-top:8px}
-.container{max-width:1100px;margin:auto;padding:20px}
-.language{text-align:right;margin-bottom:15px}
-select,input,button,textarea{width:100%;padding:12px;margin:6px 0;border-radius:8px;border:1px solid #d1d5db}
-.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px}
-.card{background:white;border-radius:14px;padding:20px;text-align:center;box-shadow:0 3px 12px #0002;cursor:pointer}
-.card .icon{font-size:32px}
-.card h3{margin-top:10px}
-.section{background:white;margin-top:20px;padding:20px;border-radius:14px;box-shadow:0 3px 12px #0001}
-.section h2{margin-bottom:15px;color:#b91c1c}
+body{font-family:Arial;background:#f3f4f6;margin:0;color:#111827}
+header{background:#111827;color:white;text-align:center;padding:25px}
+.container{padding:20px;max-width:1000px;margin:auto}
+.dashboard{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.card,.section{background:white;padding:20px;margin-top:15px;border-radius:12px;box-shadow:0 2px 8px #0002}
+.card{text-align:center;cursor:pointer}
+.icon{font-size:30px}
+button,input,textarea{width:100%;padding:12px;margin:6px 0;box-sizing:border-box;border-radius:7px;border:1px solid #ccc}
 button{background:#b91c1c;color:white;border:0;font-weight:bold}
 .hidden{display:none}
 .item{padding:8px 0;border-bottom:1px solid #ddd}
-footer{text-align:center;padding:25px;margin-top:30px;background:#111827;color:white}
+footer{background:#111827;color:white;text-align:center;padding:20px;margin-top:30px}
 </style>
 </head>
 
@@ -37,23 +30,14 @@ footer{text-align:center;padding:25px;margin-top:30px;background:#111827;color:w
 
 <div class="container">
 
-<div class="language">
-<select id="language">
-<option>English</option>
-<option>Français</option>
-<option>Swahili</option>
-</select>
-</div>
-
 <div class="dashboard">
-<div class="card" onclick="show('sales')"><div class="icon">🛒</div><h3>Sales</h3></div>
-<div class="card" onclick="show('purchases')"><div class="icon">📦</div><h3>Purchasing</h3></div>
-<div class="card" onclick="show('accounting')"><div class="icon">💰</div><h3>Accounting</h3></div>
-<div class="card" onclick="show('payroll')"><div class="icon">👷</div><h3>Payroll</h3></div>
-<div class="card" onclick="show('partners')"><div class="icon">🤝</div><h3>Partners</h3></div>
-<div class="card" onclick="show('products')"><div class="icon">🎨</div><h3>Products</h3></div>
-<div class="card" onclick="show('planner')"><div class="icon">📊</div><h3>Business Planner</h3></div>
-<div class="card" onclick="show('settings')"><div class="icon">⚙️</div><h3>Settings</h3></div>
+<div class="card" onclick="openSection('sales')">🛒<br><b>Sales</b></div>
+<div class="card" onclick="openSection('purchases')">📦<br><b>Purchasing</b></div>
+<div class="card" onclick="openSection('accounting')">💰<br><b>Accounting</b></div>
+<div class="card" onclick="openSection('payroll')">👷<br><b>Payroll</b></div>
+<div class="card" onclick="openSection('partners')">🤝<br><b>Partners</b></div>
+<div class="card" onclick="openSection('products')">🎨<br><b>Products</b></div>
+<div class="card" onclick="openSection('planner')">📊<br><b>Business Planner</b></div>
 </div>
 
 <div id="sales" class="section hidden">
@@ -65,8 +49,8 @@ footer{text-align:center;padding:25px;margin-top:30px;background:#111827;color:w
 </div>
 
 <div id="purchases" class="section hidden">
-<h2>📦 Purchasing & Suppliers</h2>
-<input id="purchaseProduct" placeholder="Product / supplier">
+<h2>📦 Purchasing</h2>
+<input id="purchaseProduct" placeholder="Product / Supplier">
 <input id="purchaseAmount" type="number" placeholder="Amount">
 <button onclick="addPurchase()">Add Purchase</button>
 <div id="purchaseList"></div>
@@ -76,10 +60,8 @@ footer{text-align:center;padding:25px;margin-top:30px;background:#111827;color:w
 <h2>💰 Accounting</h2>
 <p>Total Sales:</p>
 <h3 id="totalSales">0</h3>
-<br>
 <p>Total Purchases:</p>
 <h3 id="totalPurchases">0</h3>
-<br>
 <p>Balance:</p>
 <h3 id="balance">0</h3>
 </div>
@@ -109,116 +91,155 @@ footer{text-align:center;padding:25px;margin-top:30px;background:#111827;color:w
 
 <div id="planner" class="section hidden">
 <h2>📊 Business Planner</h2>
-<textarea id="plan" rows="6" placeholder="Write your business plan or goals here..."></textarea>
+<textarea id="plan" rows="6" placeholder="Write your business plan"></textarea>
 <button onclick="savePlan()">Save Plan</button>
 <p id="savedPlan"></p>
-</div>
-
-<div id="settings" class="section hidden">
-<h2>⚙️ Settings</h2>
-<p>Company: Camel Work and Business Company</p>
-<p>Short name: C.W.B</p>
-<p>CEO: Nshimirimana Ibrahim</p>
-<p>Email: Nshimirimanaibrahim3@gmail.com</p>
 </div>
 
 </div>
 
 <footer>
-<p>© 2026 C. W. B — Camel Work and Business Company</p>
+<p>© 2026 C.W.B — Camel Work and Business Company</p>
 <p>Better Quality is our priority 👍</p>
 </footer>
 
 <script>
-let sales=JSON.parse(localStorage.getItem("cwb_sales")||"[]");
-let purchases=JSON.parse(localStorage.getItem("cwb_purchases")||"[]");
-let workers=JSON.parse(localStorage.getItem("cwb_workers")||"[]");
-let partners=JSON.parse(localStorage.getItem("cwb_partners")||"[]");
 
-function saveData(){
-localStorage.setItem("cwb_sales",JSON.stringify(sales));
-localStorage.setItem("cwb_purchases",JSON.stringify(purchases));
-localStorage.setItem("cwb_workers",JSON.stringify(workers));
-localStorage.setItem("cwb_partners",JSON.stringify(partners));
+let sales = load("cwb_sales");
+let purchases = load("cwb_purchases");
+let workers = load("cwb_workers");
+let partners = load("cwb_partners");
+
+function load(key){
+try{
+return JSON.parse(localStorage.getItem(key)) || [];
+}catch(e){
+return [];
+}
 }
 
-function show(id){
-document.querySelectorAll(".section").forEach(x=>x.classList.add("hidden"));
+function save(key,value){
+localStorage.setItem(key,JSON.stringify(value));
+}
+
+function openSection(id){
+document.querySelectorAll(".section").forEach(function(x){
+x.classList.add("hidden");
+});
 document.getElementById(id).classList.remove("hidden");
+updateAccounting();
 }
 
 function addSale(){
-let product=document.getElementById("saleProduct").value;
+let product=document.getElementById("saleProduct").value.trim();
 let amount=Number(document.getElementById("saleAmount").value);
-if(!product||!amount){alert("Please enter product and amount.");return}
-sales.push({product,amount});
-saveData();
+
+if(product==="" || amount<=0){
+alert("Please enter product and amount.");
+return;
+}
+
+sales.push({product:product,amount:amount});
+save("cwb_sales",sales);
+
 document.getElementById("saleProduct").value="";
 document.getElementById("saleAmount").value="";
+
 displaySales();
 updateAccounting();
 }
 
 function displaySales(){
-document.getElementById("salesList").innerHTML=sales.map(s=>
-`<div class="item">🛒 ${s.product} — ${s.amount}</div>`).join("");
+document.getElementById("salesList").innerHTML=sales.map(function(s){
+return '<div class="item">🛒 '+s.product+' — '+s.amount+'</div>';
+}).join("");
 }
 
 function addPurchase(){
-let product=document.getElementById("purchaseProduct").value;
+let product=document.getElementById("purchaseProduct").value.trim();
 let amount=Number(document.getElementById("purchaseAmount").value);
-if(!product||!amount){alert("Please enter product and amount.");return}
-purchases.push({product,amount});
-saveData();
+
+if(product==="" || amount<=0){
+alert("Please enter product and amount.");
+return;
+}
+
+purchases.push({product:product,amount:amount});
+save("cwb_purchases",purchases);
+
 document.getElementById("purchaseProduct").value="";
 document.getElementById("purchaseAmount").value="";
+
 displayPurchases();
 updateAccounting();
 }
 
 function displayPurchases(){
-document.getElementById("purchaseList").innerHTML=purchases.map(p=>
-`<div class="item">📦 ${p.product} — ${p.amount}</div>`).join("");
+document.getElementById("purchaseList").innerHTML=purchases.map(function(p){
+return '<div class="item">📦 '+p.product+' — '+p.amount+'</div>';
+}).join("");
 }
 
 function updateAccounting(){
-let s=sales.reduce((a,x)=>a+x.amount,0);
-let p=purchases.reduce((a,x)=>a+x.amount,0);
-document.getElementById("totalSales").innerText=s;
-document.getElementById("totalPurchases").innerText=p;
-document.getElementById("balance").innerText=s-p;
+let totalSales=sales.reduce(function(total,item){
+return total+Number(item.amount);
+},0);
+
+let totalPurchases=purchases.reduce(function(total,item){
+return total+Number(item.amount);
+},0);
+
+document.getElementById("totalSales").innerText=totalSales;
+document.getElementById("totalPurchases").innerText=totalPurchases;
+document.getElementById("balance").innerText=totalSales-totalPurchases;
 }
 
 function addWorker(){
-let name=document.getElementById("worker").value;
+let name=document.getElementById("worker").value.trim();
 let salary=Number(document.getElementById("salary").value);
-if(!name||!salary){alert("Please enter worker and salary.");return}
-workers.push({name,salary});
-saveData();
+
+if(name==="" || salary<=0){
+alert("Please enter worker and salary.");
+return;
+}
+
+workers.push({name:name,salary:salary});
+save("cwb_workers",workers);
+
 document.getElementById("worker").value="";
 document.getElementById("salary").value="";
+
 displayWorkers();
 }
 
 function displayWorkers(){
-document.getElementById("workerList").innerHTML=workers.map(w=>
-`<div class="item">👷 ${w.name} — Salary: ${w.salary}</div>`).join("");
+document.getElementById("workerList").innerHTML=workers.map(function(w){
+return '<div class="item">👷 '+w.name+' — Salary: '+w.salary+'</div>';
+}).join("");
 }
 
 function addPartner(){
-let name=document.getElementById("partner").value;
-let contact=document.getElementById("partnerContact").value;
-if(!name){alert("Please enter partner name.");return}
-partners.push({name,contact});
-saveData();
+let name=document.getElementById("partner").value.trim();
+let contact=document.getElementById("partnerContact").value.trim();
+
+if(name===""){
+alert("Please enter partner name.");
+return;
+}
+
+partners.push({name:name,contact:contact});
+save("cwb_partners",partners);
+
 document.getElementById("partner").value="";
 document.getElementById("partnerContact").value="";
+
 displayPartners();
 }
 
 function displayPartners(){
-document.getElementById("partnerList").innerHTML=partners.map(p=>
-`<div class="item">🤝 ${p.name} — ${p.contact}</div>`).join("");
+document.getElementById("partnerList").innerHTML=partners.map(function(p){
+return '<div class="item">🤝 '+p.name+' — '+p.contact+'</div>';
+}).join("");
 }
 
 function savePlan(){
@@ -228,7 +249,7 @@ document.getElementById("savedPlan").innerText="Business plan saved.";
 }
 
 function loadPlan(){
-let plan=localStorage.getItem("cwb_plan")||"";
+let plan=localStorage.getItem("cwb_plan") || "";
 document.getElementById("plan").value=plan;
 }
 
@@ -236,8 +257,9 @@ displaySales();
 displayPurchases();
 displayWorkers();
 displayPartners();
-updateAccounting();
 loadPlan();
+updateAccounting();
+
 </script>
 
 </body>
