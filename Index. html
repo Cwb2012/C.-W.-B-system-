@@ -1,273 +1,314 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#111827">
-  <title>C.W.B Business Management System</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C.W.B Business Management System</title>
 
-  <style>
-    * { box-sizing: border-box; }
+<style>
+* { box-sizing: border-box; }
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f3f4f6;
-      color: #111827;
-    }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f3f4f6;
+  color: #111827;
+}
 
-    header {
-      background: #111827;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
+header {
+  background: #111827;
+  color: white;
+  text-align: center;
+  padding: 22px;
+}
 
-    header h1 { margin: 0; font-size: 30px; }
-    header p { margin: 6px 0 0; opacity: .8; }
+header h1 { margin: 0; }
 
-    .container {
-      max-width: 1100px;
-      margin: auto;
-      padding: 20px;
-    }
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
+}
 
-    .welcome, .card, #message {
-      background: white;
-      border-radius: 15px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 3px 12px rgba(0,0,0,.08);
-    }
+.welcome, .card, #message {
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 3px 12px rgba(0,0,0,.08);
+}
 
-    .cards, .modules {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
-      margin-bottom: 20px;
-    }
+.cards, .modules {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
 
-    .card strong {
-      display: block;
-      font-size: 28px;
-      margin-top: 8px;
-    }
+.card strong {
+  display: block;
+  font-size: 28px;
+  margin-top: 8px;
+}
 
-    .module {
-      background: white;
-      border: none;
-      border-radius: 15px;
-      padding: 25px 10px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 3px 12px rgba(0,0,0,.08);
-    }
+.module {
+  background: white;
+  border: 0;
+  border-radius: 15px;
+  padding: 25px 10px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(0,0,0,.08);
+}
 
-    .module:hover { transform: translateY(-2px); }
+.icon {
+  display: block;
+  font-size: 32px;
+  margin-bottom: 10px;
+}
 
-    .icon {
-      display: block;
-      font-size: 32px;
-      margin-bottom: 10px;
-    }
+#message { display: none; }
 
-    #message { display: none; }
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 7px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+}
 
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 7px 0;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      font-size: 16px;
-    }
+button.action {
+  padding: 12px 18px;
+  margin-top: 10px;
+  border: 0;
+  border-radius: 8px;
+  background: #111827;
+  color: white;
+  font-weight: bold;
+}
 
-    .action {
-      padding: 12px 18px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 8px;
-      background: #111827;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
+.invoice {
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
 
-    .invoice {
-      margin-top: 20px;
-      padding: 18px;
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
-      background: #f9fafb;
-    }
+footer {
+  text-align: center;
+  padding: 30px;
+}
 
-    footer {
-      text-align: center;
-      padding: 30px;
-      color: #6b7280;
-    }
+@media (max-width: 700px) {
+  .cards, .modules {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 
-    @media (max-width: 700px) {
-      .cards, .modules {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 400px) {
-      .cards, .modules {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+@media (max-width: 400px) {
+  .cards, .modules {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
 </head>
 
 <body>
 
 <header>
-  <h1>C. W. B</h1>
-  <p>Camel Work and Business Company</p>
-  <p><strong>Better Quality is our priority</strong></p>
+<h1>C. W. B</h1>
+<p>Camel Work and Business Company</p>
+<p><strong>Better Quality is our priority</strong></p>
 </header>
 
 <div class="container">
 
-  <section class="welcome">
-    <h2>Welcome to C.W.B</h2>
-    <p>Your connected business management system.</p>
-  </section>
+<section class="welcome">
+<h2>Welcome to C.W.B</h2>
+<p>Your connected business management system.</p>
+</section>
 
-  <section class="cards">
-    <div class="card">Sales<strong id="salesTotal">0</strong></div>
-    <div class="card">Expenses<strong>0</strong></div>
-    <div class="card">Employees<strong>0</strong></div>
-    <div class="card">Partners<strong>0</strong></div>
-  </section>
+<section class="cards">
 
-  <section class="modules">
+<div class="card">
+Sales
+<strong id="salesTotal">0</strong>
+</div>
 
-    <button class="module" onclick="showModule('Accounting')">
-      <span class="icon">📊</span>Accounting
-    </button>
+<div class="card">
+Expenses
+<strong>0</strong>
+</div>
 
-    <button class="module" onclick="showModule('Payroll')">
-      <span class="icon">👥</span>Payroll
-    </button>
+<div class="card">
+Employees
+<strong>0</strong>
+</div>
 
-    <button class="module" onclick="showModule('Inventory')">
-      <span class="icon">📦</span>Inventory
-    </button>
+<div class="card">
+Partners
+<strong>0</strong>
+</div>
 
-    <button class="module" onclick="showModule('Sales & Invoices')">
-      <span class="icon">🧾</span>Sales & Invoices
-    </button>
+</section>
 
-    <button class="module" onclick="showModule('Partners')">
-      <span class="icon">🤝</span>Partners
-    </button>
+<br>
 
-    <button class="module" onclick="showModule('Website')">
-      <span class="icon">🌐</span>Website
-    </button>
+<section class="modules">
 
-    <button class="module" onclick="showModule('Social Connections')">
-      <span class="icon">📱</span>Social Connections
-    </button>
+<button class="module" onclick="showModule('Accounting')">
+<span class="icon">📊</span>
+Accounting
+</button>
 
-    <button class="module" onclick="showModule('Reports')">
-      <span class="icon">📈</span>Reports
-    </button>
+<button class="module" onclick="showModule('Payroll')">
+<span class="icon">👥</span>
+Payroll
+</button>
 
-  </section>
+<button class="module" onclick="showModule('Inventory')">
+<span class="icon">📦</span>
+Inventory
+</button>
 
-  <section id="message">
-    <h2 id="moduleTitle"></h2>
+<button class="module" onclick="showModule('Sales & Invoices')">
+<span class="icon">🧾</span>
+Sales & Invoices
+</button>
 
-    <div id="moduleContent"></div>
-  </section>
+<button class="module" onclick="showModule('Partners')">
+<span class="icon">🤝</span>
+Partners
+</button>
+
+<button class="module" onclick="showModule('Website')">
+<span class="icon">🌐</span>
+Website
+</button>
+
+<button class="module" onclick="showModule('Social Connections')">
+<span class="icon">📱</span>
+Social Connections
+</button>
+
+<button class="module" onclick="showModule('Reports')">
+<span class="icon">📈</span>
+Reports
+</button>
+
+</section>
+
+<section id="message">
+
+<h2 id="moduleTitle"></h2>
+
+<div id="moduleContent"></div>
+
+</section>
 
 </div>
 
 <footer>
-  C.W.B Business Management System
+C.W.B Business Management System
 </footer>
 
 <script>
 
 function showModule(name) {
 
-  document.getElementById("message").style.display = "block";
-  document.getElementById("moduleTitle").textContent = name;
+document.getElementById("message").style.display = "block";
 
-  const content = document.getElementById("moduleContent");
+document.getElementById("moduleTitle").textContent = name;
 
-  if (name === "Sales & Invoices") {
+let content = document.getElementById("moduleContent");
 
-    content.innerHTML = `
-      <h3>Create Sales Invoice</h3>
+if (name === "Sales & Invoices") {
 
-      <input id="customer" type="text"
-        placeholder="Customer name">
+content.innerHTML = `
 
-      <input id="product" type="text"
-        placeholder="Product">
+<h3>Create Sales Invoice</h3>
 
-      <input id="quantity" type="number"
-        placeholder="Quantity">
+<input id="customer" placeholder="Customer name">
 
-      <input id="price" type="number"
-        placeholder="Price">
+<input id="product" placeholder="Product">
 
-      <button class="action" onclick="createInvoice()">
-        Create Invoice
-      </button>
+<input id="quantity" type="number" placeholder="Quantity">
 
-      <div id="invoiceResult"></div>
-    `;
+<input id="price" type="number" placeholder="Price">
 
-  } else {
+<button class="action" onclick="createInvoice()">
+Create Invoice
+</button>
 
-    content.innerHTML = `
-      <p>
-        This C.W.B module is ready to be developed and connected
-        to the complete business management system.
-      </p>
-    `;
-  }
+<div id="invoiceResult"></div>
 
-  document.getElementById("message").scrollIntoView({
-    behavior: "smooth"
-  });
+`;
+
+} else {
+
+content.innerHTML = `
+
+<p>
+This C.W.B module is ready to be developed and connected to
+the complete business management system.
+</p>
+
+`;
+
+}
+
+document.getElementById("message").scrollIntoView({
+behavior: "smooth"
+});
+
 }
 
 function createInvoice() {
 
-  const customer = document.getElementById("customer").value;
-  const product = document.getElementById("product").value;
-  const quantity = Number(document.getElementById("quantity").value);
-  const price = Number(document.getElementById("price").value);
+let customer = document.getElementById("customer").value;
 
-  if (!customer || !product || quantity <= 0 || price <= 0) {
-    document.getElementById("invoiceResult").innerHTML =
-      "<p>Please enter all invoice information.</p>";
-    return;
-  }
+let product = document.getElementById("product").value;
 
-  const total = quantity * price;
+let quantity = Number(document.getElementById("quantity").value);
 
-  document.getElementById("invoiceResult").innerHTML = `
-    <div class="invoice">
-      <h3>C.W.B Invoice</h3>
-      <p><strong>Customer:</strong> ${customer}</p>
-      <p><strong>Product:</strong> ${product}</p>
-      <p><strong>Quantity:</strong> ${quantity}</p>
-      <p><strong>Price:</strong> ${price}</p>
-      <p><strong>Total:</strong> ${total}</p>
-      <p><strong>Status:</strong> Created</p>
-    </div>
-  `;
+let price = Number(document.getElementById("price").value);
 
-  document.getElementById("salesTotal").textContent = total;
+if (!customer || !product || quantity <= 0 || price <= 0) {
+
+document.getElementById("invoiceResult").innerHTML =
+"<p>Please enter all invoice information.</p>";
+
+return;
+
+}
+
+let total = quantity * price;
+
+document.getElementById("invoiceResult").innerHTML = `
+
+<div class="invoice">
+
+<h3>C.W.B Invoice</h3>
+
+<p><strong>Customer:</strong> ${customer}</p>
+
+<p><strong>Product:</strong> ${product}</p>
+
+<p><strong>Quantity:</strong> ${quantity}</p>
+
+<p><strong>Price:</strong> ${price}</p>
+
+<p><strong>Total:</strong> ${total}</p>
+
+<p><strong>Status:</strong> Created</p>
+
+</div>
+
+`;
+
+document.getElementById("salesTotal").textContent = total;
+
 }
 
 </script>
