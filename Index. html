@@ -3,314 +3,241 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>C.W.B Business Management System</title>
-
+<meta name="theme-color" content="#111827">
+<title>C.W.B System</title>
 <style>
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f3f4f6;
-  color: #111827;
-}
-
-header {
-  background: #111827;
-  color: white;
-  text-align: center;
-  padding: 22px;
-}
-
-header h1 { margin: 0; }
-
-.container {
-  max-width: 1100px;
-  margin: auto;
-  padding: 20px;
-}
-
-.welcome, .card, #message {
-  background: white;
-  border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 3px 12px rgba(0,0,0,.08);
-}
-
-.cards, .modules {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 15px;
-}
-
-.card strong {
-  display: block;
-  font-size: 28px;
-  margin-top: 8px;
-}
-
-.module {
-  background: white;
-  border: 0;
-  border-radius: 15px;
-  padding: 25px 10px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 3px 12px rgba(0,0,0,.08);
-}
-
-.icon {
-  display: block;
-  font-size: 32px;
-  margin-bottom: 10px;
-}
-
-#message { display: none; }
-
-input {
-  width: 100%;
-  padding: 12px;
-  margin: 7px 0;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
-}
-
-button.action {
-  padding: 12px 18px;
-  margin-top: 10px;
-  border: 0;
-  border-radius: 8px;
-  background: #111827;
-  color: white;
-  font-weight: bold;
-}
-
-.invoice {
-  margin-top: 20px;
-  padding: 18px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-}
-
-footer {
-  text-align: center;
-  padding: 30px;
-}
-
-@media (max-width: 700px) {
-  .cards, .modules {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 400px) {
-  .cards, .modules {
-    grid-template-columns: 1fr;
-  }
-}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
+header{background:linear-gradient(135deg,#111827,#b91c1c);color:white;padding:25px 18px;text-align:center}
+header h1{font-size:30px}
+header p{margin-top:8px}
+.container{max-width:1100px;margin:auto;padding:20px}
+.language{text-align:right;margin-bottom:15px}
+select,input,button,textarea{width:100%;padding:12px;margin:6px 0;border-radius:8px;border:1px solid #d1d5db}
+.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px}
+.card{background:white;border-radius:14px;padding:20px;text-align:center;box-shadow:0 3px 12px #0002;cursor:pointer}
+.card .icon{font-size:32px}
+.card h3{margin-top:10px}
+.section{background:white;margin-top:20px;padding:20px;border-radius:14px;box-shadow:0 3px 12px #0001}
+.section h2{margin-bottom:15px;color:#b91c1c}
+button{background:#b91c1c;color:white;border:0;font-weight:bold}
+.hidden{display:none}
+.item{padding:8px 0;border-bottom:1px solid #ddd}
+footer{text-align:center;padding:25px;margin-top:30px;background:#111827;color:white}
 </style>
 </head>
 
 <body>
 
 <header>
-<h1>C. W. B</h1>
+<h1>🐪 C. W. B</h1>
 <p>Camel Work and Business Company</p>
-<p><strong>Better Quality is our priority</strong></p>
+<p><b>Better Quality is our priority 👍</b></p>
 </header>
 
 <div class="container">
 
-<section class="welcome">
-<h2>Welcome to C.W.B</h2>
-<p>Your connected business management system.</p>
-</section>
-
-<section class="cards">
-
-<div class="card">
-Sales
-<strong id="salesTotal">0</strong>
+<div class="language">
+<select id="language">
+<option>English</option>
+<option>Français</option>
+<option>Swahili</option>
+</select>
 </div>
 
-<div class="card">
-Expenses
-<strong>0</strong>
+<div class="dashboard">
+<div class="card" onclick="show('sales')"><div class="icon">🛒</div><h3>Sales</h3></div>
+<div class="card" onclick="show('purchases')"><div class="icon">📦</div><h3>Purchasing</h3></div>
+<div class="card" onclick="show('accounting')"><div class="icon">💰</div><h3>Accounting</h3></div>
+<div class="card" onclick="show('payroll')"><div class="icon">👷</div><h3>Payroll</h3></div>
+<div class="card" onclick="show('partners')"><div class="icon">🤝</div><h3>Partners</h3></div>
+<div class="card" onclick="show('products')"><div class="icon">🎨</div><h3>Products</h3></div>
+<div class="card" onclick="show('planner')"><div class="icon">📊</div><h3>Business Planner</h3></div>
+<div class="card" onclick="show('settings')"><div class="icon">⚙️</div><h3>Settings</h3></div>
 </div>
 
-<div class="card">
-Employees
-<strong>0</strong>
+<div id="sales" class="section hidden">
+<h2>🛒 Sales</h2>
+<input id="saleProduct" placeholder="Product name">
+<input id="saleAmount" type="number" placeholder="Amount">
+<button onclick="addSale()">Add Sale</button>
+<div id="salesList"></div>
 </div>
 
-<div class="card">
-Partners
-<strong>0</strong>
+<div id="purchases" class="section hidden">
+<h2>📦 Purchasing & Suppliers</h2>
+<input id="purchaseProduct" placeholder="Product / supplier">
+<input id="purchaseAmount" type="number" placeholder="Amount">
+<button onclick="addPurchase()">Add Purchase</button>
+<div id="purchaseList"></div>
 </div>
 
-</section>
-
+<div id="accounting" class="section hidden">
+<h2>💰 Accounting</h2>
+<p>Total Sales:</p>
+<h3 id="totalSales">0</h3>
 <br>
+<p>Total Purchases:</p>
+<h3 id="totalPurchases">0</h3>
+<br>
+<p>Balance:</p>
+<h3 id="balance">0</h3>
+</div>
 
-<section class="modules">
+<div id="payroll" class="section hidden">
+<h2>👷 Payroll</h2>
+<input id="worker" placeholder="Worker name">
+<input id="salary" type="number" placeholder="Salary">
+<button onclick="addWorker()">Add Worker</button>
+<div id="workerList"></div>
+</div>
 
-<button class="module" onclick="showModule('Accounting')">
-<span class="icon">📊</span>
-Accounting
-</button>
+<div id="partners" class="section hidden">
+<h2>🤝 Partners</h2>
+<input id="partner" placeholder="Partner name">
+<input id="partnerContact" placeholder="Contact">
+<button onclick="addPartner()">Add Partner</button>
+<div id="partnerList"></div>
+</div>
 
-<button class="module" onclick="showModule('Payroll')">
-<span class="icon">👥</span>
-Payroll
-</button>
+<div id="products" class="section hidden">
+<h2>🎨 C.W.B Products</h2>
+<p>Automotive Paint</p>
+<p>Vehicle Finishing</p>
+<p>Spare Parts</p>
+</div>
 
-<button class="module" onclick="showModule('Inventory')">
-<span class="icon">📦</span>
-Inventory
-</button>
+<div id="planner" class="section hidden">
+<h2>📊 Business Planner</h2>
+<textarea id="plan" rows="6" placeholder="Write your business plan or goals here..."></textarea>
+<button onclick="savePlan()">Save Plan</button>
+<p id="savedPlan"></p>
+</div>
 
-<button class="module" onclick="showModule('Sales & Invoices')">
-<span class="icon">🧾</span>
-Sales & Invoices
-</button>
-
-<button class="module" onclick="showModule('Partners')">
-<span class="icon">🤝</span>
-Partners
-</button>
-
-<button class="module" onclick="showModule('Website')">
-<span class="icon">🌐</span>
-Website
-</button>
-
-<button class="module" onclick="showModule('Social Connections')">
-<span class="icon">📱</span>
-Social Connections
-</button>
-
-<button class="module" onclick="showModule('Reports')">
-<span class="icon">📈</span>
-Reports
-</button>
-
-</section>
-
-<section id="message">
-
-<h2 id="moduleTitle"></h2>
-
-<div id="moduleContent"></div>
-
-</section>
+<div id="settings" class="section hidden">
+<h2>⚙️ Settings</h2>
+<p>Company: Camel Work and Business Company</p>
+<p>Short name: C.W.B</p>
+<p>CEO: Nshimirimana Ibrahim</p>
+<p>Email: Nshimirimanaibrahim3@gmail.com</p>
+</div>
 
 </div>
 
 <footer>
-C.W.B Business Management System
+<p>© 2026 C. W. B — Camel Work and Business Company</p>
+<p>Better Quality is our priority 👍</p>
 </footer>
 
 <script>
+let sales=JSON.parse(localStorage.getItem("cwb_sales")||"[]");
+let purchases=JSON.parse(localStorage.getItem("cwb_purchases")||"[]");
+let workers=JSON.parse(localStorage.getItem("cwb_workers")||"[]");
+let partners=JSON.parse(localStorage.getItem("cwb_partners")||"[]");
 
-function showModule(name) {
-
-document.getElementById("message").style.display = "block";
-
-document.getElementById("moduleTitle").textContent = name;
-
-let content = document.getElementById("moduleContent");
-
-if (name === "Sales & Invoices") {
-
-content.innerHTML = `
-
-<h3>Create Sales Invoice</h3>
-
-<input id="customer" placeholder="Customer name">
-
-<input id="product" placeholder="Product">
-
-<input id="quantity" type="number" placeholder="Quantity">
-
-<input id="price" type="number" placeholder="Price">
-
-<button class="action" onclick="createInvoice()">
-Create Invoice
-</button>
-
-<div id="invoiceResult"></div>
-
-`;
-
-} else {
-
-content.innerHTML = `
-
-<p>
-This C.W.B module is ready to be developed and connected to
-the complete business management system.
-</p>
-
-`;
-
+function saveData(){
+localStorage.setItem("cwb_sales",JSON.stringify(sales));
+localStorage.setItem("cwb_purchases",JSON.stringify(purchases));
+localStorage.setItem("cwb_workers",JSON.stringify(workers));
+localStorage.setItem("cwb_partners",JSON.stringify(partners));
 }
 
-document.getElementById("message").scrollIntoView({
-behavior: "smooth"
-});
-
+function show(id){
+document.querySelectorAll(".section").forEach(x=>x.classList.add("hidden"));
+document.getElementById(id).classList.remove("hidden");
 }
 
-function createInvoice() {
-
-let customer = document.getElementById("customer").value;
-
-let product = document.getElementById("product").value;
-
-let quantity = Number(document.getElementById("quantity").value);
-
-let price = Number(document.getElementById("price").value);
-
-if (!customer || !product || quantity <= 0 || price <= 0) {
-
-document.getElementById("invoiceResult").innerHTML =
-"<p>Please enter all invoice information.</p>";
-
-return;
-
+function addSale(){
+let product=document.getElementById("saleProduct").value;
+let amount=Number(document.getElementById("saleAmount").value);
+if(!product||!amount){alert("Please enter product and amount.");return}
+sales.push({product,amount});
+saveData();
+document.getElementById("saleProduct").value="";
+document.getElementById("saleAmount").value="";
+displaySales();
+updateAccounting();
 }
 
-let total = quantity * price;
-
-document.getElementById("invoiceResult").innerHTML = `
-
-<div class="invoice">
-
-<h3>C.W.B Invoice</h3>
-
-<p><strong>Customer:</strong> ${customer}</p>
-
-<p><strong>Product:</strong> ${product}</p>
-
-<p><strong>Quantity:</strong> ${quantity}</p>
-
-<p><strong>Price:</strong> ${price}</p>
-
-<p><strong>Total:</strong> ${total}</p>
-
-<p><strong>Status:</strong> Created</p>
-
-</div>
-
-`;
-
-document.getElementById("salesTotal").textContent = total;
-
+function displaySales(){
+document.getElementById("salesList").innerHTML=sales.map(s=>
+`<div class="item">🛒 ${s.product} — ${s.amount}</div>`).join("");
 }
 
+function addPurchase(){
+let product=document.getElementById("purchaseProduct").value;
+let amount=Number(document.getElementById("purchaseAmount").value);
+if(!product||!amount){alert("Please enter product and amount.");return}
+purchases.push({product,amount});
+saveData();
+document.getElementById("purchaseProduct").value="";
+document.getElementById("purchaseAmount").value="";
+displayPurchases();
+updateAccounting();
+}
+
+function displayPurchases(){
+document.getElementById("purchaseList").innerHTML=purchases.map(p=>
+`<div class="item">📦 ${p.product} — ${p.amount}</div>`).join("");
+}
+
+function updateAccounting(){
+let s=sales.reduce((a,x)=>a+x.amount,0);
+let p=purchases.reduce((a,x)=>a+x.amount,0);
+document.getElementById("totalSales").innerText=s;
+document.getElementById("totalPurchases").innerText=p;
+document.getElementById("balance").innerText=s-p;
+}
+
+function addWorker(){
+let name=document.getElementById("worker").value;
+let salary=Number(document.getElementById("salary").value);
+if(!name||!salary){alert("Please enter worker and salary.");return}
+workers.push({name,salary});
+saveData();
+document.getElementById("worker").value="";
+document.getElementById("salary").value="";
+displayWorkers();
+}
+
+function displayWorkers(){
+document.getElementById("workerList").innerHTML=workers.map(w=>
+`<div class="item">👷 ${w.name} — Salary: ${w.salary}</div>`).join("");
+}
+
+function addPartner(){
+let name=document.getElementById("partner").value;
+let contact=document.getElementById("partnerContact").value;
+if(!name){alert("Please enter partner name.");return}
+partners.push({name,contact});
+saveData();
+document.getElementById("partner").value="";
+document.getElementById("partnerContact").value="";
+displayPartners();
+}
+
+function displayPartners(){
+document.getElementById("partnerList").innerHTML=partners.map(p=>
+`<div class="item">🤝 ${p.name} — ${p.contact}</div>`).join("");
+}
+
+function savePlan(){
+let plan=document.getElementById("plan").value;
+localStorage.setItem("cwb_plan",plan);
+document.getElementById("savedPlan").innerText="Business plan saved.";
+}
+
+function loadPlan(){
+let plan=localStorage.getItem("cwb_plan")||"";
+document.getElementById("plan").value=plan;
+}
+
+displaySales();
+displayPurchases();
+displayWorkers();
+displayPartners();
+updateAccounting();
+loadPlan();
 </script>
 
 </body>
