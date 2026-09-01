@@ -262,5 +262,8 @@ updateAccounting();
 
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+sb_publishable_1FmSQ0jE7mSaeiujYneSSg_9LkRPbzX
+
 </body>
 </html>
