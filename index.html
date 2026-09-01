@@ -250,7 +250,10 @@ let sales = [];
 let purchases = [];
 let workers = [];
 let partners = [];
-
+sales = JSON.parse(localStorage.getItem('cwb_sales')) || [];
+purchases = JSON.parse(localStorage.getItem('cwb_purchases')) || [];
+workers = JSON.parse(localStorage.getItem('cwb_workers')) || [];
+partners = JSON.parse(localStorage.getItem('cwb_partners')) || [];
 function showSection(id){
   document.querySelectorAll('.section')
     .forEach(section => section.classList.add('hidden'));
@@ -273,7 +276,7 @@ function addSale(){
   displaySales();
   updateAccounting();
 }
-
+localStorage.setItem('cwb_sales', JSON.stringify(sales));
 function displaySales(){
   document.getElementById('salesList').innerHTML =
     sales.map((s,i)=>
@@ -296,7 +299,7 @@ function addPurchase(){
   displayPurchases();
   updateAccounting();
 }
-
+localStorage.setItem('cwb_purchases', JSON.stringify(purchases));
 function displayPurchases(){
   document.getElementById('purchaseList').innerHTML =
     purchases.map(p=>
@@ -323,7 +326,7 @@ function addWorker(){
   }
 
   workers.push({name,salary});
-
+localStorage.setItem('cwb_workers', JSON.stringify(workers));
   document.getElementById('worker').value='';
   document.getElementById('salary').value='';
 
@@ -343,7 +346,7 @@ function addPartner(){
   }
 
   partners.push({name,contact});
-
+localStorage.setItem('cwb_partners', JSON.stringify(partners));
   document.getElementById('partner').value='';
   document.getElementById('partnerContact').value='';
 
