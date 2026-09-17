@@ -1,22 +1,28 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#111827">
-<title>C.W.B System</title><style>
+<title>C.W.B System</title>
+
+<style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
   font-family:Arial,sans-serif;
   background:#f3f4f6;
   color:#111827;
 }
+
 header{
   background:linear-gradient(135deg,#111827,#b91c1c);
   color:white;
   padding:22px 16px;
   text-align:center;
 }
+
 header h1{margin:0;font-size:25px}
 header p{margin:7px 0 0;font-size:14px}
 
@@ -59,6 +65,7 @@ header p{margin:7px 0 0;font-size:14px}
   padding:15px;
   text-align:center;
 }
+
 .stat strong{
   display:block;
   font-size:21px;
@@ -121,7 +128,7 @@ textarea{
 table{
   width:100%;
   border-collapse:collapse;
-  min-width:1000px;
+  min-width:1500px;
 }
 
 th,td{
@@ -145,407 +152,731 @@ th{
   display:none;
 }
 
+.error{
+  background:#fef2f2;
+  color:#991b1b;
+}
+
 .footer{
   text-align:center;
   color:#6b7280;
   font-size:12px;
   padding:20px;
 }
-</style></head><body><header>
+</style>
+</head>
+
+<body>
+
+<header>
   <h1>C.W.B System</h1>
   <p>Camel Work and Business company</p>
   <p><b>Better Quality is our priority</b></p>
-</header><div class="container">  <div class="card">
-    <h2>Business Dashboard</h2><div class="dashboard">
-  <button class="module" onclick="showModule('accounting')">Accounting</button>
-  <button class="module" onclick="showModule('payroll')">Payroll</button>
-  <button class="module" onclick="showModule('inventory')">Inventory</button>
-  <button class="module" onclick="showModule('sales')">Sales & Invoice</button>
-  <button class="module" onclick="showModule('partners')">Partners</button>
-  <button class="module" onclick="showModule('garage')">Garage Activities</button>
-  <button class="module" onclick="showModule('website')">Website</button>
-  <button class="module" onclick="showModule('social')">Social Connections</button>
-  <button class="module" onclick="showModule('reports')">Reports</button>
+</header>
+
+<div class="container">
+
+<!-- DASHBOARD -->
+<div class="card">
+  <h2>Business Dashboard</h2>
+
+  <div class="dashboard">
+    <button class="module" onclick="showModule('accounting')">Accounting</button>
+    <button class="module" onclick="showModule('payroll')">Payroll</button>
+    <button class="module" onclick="showModule('inventory')">Inventory</button>
+    <button class="module" onclick="showModule('sales')">Sales & Invoice</button>
+    <button class="module" onclick="showModule('partners')">Partners</button>
+    <button class="module" onclick="showModule('garage')">Garage Activities</button>
+    <button class="module" onclick="showModule('website')">Website</button>
+    <button class="module" onclick="showModule('social')">Social Connections</button>
+    <button class="module" onclick="showModule('reports')">Reports</button>
+  </div>
 </div>
 
-  </div>  <div class="card">
-    <div class="dashboard">
-      <div class="stat">
-        Total Sales
-        <strong id="totalSales">0</strong>
-      </div>
-      <div class="stat">
-        Total Purchases
-        <strong id="totalPurchases">0</strong>
-      </div>
-      <div class="stat">
-        Balance
-        <strong id="balance">0</strong>
-      </div>
-    </div>
-  </div>  <!-- GARAGE MODULE -->  <div id="garage" class="card hidden"><h2>Garage Activities</h2>
-<p>Manage vehicle repairs, customers, mechanics, costs and payments.</p>
+<!-- STATS -->
+<div class="card">
+  <div class="dashboard">
 
-<form id="garageForm">
-
-  <div class="form-grid">
-
-    <div>
-      <label>Customer Name</label>
-      <input id="customer_name" type="text">
+    <div class="stat">
+      Total Sales
+      <strong id="totalSales">0</strong>
     </div>
 
-    <div>
-      <label>Customer Phone</label>
-      <input id="customer_phone" type="text">
+    <div class="stat">
+      Total Purchases
+      <strong id="totalPurchases">0</strong>
     </div>
 
-    <div>
-      <label>Customer Address</label>
-      <input id="customer_address" type="text">
-    </div>
-
-    <div>
-      <label>Vehicle Name</label>
-      <input id="vehicle_name" type="text">
-    </div>
-
-    <div>
-      <label>Vehicle Model</label>
-      <input id="vehicle_model" type="text">
-    </div>
-
-    <div>
-      <label>Vehicle Color</label>
-      <input id="vehicle_color" type="text">
-    </div>
-
-    <div>
-      <label>Mechanic Name</label>
-      <input id="mechanic_name" type="text">
-    </div>
-
-    <div>
-      <label>Job Status</label>
-      <select id="job_status">
-        <option>Pending</option>
-        <option>In Progress</option>
-        <option>Completed</option>
-        <option>Cancelled</option>
-      </select>
-    </div>
-
-    <div>
-      <label>Payment Status</label>
-      <select id="payment_status">
-        <option>Unpaid</option>
-        <option>Partially Paid</option>
-        <option>Paid</option>
-      </select>
-    </div>
-
-    <div>
-      <label>Job Cost</label>
-      <input id="job_cost" type="number" step="0.01">
-    </div>
-
-    <div>
-      <label>Parts Cost</label>
-      <input id="parts_cost" type="number" step="0.01">
-    </div>
-
-    <div>
-      <label>Service Date</label>
-      <input id="service_date" type="date">
-    </div>
-
-    <div>
-      <label>Estimated Completion Date</label>
-      <input id="estimated_completion_date" type="date">
-    </div>
-
-    <div>
-      <label>Completion Date</label>
-      <input id="completion_date" type="date">
-    </div>
-
-    <div class="full">
-      <label>Repair Description</label>
-      <textarea id="repair_description"
-        placeholder="Describe the repair or service..."></textarea>
-    </div>
-
-    <div class="full">
-      <label>Notes</label>
-      <textarea id="notes"
-        placeholder="Additional notes..."></textarea>
+    <div class="stat">
+      Balance
+      <strong id="balance">0</strong>
     </div>
 
   </div>
+</div>
 
-  <button class="btn" type="submit">Save Garage Activity</button>
-  <button class="btn secondary" type="button" onclick="clearGarageForm()">Clear</button>
 
-  <div id="garageMessage" class="message"></div>
+<!-- GARAGE MODULE -->
+<div id="garage" class="card hidden">
 
-</form>
+<h2>Garage Activities</h2>
 
-<div class="table-wrap">
+<p>
+Manage vehicle repairs, customers, mechanics, costs and payments.
+</p>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Customer</th>
-        <th>Vehicle</th>
-        <th>Model</th>
-        <th>Repair</th>
-        <th>Status</th>
-        <th>Mechanic</th>
-        <th>Job Cost</th>
-        <th>Payment</th>
-        <th>Phone</th>
-        <th>Color</th>
-        <th>Service Date</th>
-        <th>Completion</th>
-        <th>Notes</th>
-        <th>Address</th>
-        <th>Estimated Completion</th>
-      </tr>
-    </thead>
+<form id="garageForm">
 
-    <tbody id="garageTableBody"></tbody>
+<div class="form-grid">
 
-  </table>
+<div>
+<label>Job Number</label>
+<input id="job_number" type="text">
+</div>
+
+<div>
+<label>Customer Name</label>
+<input id="customer_name" type="text" required>
+</div>
+
+<div>
+<label>Customer Phone</label>
+<input id="customer_phone" type="text">
+</div>
+
+<div>
+<label>Customer Address</label>
+<input id="customer_address" type="text">
+</div>
+
+<div>
+<label>Vehicle Name</label>
+<input id="vehicle_name" type="text">
+</div>
+
+<div>
+<label>Vehicle Model</label>
+<input id="vehicle_model" type="text">
+</div>
+
+<div>
+<label>Vehicle Color</label>
+<input id="vehicle_color" type="text">
+</div>
+
+<div>
+<label>Mechanic Name</label>
+<input id="mechanic_name" type="text">
+</div>
+
+<div>
+<label>Job Status</label>
+<select id="job_status">
+<option>Pending</option>
+<option>In Progress</option>
+<option>Completed</option>
+<option>Cancelled</option>
+</select>
+</div>
+
+<div>
+<label>Payment Status</label>
+<select id="payment_status">
+<option>Unpaid</option>
+<option>Partially Paid</option>
+<option>Paid</option>
+</select>
+</div>
+
+<div>
+<label>Payment Method</label>
+<select id="payment_method">
+<option>Cash</option>
+<option>Bank</option>
+<option>Mobile Money</option>
+<option>Card</option>
+<option>Other</option>
+</select>
+</div>
+
+<div>
+<label>Invoice Number</label>
+<input id="invoice_number" type="text">
+</div>
+
+<div>
+<label>Job Cost</label>
+<input id="job_cost" type="number" step="0.01">
+</div>
+
+<div>
+<label>Labor Cost</label>
+<input id="labor_cost" type="number" step="0.01">
+</div>
+
+<div>
+<label>Parts Cost</label>
+<input id="parts_cost" type="number" step="0.01">
+</div>
+
+<div>
+<label>Warranty</label>
+<select id="warranty">
+<option>No</option>
+<option>Yes</option>
+</select>
+</div>
+
+<div>
+<label>Pick Up Status</label>
+<select id="pickup_status">
+<option>Not Ready</option>
+<option>Ready</option>
+<option>Picked Up</option>
+</select>
+</div>
+
+<div>
+<label>Service Date</label>
+<input id="service_date" type="date">
+</div>
+
+<div>
+<label>Estimated Completion Date</label>
+<input id="estimated_completion_date" type="date">
+</div>
+
+<div>
+<label>Completion Date</label>
+<input id="completion_date" type="date">
+</div>
+
+<div>
+<label>Next Service Date</label>
+<input id="next_service_date" type="date">
+</div>
+
+<div class="full">
+<label>Repair Description</label>
+<textarea id="repair_description"
+placeholder="Describe the repair or service..."></textarea>
+</div>
+
+<div class="full">
+<label>Notes</label>
+<textarea id="notes"
+placeholder="Additional notes..."></textarea>
+</div>
 
 </div>
 
-  </div>  <!-- OTHER MODULES -->  <div id="accounting" class="card hidden">
-    <h2>Accounting</h2>
-    <p>Accounting module ready for development.</p>
-  </div>  <div id="payroll" class="card hidden">
-    <h2>Payroll</h2>
-    <p>Worker salaries and payroll management.</p>
-  </div>  <div id="inventory" class="card hidden">
-    <h2>Inventory</h2>
-    <p>Products and stock management.</p>
-  </div>  <div id="sales" class="card hidden">
-    <h2>Sales & Invoice</h2>
-    <p>Sales and customer invoices.</p>
-  </div>  <div id="partners" class="card hidden">
-    <h2>Partners</h2>
-    <p>Business partners management.</p>
-  </div>  <div id="website" class="card hidden">
-    <h2>Website</h2>
-    <p>C.W.B company website connection.</p>
-  </div>  <div id="social" class="card hidden">
-    <h2>Social Connections</h2>
-    <p>Facebook, Instagram and WhatsApp connections.</p>
-  </div>  <div id="reports" class="card hidden">
-    <h2>Reports</h2>
-    <p>Business reports and summaries.</p>
-  </div></div><div class="footer">
-  C.W.B — Camel Work and Business company
-</div><script>
+<button class="btn" type="submit">
+Save Garage Activity
+</button>
+
+<button class="btn secondary" type="button"
+onclick="clearGarageForm()">
+Clear
+</button>
+
+<div id="garageMessage" class="message"></div>
+
+</form>
+
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+<tr>
+<th>Job Number</th>
+<th>Customer</th>
+<th>Vehicle</th>
+<th>Model</th>
+<th>Repair</th>
+<th>Status</th>
+<th>Mechanic</th>
+<th>Job Cost</th>
+<th>Labor Cost</th>
+<th>Parts Cost</th>
+<th>Payment</th>
+<th>Payment Method</th>
+<th>Phone</th>
+<th>Color</th>
+<th>Warranty</th>
+<th>Pick Up</th>
+<th>Service Date</th>
+<th>Completion</th>
+<th>Next Service</th>
+<th>Invoice</th>
+<th>Notes</th>
+<th>Address</th>
+<th>Estimated Completion</th>
+</tr>
+</thead>
+
+<tbody id="garageTableBody"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+<!-- OTHER MODULES -->
+
+<div id="accounting" class="card hidden">
+<h2>Accounting</h2>
+<p>Accounting module ready for development.</p>
+</div>
+
+<div id="payroll" class="card hidden">
+<h2>Payroll</h2>
+<p>Worker salaries and payroll management.</p>
+</div>
+
+<div id="inventory" class="card hidden">
+<h2>Inventory</h2>
+<p>Products and stock management.</p>
+</div>
+
+<div id="sales" class="card hidden">
+<h2>Sales & Invoice</h2>
+<p>Sales and customer invoices.</p>
+</div>
+
+<div id="partners" class="card hidden">
+<h2>Partners</h2>
+<p>Business partners management.</p>
+</div>
+
+<div id="website" class="card hidden">
+<h2>Website</h2>
+<p>C.W.B company website connection.</p>
+</div>
+
+<div id="social" class="card hidden">
+<h2>Social Connections</h2>
+<p>Facebook, Instagram and WhatsApp connections.</p>
+</div>
+
+<div id="reports" class="card hidden">
+<h2>Reports</h2>
+<p>Business reports and summaries.</p>
+</div>
+
+</div>
+
+
+<div class="footer">
+C.W.B — Camel Work and Business company
+</div>
+
+
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+/* =====================================================
+   SUPABASE CONNECTION
+   ===================================================== */
+
+const SUPABASE_URL =
+'https://wicilnypkcumworxnxqv.supabase.co';
+
+/*
+IMPORTANT:
+Keep your existing Supabase PUBLISHABLE KEY here.
+Do NOT use the service_role key.
+*/
+
+const SUPABASE_KEY =
+sb_publishable_1FmSQ0jE7mSaeiujYneSSg_9LkRPbzX
+
+const supabaseClient =
+supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+
+/* =====================================================
+   MODULE NAVIGATION
+   ===================================================== */
 
 function showModule(moduleId){
 
-  const modules = [
-    'accounting',
-    'payroll',
-    'inventory',
-    'sales',
-    'partners',
-    'garage',
-    'website',
-    'social',
-    'reports'
-  ];
+const modules = [
+'accounting',
+'payroll',
+'inventory',
+'sales',
+'partners',
+'garage',
+'website',
+'social',
+'reports'
+];
 
-  modules.forEach(id=>{
-    document.getElementById(id).classList.add('hidden');
-  });
+modules.forEach(id=>{
+const element=document.getElementById(id);
+if(element){
+element.classList.add('hidden');
+}
+});
 
-  document.getElementById(moduleId).classList.remove('hidden');
+const selected=document.getElementById(moduleId);
 
-  window.scrollTo({
-    top:document.getElementById(moduleId).offsetTop - 10,
-    behavior:'smooth'
-  });
+if(selected){
+selected.classList.remove('hidden');
+
+window.scrollTo({
+top:selected.offsetTop-10,
+behavior:'smooth'
+});
 }
 
-function getGarageActivities(){
-  return JSON.parse(
-    localStorage.getItem('cwb_garage_jobs') || '[]'
-  );
 }
 
-function saveGarageActivities(data){
-  localStorage.setItem(
-    'cwb_garage_jobs',
-    JSON.stringify(data)
-  );
+
+/* =====================================================
+   MESSAGE
+   ===================================================== */
+
+function showGarageMessage(text,isError=false){
+
+const message=document.getElementById('garageMessage');
+
+message.textContent=text;
+
+message.classList.remove('error');
+
+if(isError){
+message.classList.add('error');
 }
 
-function displayGarageActivities(){
+message.style.display='block';
 
-  const body = document.getElementById('garageTableBody');
+setTimeout(()=>{
+message.style.display='none';
+},4000);
 
-  const jobs = getGarageActivities();
-
-  body.innerHTML = '';
-
-  jobs.forEach(job=>{
-
-    const row = document.createElement('tr');
-
-    const values = [
-      job.customer_name,
-      job.vehicle_name,
-      job.vehicle_model,
-      job.repair_description,
-      job.job_status,
-      job.mechanic_name,
-      job.job_cost,
-      job.payment_status,
-      job.customer_phone,
-      job.vehicle_color,
-      job.service_date,
-      job.completion_date,
-      job.notes,
-      job.customer_address,
-      job.estimated_completion_date
-    ];
-
-    values.forEach(value=>{
-      const cell = document.createElement('td');
-      cell.textContent = value || '';
-      row.appendChild(cell);
-    });
-
-    body.appendChild(row);
-
-  });
 }
 
-document.getElementById('garageForm').addEventListener(
-  'submit',
-  function(event){
 
-    event.preventDefault();
+/* =====================================================
+   SAVE GARAGE ACTIVITY TO SUPABASE
+   ===================================================== */
 
-    const job = {
+document.getElementById('garageForm')
+.addEventListener('submit',async function(event){
 
-      customer_name:
-        document.getElementById('customer_name').value,
+event.preventDefault();
 
-      customer_phone:
-        document.getElementById('customer_phone').value,
+const job={
 
-      customer_address:
-        document.getElementById('customer_address').value,
+"Job_number":
+document.getElementById('job_number').value || null,
 
-      vehicle_name:
-        document.getElementById('vehicle_name').value,
+"Customer name":
+document.getElementById('customer_name').value || null,
 
-      vehicle_model:
-        document.getElementById('vehicle_model').value,
+"Customer_phone":
+document.getElementById('customer_phone').value || null,
 
-      vehicle_color:
-        document.getElementById('vehicle_color').value,
+"customer_adress":
+document.getElementById('customer_address').value || null,
 
-      mechanic_name:
-        document.getElementById('mechanic_name').value,
+"Vehicle_name":
+document.getElementById('vehicle_name').value || null,
 
-      job_status:
-        document.getElementById('job_status').value,
+"Vehicle_model":
+document.getElementById('vehicle_model').value || null,
 
-      payment_status:
-        document.getElementById('payment_status').value,
+"Vehicle_color":
+document.getElementById('vehicle_color').value || null,
 
-      job_cost:
-        document.getElementById('job_cost').value,
+"machanic_name":
+document.getElementById('mechanic_name').value || null,
 
-      parts_cost:
-        document.getElementById('parts_cost').value,
+"Job status":
+document.getElementById('job_status').value || null,
 
-      service_date:
-        document.getElementById('service_date').value,
+"Payment_status":
+document.getElementById('payment_status').value || null,
 
-      estimated_completion_date:
-        document.getElementById('estimated_completion_date').value,
+"Payment_method":
+document.getElementById('payment_method').value || null,
 
-      completion_date:
-        document.getElementById('completion_date').value,
+"Invoice_number":
+document.getElementById('invoice_number').value || null,
 
-      repair_description:
-        document.getElementById('repair_description').value,
+"Job_cost":
+document.getElementById('job_cost').value
+? Number(document.getElementById('job_cost').value)
+: null,
 
-      notes:
-        document.getElementById('notes').value
+"labor_cost":
+document.getElementById('labor_cost').value
+? Number(document.getElementById('labor_cost').value)
+: null,
 
-    };
+"Parts_coast":
+document.getElementById('parts_cost').value
+? Number(document.getElementById('parts_cost').value)
+: null,
 
-    const jobs = getGarageActivities();
+"Warranty":
+document.getElementById('warranty').value || null,
 
-    jobs.push(job);
+"pik_up_status":
+document.getElementById('pickup_status').value || null,
 
-    saveGarageActivities(jobs);
+"service_date":
+document.getElementById('service_date').value || null,
 
-    displayGarageActivities();
+"estimated_completion_date":
+document.getElementById('estimated_completion_date').value || null,
 
-    const message =
-      document.getElementById('garageMessage');
+"completion_date":
+document.getElementById('completion_date').value || null,
 
-    message.textContent =
-      'Garage activity saved successfully.';
+"next_service _date":
+document.getElementById('next_service_date').value || null,
 
-    message.style.display = 'block';
+"repaire_descrption":
+document.getElementById('repair_description').value || null,
 
-    setTimeout(()=>{
-      message.style.display = 'none';
-    },3000);
+"notes":
+document.getElementById('notes').value || null
 
-    this.reset();
+};
 
-  }
+
+/* Save */
+
+const {data,error}=await supabaseClient
+.from('Garage_jobs')
+.insert([job])
+.select();
+
+
+if(error){
+
+console.error(error);
+
+showGarageMessage(
+'Error saving Garage Activity: '+error.message,
+true
 );
 
+return;
+}
+
+
+/* Success */
+
+showGarageMessage(
+'Garage activity saved successfully to Supabase.'
+);
+
+this.reset();
+
+loadGarageActivities();
+
+});
+
+
+/* =====================================================
+   LOAD GARAGE ACTIVITIES FROM SUPABASE
+   ===================================================== */
+
+async function loadGarageActivities(){
+
+const {data,error}=await supabaseClient
+.from('Garage_jobs')
+.select('*')
+.order('id',{ascending:false});
+
+
+if(error){
+
+console.error(error);
+
+showGarageMessage(
+'Error loading Garage Activities: '+error.message,
+true
+);
+
+return;
+}
+
+
+const body=document.getElementById('garageTableBody');
+
+body.innerHTML='';
+
+
+data.forEach(job=>{
+
+const row=document.createElement('tr');
+
+const values=[
+
+job["Job_number"],
+
+job["Customer name"],
+
+job["Vehicle_name"],
+
+job["Vehicle_model"],
+
+job["repaire_descrption"],
+
+job["Job status"],
+
+job["machanic_name"],
+
+job["Job_cost"],
+
+job["labor_cost"],
+
+job["Parts_coast"],
+
+job["Payment_status"],
+
+job["Payment_method"],
+
+job["Customer_phone"],
+
+job["Vehicle_color"],
+
+job["Warranty"],
+
+job["pik_up_status"],
+
+job["service_date"],
+
+job["completion_date"],
+
+job["next_service _date"],
+
+job["Invoice_number"],
+
+job["notes"],
+
+job["customer_adress"],
+
+job["estimated_completion_date"]
+
+];
+
+
+values.forEach(value=>{
+
+const cell=document.createElement('td');
+
+cell.textContent =
+value === null || value === undefined
+? ''
+: value;
+
+row.appendChild(cell);
+
+});
+
+body.appendChild(row);
+
+});
+
+}
+
+
+/* =====================================================
+   CLEAR FORM
+   ===================================================== */
+
 function clearGarageForm(){
-  document.getElementById('garageForm').reset();
+
+document.getElementById('garageForm').reset();
+
 }
 
-displayGarageActivities();
 
-function updateDashboard(){
+/* =====================================================
+   DASHBOARD
+   ===================================================== */
 
-  const sales =
-    JSON.parse(localStorage.getItem('cwb_sales') || '[]');
+async function updateDashboard(){
 
-  const purchases =
-    JSON.parse(localStorage.getItem('cwb_purchases') || '[]');
+const {data:sales}=await supabaseClient
+.from('sales')
+.select('*');
 
-  let totalSales = 0;
-  let totalPurchases = 0;
+const {data:purchases}=await supabaseClient
+.from('purchases')
+.select('*');
 
-  sales.forEach(item=>{
-    totalSales += Number(item.amount || item.total || 0);
-  });
 
-  purchases.forEach(item=>{
-    totalPurchases += Number(item.amount || item.total || 0);
-  });
+let totalSales=0;
+let totalPurchases=0;
 
-  document.getElementById('totalSales').textContent =
-    totalSales.toLocaleString();
 
-  document.getElementById('totalPurchases').textContent =
-    totalPurchases.toLocaleString();
+if(sales){
 
-  document.getElementById('balance').textContent =
-    (totalSales-totalPurchases).toLocaleString();
+sales.forEach(item=>{
+
+totalSales += Number(
+item.amount ||
+item.total ||
+0
+);
+
+});
+
 }
+
+
+if(purchases){
+
+purchases.forEach(item=>{
+
+totalPurchases += Number(
+item.amount ||
+item.total ||
+0
+);
+
+});
+
+}
+
+
+document.getElementById('totalSales')
+.textContent=totalSales.toLocaleString();
+
+document.getElementById('totalPurchases')
+.textContent=totalPurchases.toLocaleString();
+
+document.getElementById('balance')
+.textContent=
+(totalSales-totalPurchases).toLocaleString();
+
+}
+
+
+/* =====================================================
+   START
+   ===================================================== */
+
+loadGarageActivities();
 
 updateDashboard();
 
-</script></body>
+</script>
+
+</body>
 </html>
