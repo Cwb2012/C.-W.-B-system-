@@ -581,12 +581,38 @@ function showPayrollMessage(text,isError=false){
   setTimeout(()=>{message.style.display='none';},4000);
 }
 
-function getPayrollRecords(){
-  try{
-    return JSON.parse(localStorage.getItem('cwb_payroll') || '[]');
-  }catch(e){
-    return [];
+let payrollCache=[];
+
+async function getPayrollRecords(){
+  const {data,error}=await supabaseClient
+    .from('payroll')
+    .select('*')
+    .order('id',{ascending:false});
+
+  if(error){
+    console.error('Payroll load error:',error);
+    // Keep locally saved records visible until the Supabase table is ready.
+    try{
+      return JSON.parse(localStorage.getItem('cwb_payroll') || '[]');
+    }catch(e){
+      return [];
+    }
   }
+
+  payrollCache=data || [];
+  return payrollCache.map(r=>({
+    id:r.id,
+    worker:r.worker_name,
+    position:r.position,
+    month:r.salary_month,
+    base:Number(r.base_salary||0),
+    allowance:Number(r.allowance||0),
+    deduction:Number(r.deductions||0),
+    net:Number(r.net_salary||0),
+    status:r.payment_status,
+    paymentDate:r.payment_date || '',
+    notes:r.notes || ''
+  }));
 }
 
 function savePayrollRecords(records){
@@ -598,8 +624,8 @@ function clearPayrollForm(){
   if(form) form.reset();
 }
 
-function loadPayroll(){
-  const records=getPayrollRecords();
+async function loadPayroll(){
+  const records=await getPayrollRecords();
   let gross=0,deductions=0,net=0,paid=0;
 
   records.forEach(r=>{
@@ -645,7 +671,7 @@ function loadPayroll(){
   }
 }
 
-document.getElementById('payrollForm').addEventListener('submit',function(event){
+document.getElementById('payrollForm').addEventListener('submit',async function(event){
   event.preventDefault();
 
   const base=Number(document.getElementById('payrollBase').value||0);
@@ -653,26 +679,37 @@ document.getElementById('payrollForm').addEventListener('submit',function(event)
   const deduction=Number(document.getElementById('payrollDeduction').value||0);
   const net=Math.max(0,base+allowance-deduction);
 
+  const worker=document.getElementById('payrollWorker').value.trim();
+  const position=document.getElementById('payrollPosition').value.trim();
+  const month=document.getElementById('payrollMonth').value;
+  const status=document.getElementById('payrollStatus').value;
+  const paymentDate=document.getElementById('payrollPaymentDate').value || null;
+  const notes=document.getElementById('payrollNotes').value.trim();
+
   const record={
-    id:Date.now(),
-    worker:document.getElementById('payrollWorker').value.trim(),
-    position:document.getElementById('payrollPosition').value.trim(),
-    month:document.getElementById('payrollMonth').value,
-    base,
+    worker_name:worker,
+    position,
+    salary_month:month,
+    base_salary:base,
     allowance,
-    deduction,
-    net,
-    status:document.getElementById('payrollStatus').value,
-    paymentDate:document.getElementById('payrollPaymentDate').value,
-    notes:document.getElementById('payrollNotes').value.trim()
+    deductions:deduction,
+    net_salary:net,
+    payment_status:status,
+    payment_date:paymentDate,
+    notes
   };
 
-  const records=getPayrollRecords();
-  records.unshift(record);
-  savePayrollRecords(records);
-  showPayrollMessage('Salary record saved successfully.');
+  const {error}=await supabaseClient.from('payroll').insert([record]);
+
+  if(error){
+    console.error('Payroll save error:',error);
+    showPayrollMessage('Payroll could not be saved to Supabase. Create the payroll table first.',true);
+    return;
+  }
+
+  showPayrollMessage('Salary successfully recorded in Supabase.');
   this.reset();
-  loadPayroll();
+  await loadPayroll();
 });
 
 /* =====================================================
