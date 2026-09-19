@@ -167,7 +167,30 @@ th{background:#111827;color:white}
 </div>
 
 <!-- OTHER MODULES -->
-<div id="accounting" class="card hidden"><h2>Accounting</h2><p>Accounting module ready for development.</p></div>
+<div id="accounting" class="card hidden">
+<h2>Accounting</h2>
+<p>Financial overview from Sales, Purchases, Expenses and Garage Activities.</p>
+
+<div class="dashboard accounting-stats">
+<div class="stat">Revenue<strong id="accountingRevenue">0</strong></div>
+<div class="stat">Purchases<strong id="accountingPurchases">0</strong></div>
+<div class="stat">Expenses<strong id="accountingExpenses">0</strong></div>
+<div class="stat">Garage Costs<strong id="accountingGarageCosts">0</strong></div>
+<div class="stat">Net Result<strong id="accountingNet">0</strong></div>
+</div>
+
+<button class="btn" type="button" onclick="loadAccounting()">Refresh Accounting</button>
+<div id="accountingMessage" class="message"></div>
+
+<div class="table-wrap">
+<table style="min-width:900px">
+<thead>
+<tr><th>Date</th><th>Source</th><th>Description</th><th>Income</th><th>Expense</th></tr>
+</thead>
+<tbody id="accountingTableBody"></tbody>
+</table>
+</div>
+</div>
 <div id="payroll" class="card hidden"><h2>Payroll</h2><p>Worker salaries and payroll management.</p></div>
 <div id="inventory" class="card hidden"><h2>Inventory</h2><p>Products and stock management.</p></div>
 <div id="sales" class="card hidden"><h2>Sales & Invoice</h2><p>Sales and customer invoices.</p></div>
@@ -373,6 +396,126 @@ body.appendChild(row);
 }
 
 /* =====================================================
+   ACCOUNTING
+   ===================================================== */
+
+function firstNumber(row,keys){
+  for(const key of keys){
+    if(row && row[key] !== undefined && row[key] !== null && row[key] !== ''){
+      const n=Number(row[key]);
+      if(Number.isFinite(n)) return n;
+    }
+  }
+  return 0;
+}
+
+function firstText(row,keys){
+  for(const key of keys){
+    if(row && row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== ''){
+      return String(row[key]);
+    }
+  }
+  return '';
+}
+
+function accountingDate(row){
+  return firstText(row,['date','created_at','sale_date','purchase_date','expense_date','service_date']);
+}
+
+function addAccountingRow(rows,date,source,description,income,expense){
+  rows.push({date:date||'',source,description:description||source,income:Number(income)||0,expense:Number(expense)||0});
+}
+
+function showAccountingMessage(text,isError=false){
+  const message=document.getElementById('accountingMessage');
+  if(!message) return;
+  message.textContent=text;
+  message.classList.toggle('error',isError);
+  message.style.display='block';
+  setTimeout(()=>{message.style.display='none';},4000);
+}
+
+async function loadAccounting(){
+  const [salesResult,purchasesResult,expensesResult,garageResult]=await Promise.all([
+    supabaseClient.from('sales').select('*'),
+    supabaseClient.from('purchases').select('*'),
+    supabaseClient.from('expenses').select('*'),
+    supabaseClient.from('Garage_jobs').select('*')
+  ]);
+
+  const failed=[salesResult,purchasesResult,expensesResult,garageResult].find(r=>r.error);
+  if(failed){
+    console.error(failed.error);
+    showAccountingMessage('Accounting could not load all financial data: '+failed.error.message,true);
+  }
+
+  const rows=[];
+  let salesTotal=0,purchasesTotal=0,expensesTotal=0,garageRevenue=0,garageCosts=0;
+
+  (salesResult.data||[]).forEach(item=>{
+    const amount=firstNumber(item,['amount','total','total_amount','selling_price','sale_amount','price']);
+    salesTotal+=amount;
+    addAccountingRow(rows,accountingDate(item),'Sales',firstText(item,['description','product_name','name','customer_name','invoice_number'])||'Sale',amount,0);
+  });
+
+  (purchasesResult.data||[]).forEach(item=>{
+    const amount=firstNumber(item,['amount','total','total_amount','buying_price','purchase_amount','price']);
+    purchasesTotal+=amount;
+    addAccountingRow(rows,accountingDate(item),'Purchases',firstText(item,['description','product_name','name','supplier_name','invoice_number'])||'Purchase',0,amount);
+  });
+
+  (expensesResult.data||[]).forEach(item=>{
+    const amount=firstNumber(item,['amount','total','total_amount','expense_amount','cost','price']);
+    expensesTotal+=amount;
+    addAccountingRow(rows,accountingDate(item),'Expenses',firstText(item,['description','name','category','expense_name'])||'Expense',0,amount);
+  });
+
+  (garageResult.data||[]).forEach(item=>{
+    const revenue=firstNumber(item,['Job_cost']);
+    const labor=firstNumber(item,['labor_cost']);
+    const parts=firstNumber(item,['Parts_coast']);
+    const costs=labor+parts;
+    garageRevenue+=revenue;
+    garageCosts+=costs;
+    const customer=firstText(item,['Customer name'])||'Garage customer';
+    addAccountingRow(rows,accountingDate(item),'Garage',customer+' - '+(firstText(item,['repaire_descrption'])||'Service'),revenue,costs);
+  });
+
+  rows.sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+
+  const totalRevenue=salesTotal+garageRevenue;
+  const totalExpenses=purchasesTotal+expensesTotal+garageCosts;
+  const net=totalRevenue-totalExpenses;
+
+  document.getElementById('accountingRevenue').textContent=totalRevenue.toLocaleString();
+  document.getElementById('accountingPurchases').textContent=purchasesTotal.toLocaleString();
+  document.getElementById('accountingExpenses').textContent=expensesTotal.toLocaleString();
+  document.getElementById('accountingGarageCosts').textContent=garageCosts.toLocaleString();
+  document.getElementById('accountingNet').textContent=net.toLocaleString();
+
+  const body=document.getElementById('accountingTableBody');
+  body.innerHTML='';
+  rows.slice(0,100).forEach(item=>{
+    const tr=document.createElement('tr');
+    [item.date,item.source,item.description,item.income?item.income.toLocaleString():'',item.expense?item.expense.toLocaleString(): ''].forEach(value=>{
+      const td=document.createElement('td');
+      td.textContent=value;
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  });
+
+  if(!rows.length && !failed){
+    const tr=document.createElement('tr');
+    const td=document.createElement('td');
+    td.colSpan=5;
+    td.textContent='No accounting transactions found yet.';
+    tr.appendChild(td);
+    body.appendChild(tr);
+  }
+}
+
+/* =====================================================
    CLEAR GARAGE FORM
    ===================================================== */
 
@@ -425,6 +568,7 @@ if(balanceElement) balanceElement.textContent=(totalSales-totalPurchases).toLoca
 
 loadGarageActivities();
 updateDashboard();
+loadAccounting();
 
 </script>
 
