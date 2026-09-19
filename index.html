@@ -191,7 +191,53 @@ th{background:#111827;color:white}
 </table>
 </div>
 </div>
-<div id="payroll" class="card hidden"><h2>Payroll</h2><p>Worker salaries and payroll management.</p></div>
+<div id="payroll" class="card hidden">
+<h2>Payroll</h2>
+<p>Worker salaries and payroll management.</p>
+
+<div class="dashboard">
+  <div class="stat">Gross Salaries<strong id="payrollGross">0</strong></div>
+  <div class="stat">Deductions<strong id="payrollDeductions">0</strong></div>
+  <div class="stat">Net Salaries<strong id="payrollNet">0</strong></div>
+  <div class="stat">Paid Records<strong id="payrollPaid">0</strong></div>
+</div>
+
+<form id="payrollForm" style="margin-top:15px">
+  <div class="form-grid">
+    <input id="payrollWorker" placeholder="Worker name" required>
+    <input id="payrollPosition" placeholder="Position">
+    <input id="payrollMonth" type="month" required>
+    <input id="payrollBase" type="number" min="0" step="0.01" placeholder="Base salary" required>
+    <input id="payrollAllowance" type="number" min="0" step="0.01" placeholder="Allowance">
+    <input id="payrollDeduction" type="number" min="0" step="0.01" placeholder="Deductions">
+    <select id="payrollStatus">
+      <option value="Unpaid">Unpaid</option>
+      <option value="Partially Paid">Partially Paid</option>
+      <option value="Paid">Paid</option>
+    </select>
+    <input id="payrollPaymentDate" type="date">
+    <input id="payrollNotes" placeholder="Notes">
+  </div>
+  <button class="btn" type="submit">Save Salary Record</button>
+  <button class="btn" type="button" onclick="clearPayrollForm()">Clear</button>
+</form>
+
+<div id="payrollMessage" class="message"></div>
+
+<div class="table-wrap">
+<table style="min-width:900px">
+<thead>
+<tr>
+<th>Month</th><th>Worker</th><th>Position</th><th>Base</th><th>Allowance</th>
+<th>Deductions</th><th>Net Salary</th><th>Status</th><th>Payment Date</th><th>Notes</th>
+</tr>
+</thead>
+<tbody id="payrollTableBody"></tbody>
+</table>
+</div>
+
+<button class="btn" type="button" onclick="loadPayroll()">Refresh Payroll</button>
+</div>
 <div id="inventory" class="card hidden"><h2>Inventory</h2><p>Products and stock management.</p></div>
 <div id="sales" class="card hidden"><h2>Sales & Invoice</h2><p>Sales and customer invoices.</p></div>
 <div id="partners" class="card hidden"><h2>Partners</h2><p>Business partners management.</p></div>
@@ -247,6 +293,9 @@ selected.classList.remove('hidden');
 window.scrollTo({top:selected.offsetTop-10,behavior:'smooth'});
 if(moduleId==='accounting'){
   loadAccounting();
+}
+if(moduleId==='payroll'){
+  loadPayroll();
 }
 }
 }
@@ -519,6 +568,114 @@ async function loadAccounting(){
 }
 
 /* =====================================================
+   PAYROLL
+   ===================================================== */
+
+function showPayrollMessage(text,isError=false){
+  const message=document.getElementById('payrollMessage');
+  if(!message) return;
+  message.textContent=text;
+  message.classList.remove('error');
+  if(isError) message.classList.add('error');
+  message.style.display='block';
+  setTimeout(()=>{message.style.display='none';},4000);
+}
+
+function getPayrollRecords(){
+  try{
+    return JSON.parse(localStorage.getItem('cwb_payroll') || '[]');
+  }catch(e){
+    return [];
+  }
+}
+
+function savePayrollRecords(records){
+  localStorage.setItem('cwb_payroll',JSON.stringify(records));
+}
+
+function clearPayrollForm(){
+  const form=document.getElementById('payrollForm');
+  if(form) form.reset();
+}
+
+function loadPayroll(){
+  const records=getPayrollRecords();
+  let gross=0,deductions=0,net=0,paid=0;
+
+  records.forEach(r=>{
+    gross+=Number(r.base||0)+Number(r.allowance||0);
+    deductions+=Number(r.deduction||0);
+    net+=Number(r.net||0);
+    if(r.status==='Paid') paid++;
+  });
+
+  document.getElementById('payrollGross').textContent=gross.toLocaleString();
+  document.getElementById('payrollDeductions').textContent=deductions.toLocaleString();
+  document.getElementById('payrollNet').textContent=net.toLocaleString();
+  document.getElementById('payrollPaid').textContent=paid.toLocaleString();
+
+  const body=document.getElementById('payrollTableBody');
+  if(!body) return;
+  body.innerHTML='';
+
+  records.forEach(r=>{
+    const tr=document.createElement('tr');
+    [
+      r.month,r.worker,r.position,
+      Number(r.base||0).toLocaleString(),
+      Number(r.allowance||0).toLocaleString(),
+      Number(r.deduction||0).toLocaleString(),
+      Number(r.net||0).toLocaleString(),
+      r.status,r.paymentDate,r.notes
+    ].forEach(value=>{
+      const td=document.createElement('td');
+      td.textContent=value ?? '';
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  });
+
+  if(!records.length){
+    const tr=document.createElement('tr');
+    const td=document.createElement('td');
+    td.colSpan=10;
+    td.textContent='No salary records yet.';
+    tr.appendChild(td);
+    body.appendChild(tr);
+  }
+}
+
+document.getElementById('payrollForm').addEventListener('submit',function(event){
+  event.preventDefault();
+
+  const base=Number(document.getElementById('payrollBase').value||0);
+  const allowance=Number(document.getElementById('payrollAllowance').value||0);
+  const deduction=Number(document.getElementById('payrollDeduction').value||0);
+  const net=Math.max(0,base+allowance-deduction);
+
+  const record={
+    id:Date.now(),
+    worker:document.getElementById('payrollWorker').value.trim(),
+    position:document.getElementById('payrollPosition').value.trim(),
+    month:document.getElementById('payrollMonth').value,
+    base,
+    allowance,
+    deduction,
+    net,
+    status:document.getElementById('payrollStatus').value,
+    paymentDate:document.getElementById('payrollPaymentDate').value,
+    notes:document.getElementById('payrollNotes').value.trim()
+  };
+
+  const records=getPayrollRecords();
+  records.unshift(record);
+  savePayrollRecords(records);
+  showPayrollMessage('Salary record saved successfully.');
+  this.reset();
+  loadPayroll();
+});
+
+/* =====================================================
    CLEAR GARAGE FORM
    ===================================================== */
 
@@ -572,6 +729,7 @@ if(balanceElement) balanceElement.textContent=(totalSales-totalPurchases).toLoca
 loadGarageActivities();
 updateDashboard();
 loadAccounting();
+loadPayroll();
 
 </script>
 
