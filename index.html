@@ -238,7 +238,20 @@ th{background:#111827;color:white}
 
 <button class="btn" type="button" onclick="loadPayroll()">Refresh Payroll</button>
 </div>
-<div id="inventory" class="card hidden"><h2>Inventory</h2><p>Products and stock management.</p></div>
+<div id="inventory" class="card hidden">
+<h2>Inventory</h2>
+<p>Products and stock management.</p>
+<form id="inventoryForm" class="grid-form">
+<label>Product Name<input id="inv_name" required></label>
+<label>Category<input id="inv_category"></label>
+<label>Quantity<input id="inv_quantity" type="number" min="0" value="0" required></label>
+<label>Buying Price<input id="inv_buying_price" type="number" min="0" step="0.01" value="0"></label>
+<label>Selling Price<input id="inv_selling_price" type="number" min="0" step="0.01" value="0"></label>
+<div><button type="submit">Save Product</button><button type="button" onclick="loadInventory()">Refresh Inventory</button></div>
+</form>
+<div id="inventoryMessage" class="message"></div>
+<div class="table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Quantity</th><th>Buying Price</th><th>Selling Price</th><th>Stock Value</th></tr></thead><tbody id="inventoryTableBody"></tbody></table></div>
+</div>
 <div id="sales" class="card hidden"><h2>Sales & Invoice</h2><p>Sales and customer invoices.</p></div>
 <div id="partners" class="card hidden"><h2>Partners</h2><p>Business partners management.</p></div>
 <div id="website" class="card hidden"><h2>Website</h2><p>C.W.B company website connection.</p></div>
@@ -768,6 +781,39 @@ updateDashboard();
 loadAccounting();
 loadPayroll();
 
+document.querySelector('button[onclick="showModule(\'inventory\')"]')?.addEventListener('click',()=>setTimeout(loadInventory,50));
+
+async function loadInventory(){
+  const body=document.getElementById('inventoryTableBody');
+  if(!body) return;
+  body.innerHTML='<tr><td colspan="6">Loading...</td></tr>';
+  const {data,error}=await supabaseClient.from('products').select('*').order('id',{ascending:false});
+  if(error){ body.innerHTML='<tr><td colspan="6">Could not load inventory: '+escapeHtml(error.message)+'</td></tr>'; return; }
+  if(!data || !data.length){ body.innerHTML='<tr><td colspan="6">No products recorded yet.</td></tr>'; return; }
+  body.innerHTML=data.map(p=>{
+    const q=Number(p.quantity||0), buy=Number(p.buying_price||0), sell=Number(p.selling_price||0);
+    return `<tr><td>${escapeHtml(p.name||'')}</td><td>${escapeHtml(p.category||'')}</td><td>${q}</td><td>${buy.toLocaleString()}</td><td>${sell.toLocaleString()}</td><td>${(q*buy).toLocaleString()}</td></tr>`;
+  }).join('');
+}
+
+document.getElementById('inventoryForm')?.addEventListener('submit',async function(e){
+  e.preventDefault();
+  const product={
+    name:document.getElementById('inv_name').value.trim(),
+    category:document.getElementById('inv_category').value.trim()||null,
+    quantity:Number(document.getElementById('inv_quantity').value||0),
+    buying_price:Number(document.getElementById('inv_buying_price').value||0),
+    selling_price:Number(document.getElementById('inv_selling_price').value||0)
+  };
+  const msg=document.getElementById('inventoryMessage'); msg.textContent='Saving...';
+  const {error}=await supabaseClient.from('products').insert([product]);
+  if(error){msg.textContent='Error saving product: '+error.message; return;}
+  msg.textContent='Product saved successfully to Supabase.';
+  this.reset(); document.getElementById('inv_quantity').value=0; document.getElementById('inv_buying_price').value=0; document.getElementById('inv_selling_price').value=0;
+  await loadInventory();
+});
+
+function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 </script>
 
 </body>
