@@ -438,7 +438,7 @@ function showAccountingMessage(text,isError=false){
   setTimeout(()=>{message.style.display='none';},4000);
 }
 
-async async function loadAccounting(){
+async function loadAccounting(){
   const [salesResult,purchasesResult,expensesResult,garageResult]=await Promise.all([
     supabaseClient.from('sales').select('*'),
     supabaseClient.from('purchases').select('*'),
