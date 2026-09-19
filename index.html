@@ -245,6 +245,9 @@ const selected=document.getElementById(moduleId);
 if(selected){
 selected.classList.remove('hidden');
 window.scrollTo({top:selected.offsetTop-10,behavior:'smooth'});
+if(moduleId==='accounting'){
+  loadAccounting();
+}
 }
 }
 
@@ -435,7 +438,7 @@ function showAccountingMessage(text,isError=false){
   setTimeout(()=>{message.style.display='none';},4000);
 }
 
-async function loadAccounting(){
+async async function loadAccounting(){
   const [salesResult,purchasesResult,expensesResult,garageResult]=await Promise.all([
     supabaseClient.from('sales').select('*'),
     supabaseClient.from('purchases').select('*'),
