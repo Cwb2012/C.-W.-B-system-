@@ -884,22 +884,7 @@ document.getElementById('inventoryForm')?.addEventListener('submit', async funct
   await loadInventory();
 });
 
-document.getElementById('inventoryForm')?.addEventListener('submit',async function(e){
-  e.preventDefault();
-  const product={
-    name:document.getElementById('inv_name').value.trim(),
-    category:document.getElementById('inv_category').value.trim()||null,
-    quantity:Number(document.getElementById('inv_quantity').value||0),
-    buying_price:Number(document.getElementById('inv_buying_price').value||0),
-    selling_price:Number(document.getElementById('inv_selling_price').value||0)
-  };
-  const msg=document.getElementById('inventoryMessage'); msg.textContent='Saving...';
-  const {error}=await supabaseClient.from('products').insert([product]);
-  if(error){msg.textContent='Error saving product: '+error.message; return;}
-  msg.textContent='Product saved successfully to Supabase.';
-  this.reset(); document.getElementById('inv_quantity').value=0; document.getElementById('inv_buying_price').value=0; document.getElementById('inv_selling_price').value=0;
-  await loadInventory();
-});
+
 
 function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 </script>
