@@ -808,17 +808,81 @@ loadPayroll();
 document.querySelector('button[onclick="showModule(\'inventory\')"]')?.addEventListener('click',()=>setTimeout(loadInventory,50));
 
 async function loadInventory(){
-  const body=document.getElementById('inventoryTableBody');
+  const body = document.getElementById('inventoryTableBody');
   if(!body) return;
-  body.innerHTML='<tr><td colspan="6">Loading...</td></tr>';
-  const {data,error}=await supabaseClient.from('products').select('*').order('id',{ascending:false});
-  if(error){ body.innerHTML='<tr><td colspan="6">Could not load inventory: '+escapeHtml(error.message)+'</td></tr>'; return; }
-  if(!data || !data.length){ body.innerHTML='<tr><td colspan="6">No products recorded yet.</td></tr>'; return; }
-  body.innerHTML=data.map(p=>{
-    const q=Number(p.quantity||0), buy=Number(p.buying_price||0), sell=Number(p.selling_price||0);
-    return `<tr><td>${escapeHtml(p.name||'')}</td><td>${escapeHtml(p.category||'')}</td><td>${q}</td><td>${buy.toLocaleString()}</td><td>${sell.toLocaleString()}</td><td>${(q*buy).toLocaleString()}</td></tr>`;
+
+  body.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+
+  const { data, error } = await supabaseClient
+    .from('products')
+    .select('*')
+    .order('id', { ascending:false });
+
+  if(error){
+    body.innerHTML =
+      '<tr><td colspan="6">Could not load inventory: ' +
+      escapeHtml(error.message) + '</td></tr>';
+    return;
+  }
+
+  if(!data || data.length === 0){
+    body.innerHTML =
+      '<tr><td colspan="6">No products recorded yet.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = data.map(p => {
+    const q = Number(p.quantity || 0);
+    const buy = Number(p.buying_price || 0);
+    const sell = Number(p.selling_price || 0);
+
+    return `
+      <tr>
+        <td>${escapeHtml(p.name || '')}</td>
+        <td>${escapeHtml(p.category || '')}</td>
+        <td>${q}</td>
+        <td>${buy.toLocaleString()}</td>
+        <td>${sell.toLocaleString()}</td>
+        <td>${(q * buy).toLocaleString()}</td>
+      </tr>
+    `;
   }).join('');
 }
+
+document.getElementById('inventoryForm')?.addEventListener('submit', async function(e){
+  e.preventDefault();
+
+  const msg = document.getElementById('inventoryMessage');
+  msg.textContent = 'Saving...';
+
+  const product = {
+    name: document.getElementById('inv_name').value.trim(),
+    category: document.getElementById('inv_category').value.trim() || null,
+    quantity: Number(document.getElementById('inv_quantity').value || 0),
+    buying_price: Number(document.getElementById('inv_buying_price').value || 0),
+    selling_price: Number(document.getElementById('inv_selling_price').value || 0)
+  };
+
+  const { data, error } = await supabaseClient
+    .from('products')
+    .insert([product])
+    .select();
+
+  if(error){
+    msg.textContent = 'Error saving product: ' + error.message;
+    return;
+  }
+
+  msg.textContent = 'Product saved successfully to Supabase.';
+
+  this.reset();
+
+  document.getElementById('inv_quantity').value = 0;
+  document.getElementById('inv_buying_price').value = 0;
+  document.getElementById('inv_selling_price').value = 0;
+
+  await loadInventory();
+});
 
 document.getElementById('inventoryForm')?.addEventListener('submit',async function(e){
   e.preventDefault();
