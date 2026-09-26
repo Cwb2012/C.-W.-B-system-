@@ -394,10 +394,10 @@ Selling Price
 
 </form>
 
-<div id="inventoryMessage" class="message"></div>
+< id="inventoryMessage" class="message"></div>
 
 <div class="table-wrap">
-<table>
+<tabldive>
 <thead>
 <tr>
 <th>Product</th>
@@ -413,11 +413,60 @@ Selling Price
 </table>
 </div>
 </div>
-
 <div id="sales" class="card hidden">
 <h2>Sales & Invoice</h2>
-<p>Sales and customer invoices.</p>
+
+<form id="salesForm" class="form-grid">
+
+<label>Customer Name
+<input id="sale_customer" required>
+</label>
+
+<label>Product
+<input id="sale_product" required>
+</label>
+
+<label>Quantity
+<input id="sale_quantity" type="number" min="1" value="1" required>
+</label>
+
+<label>Unit Price
+<input id="sale_price" type="number" min="0" step="0.01" required>
+</label>
+
+<label>Payment Status
+<select id="sale_payment">
+<option value="Paid">Paid</option>
+<option value="Unpaid">Unpaid</option>
+<option value="Partial">Partial</option>
+</select>
+</label>
+
+<button class="btn" type="submit">Save Sale</button>
+
+</form>
+
+<div id="salesMessage" class="message"></div>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Customer</th>
+<th>Product</th>
+<th>Quantity</th>
+<th>Unit Price</th>
+<th>Total</th>
+<th>Payment</th>
+</tr>
+</thead>
+
+<tbody id="salesTableBody"></tbody>
+</table>
 </div>
+
+</div>
+
 
 <div id="partners" class="card hidden">
 <h2>Partners</h2>
