@@ -5,39 +5,231 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="theme-color" content="#111827">
 <title>C.W.B System — Camel Work and Business company</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
-header{background:linear-gradient(135deg,#111827,#b91c1c);color:#fff;padding:22px 16px;text-align:center}
-header h1{margin:0;font-size:26px}
-header p{margin:7px 0 0}
-.container{max-width:1150px;margin:auto;padding:16px}
-.card{background:#fff;border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 3px 12px rgba(0,0,0,.08)}
-h2{margin-top:0;color:#b91c1c}
-.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px}
-.module,.btn{border:0;border-radius:9px;padding:13px;background:#111827;color:#fff;font-weight:bold;cursor:pointer}
-.module{min-height:58px}
-.btn{background:#b91c1c;margin:6px 4px 0 0}
-.btn.secondary{background:#111827}
-.btn.light{background:#6b7280}
-.stat{background:#f9fafb;border-radius:10px;padding:14px;text-align:center}
-.stat strong{display:block;font-size:20px;margin-top:5px}
-.hidden{display:none}
-.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
-label{display:block;font-size:13px;font-weight:bold;margin-bottom:5px}
-input,select,textarea{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:8px;font-size:14px}
-textarea{min-height:80px;resize:vertical}
-.full{grid-column:1/-1}
-.table-wrap{overflow:auto;margin-top:16px}
-table{width:100%;border-collapse:collapse;min-width:750px}
-th,td{border:1px solid #e5e7eb;padding:9px;font-size:12px;text-align:left}
-th{background:#111827;color:#fff}
-.message{margin-top:10px;padding:10px;border-radius:7px;background:#ecfdf5;color:#065f46;display:none}
-.message.error{background:#fef2f2;color:#991b1b}
-.small{font-size:12px;color:#6b7280}
-.footer{text-align:center;color:#6b7280;font-size:12px;padding:20px}
-.pill{display:inline-block;padding:4px 8px;border-radius:12px;background:#f3f4f6;margin:2px;font-size:11px}
-.social-link{display:inline-block;text-decoration:none}
+
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:#f3f4f6;
+color:#111827
+}
+
+header{
+background:linear-gradient(135deg,#111827,#b91c1c);
+color:#fff;
+padding:22px 16px;
+text-align:center
+}
+
+header h1{
+margin:0;
+font-size:26px
+}
+
+header p{
+margin:7px 0 0
+}
+
+.container{
+max-width:1150px;
+margin:auto;
+padding:16px
+}
+
+.card{
+background:#fff;
+border-radius:14px;
+padding:18px;
+margin-bottom:16px;
+box-shadow:0 3px 12px rgba(0,0,0,.08)
+}
+
+h2{
+margin-top:0;
+color:#b91c1c
+}
+
+.dashboard{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(135px,1fr));
+gap:10px
+}
+
+.module,
+.btn{
+border:0;
+border-radius:9px;
+padding:13px;
+background:#111827;
+color:#fff;
+font-weight:bold;
+cursor:pointer
+}
+
+.module{
+min-height:58px
+}
+
+.module:hover,
+.btn:hover{
+opacity:.9
+}
+
+.btn{
+background:#b91c1c;
+margin:6px 4px 0 0
+}
+
+.btn.secondary{
+background:#111827
+}
+
+.btn.light{
+background:#6b7280
+}
+
+.stat{
+background:#f9fafb;
+border-radius:10px;
+padding:14px;
+text-align:center
+}
+
+.stat strong{
+display:block;
+font-size:20px;
+margin-top:5px
+}
+
+.hidden{
+display:none
+}
+
+.form-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+gap:12px
+}
+
+label{
+display:block;
+font-size:13px;
+font-weight:bold;
+margin-bottom:5px
+}
+
+input,
+select,
+textarea{
+width:100%;
+padding:10px;
+border:1px solid #d1d5db;
+border-radius:8px;
+font-size:14px
+}
+
+textarea{
+min-height:80px;
+resize:vertical
+}
+
+.full{
+grid-column:1/-1
+}
+
+.table-wrap{
+overflow:auto;
+margin-top:16px
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+min-width:750px
+}
+
+th,
+td{
+border:1px solid #e5e7eb;
+padding:9px;
+font-size:12px;
+text-align:left
+}
+
+th{
+background:#111827;
+color:#fff
+}
+
+.message{
+margin-top:10px;
+padding:10px;
+border-radius:7px;
+background:#ecfdf5;
+color:#065f46;
+display:none
+}
+
+.message.error{
+background:#fef2f2;
+color:#991b1b
+}
+
+.small{
+font-size:12px;
+color:#6b7280
+}
+
+.footer{
+text-align:center;
+color:#6b7280;
+font-size:12px;
+padding:20px
+}
+
+.pill{
+display:inline-block;
+padding:4px 8px;
+border-radius:12px;
+background:#f3f4f6;
+margin:2px;
+font-size:11px
+}
+
+.social-link{
+display:inline-block;
+text-decoration:none
+}
+
+.empty{
+text-align:center;
+color:#6b7280;
+padding:18px
+}
+
+@media(max-width:600px){
+header h1{
+font-size:22px
+}
+
+.container{
+padding:10px
+}
+
+.card{
+padding:14px
+}
+
+.module{
+font-size:13px
+}
+
+.btn{
+width:auto
+}
+}
 </style>
 </head>
 
@@ -51,8 +243,11 @@ th{background:#111827;color:#fff}
 
 <div class="container">
 
+<!-- DASHBOARD -->
+
 <div class="card">
 <h2>Business Dashboard</h2>
+
 <div class="dashboard">
 
 <button class="module" onclick="showModule('accounting')">Accounting</button>
@@ -71,22 +266,46 @@ th{background:#111827;color:#fff}
 </div>
 </div>
 
+<!-- DASHBOARD TOTALS -->
+
 <div class="card">
+
 <div class="dashboard">
-<div class="stat">Total Sales<strong id="totalSales">0</strong></div>
-<div class="stat">Total Purchases<strong id="totalPurchases">0</strong></div>
-<div class="stat">Expenses<strong id="totalExpenses">0</strong></div>
-<div class="stat">Balance<strong id="balance">0</strong></div>
+
+<div class="stat">
+Total Sales
+<strong id="totalSales">0</strong>
 </div>
+
+<div class="stat">
+Total Purchases
+<strong id="totalPurchases">0</strong>
+</div>
+
+<div class="stat">
+Expenses
+<strong id="totalExpenses">0</strong>
+</div>
+
+<div class="stat">
+Balance
+<strong id="balance">0</strong>
+</div>
+
+</div>
+
 </div>
 
 <!-- INVENTORY -->
 
 <div id="inventory" class="card hidden">
+
 <h2>Inventory</h2>
+
 <p>Products and stock management.</p>
 
 <form id="inventoryForm">
+
 <div class="form-grid">
 
 <div>
@@ -117,14 +336,22 @@ th{background:#111827;color:#fff}
 </div>
 
 <button class="btn" type="submit">Save Product</button>
-<button class="btn secondary" type="button" onclick="loadInventory()">Refresh Inventory</button>
+
+<button
+class="btn secondary"
+type="button"
+onclick="loadInventory()">
+Refresh Inventory
+</button>
 
 </form>
 
 <div id="inventoryMessage" class="message"></div>
 
 <div class="table-wrap">
+
 <table>
+
 <thead>
 <tr>
 <th>Product</th>
@@ -135,50 +362,91 @@ th{background:#111827;color:#fff}
 <th>Stock Value</th>
 </tr>
 </thead>
+
 <tbody id="inventoryTableBody"></tbody>
+
 </table>
+
 </div>
+
 </div>
 
 <!-- GARAGE -->
 
 <div id="garage" class="card hidden">
+
 <h2>Garage Activities</h2>
 
 <form id="garageForm">
 
 <div class="form-grid">
 
-<div><label>Job Number</label><input id="job_number"></div>
-<div><label>Customer Name</label><input id="customer_name" required></div>
-<div><label>Customer Phone</label><input id="customer_phone"></div>
-<div><label>Customer Address</label><input id="customer_address"></div>
-<div><label>Vehicle Name</label><input id="vehicle_name"></div>
-<div><label>Vehicle Model</label><input id="vehicle_model"></div>
-<div><label>Vehicle Color</label><input id="vehicle_color"></div>
-<div><label>Mechanic Name</label><input id="mechanic_name"></div>
+<div>
+<label>Job Number</label>
+<input id="job_number">
+</div>
+
+<div>
+<label>Customer Name</label>
+<input id="customer_name" required>
+</div>
+
+<div>
+<label>Customer Phone</label>
+<input id="customer_phone">
+</div>
+
+<div>
+<label>Customer Address</label>
+<input id="customer_address">
+</div>
+
+<div>
+<label>Vehicle Name</label>
+<input id="vehicle_name">
+</div>
+
+<div>
+<label>Vehicle Model</label>
+<input id="vehicle_model">
+</div>
+
+<div>
+<label>Vehicle Color</label>
+<input id="vehicle_color">
+</div>
+
+<div>
+<label>Mechanic Name</label>
+<input id="mechanic_name">
+</div>
 
 <div>
 <label>Job Status</label>
+
 <select id="job_status">
 <option>Pending</option>
 <option>In Progress</option>
 <option>Completed</option>
 <option>Cancelled</option>
 </select>
+
 </div>
 
 <div>
 <label>Payment Status</label>
+
 <select id="payment_status">
 <option>Unpaid</option>
 <option>Partially Paid</option>
 <option>Paid</option>
 </select>
+
 </div>
 
 <div>
 <label>Payment Method</label>
+
 <select id="payment_method">
 <option>Cash</option>
 <option>Bank</option>
@@ -186,30 +454,58 @@ th{background:#111827;color:#fff}
 <option>Card</option>
 <option>Other</option>
 </select>
+
 </div>
 
-<div><label>Invoice Number</label><input id="invoice_number"></div>
-<div><label>Job Cost</label><input id="job_cost" type="number" step="0.01"></div>
-<div><label>Parts Cost</label><input id="parts_cost" type="number" step="0.01"></div>
-<div><label>Service Date</label><input id="service_date" type="date"></div>
-<div><label>Estimated Completion</label><input id="estimated_completion_date" type="date"></div>
-<div><label>Completion Date</label><input id="completion_date" type="date"></div>
+<div>
+<label>Invoice Number</label>
+<input id="invoice_number">
+</div>
+
+<div>
+<label>Job Cost</label>
+<input id="job_cost" type="number" min="0" step="0.01">
+</div>
+
+<div>
+<label>Parts Cost</label>
+<input id="parts_cost" type="number" min="0" step="0.01">
+</div>
+
+<div>
+<label>Service Date</label>
+<input id="service_date" type="date">
+</div>
+
+<div>
+<label>Estimated Completion</label>
+<input id="estimated_completion_date" type="date">
+</div>
+
+<div>
+<label>Completion Date</label>
+<input id="completion_date" type="date">
+</div>
 
 <div>
 <label>Pick Up Status</label>
+
 <select id="pickup_status">
 <option>Pending</option>
 <option>Ready</option>
 <option>Picked Up</option>
 </select>
+
 </div>
 
 <div>
 <label>Warranty</label>
+
 <select id="warranty">
 <option>No</option>
 <option>Yes</option>
 </select>
+
 </div>
 
 <div class="full">
@@ -224,15 +520,25 @@ th{background:#111827;color:#fff}
 
 </div>
 
-<button class="btn" type="submit">Save Garage Activity</button>
-<button class="btn secondary" type="button" onclick="loadGarage()">Refresh Garage</button>
+<button class="btn" type="submit">
+Save Garage Activity
+</button>
+
+<button
+class="btn secondary"
+type="button"
+onclick="loadGarage()">
+Refresh Garage
+</button>
 
 </form>
 
 <div id="garageMessage" class="message"></div>
 
 <div class="table-wrap">
+
 <table>
+
 <thead>
 <tr>
 <th>Customer</th>
@@ -243,14 +549,19 @@ th{background:#111827;color:#fff}
 <th>Payment</th>
 </tr>
 </thead>
+
 <tbody id="garageTableBody"></tbody>
+
 </table>
+
 </div>
+
 </div>
 
 <!-- SALES -->
 
 <div id="sales" class="card hidden">
+
 <h2>Sales & Invoice</h2>
 
 <p class="small">
@@ -259,33 +570,64 @@ The invoice number can be used to identify each sale.
 </p>
 
 <form id="salesForm">
+
 <div class="form-grid">
 
-<div><label>Customer</label><input id="sale_customer"></div>
-<div><label>Product / Service</label><input id="sale_product" required></div>
-<div><label>Invoice Number</label><input id="sale_invoice"></div>
-<div><label>Amount</label><input id="sale_amount" type="number" min="0" step="0.01" required></div>
+<div>
+<label>Customer</label>
+<input id="sale_customer">
+</div>
+
+<div>
+<label>Product / Service</label>
+<input id="sale_product" required>
+</div>
+
+<div>
+<label>Invoice Number</label>
+<input id="sale_invoice">
+</div>
+
+<div>
+<label>Amount</label>
+<input
+id="sale_amount"
+type="number"
+min="0"
+step="0.01"
+required>
+</div>
 
 <div>
 <label>Payment Status</label>
+
 <select id="sale_payment">
 <option>Paid</option>
 <option>Partially Paid</option>
 <option>Unpaid</option>
 </select>
-</div>
-
-<div><label>Date</label><input id="sale_date" type="date"></div>
 
 </div>
 
-<button class="btn" type="submit">Save Sale</button>
+<div>
+<label>Date</label>
+<input id="sale_date" type="date">
+</div>
+
+</div>
+
+<button class="btn" type="submit">
+Save Sale
+</button>
+
 </form>
 
 <div id="salesMessage" class="message"></div>
 
 <div class="table-wrap">
+
 <table>
+
 <thead>
 <tr>
 <th>Date</th>
@@ -296,43 +638,75 @@ The invoice number can be used to identify each sale.
 <th>Status</th>
 </tr>
 </thead>
+
 <tbody id="salesTableBody"></tbody>
+
 </table>
+
 </div>
+
 </div>
 
 <!-- PURCHASES -->
 
 <div id="purchases" class="card hidden">
+
 <h2>Purchases & Suppliers</h2>
 
 <form id="purchaseForm">
+
 <div class="form-grid">
 
-<div><label>Supplier</label><input id="purchase_supplier"></div>
-<div><label>Product</label><input id="purchase_product" required></div>
-<div><label>Amount</label><input id="purchase_amount" type="number" min="0" step="0.01" required></div>
+<div>
+<label>Supplier</label>
+<input id="purchase_supplier">
+</div>
+
+<div>
+<label>Product</label>
+<input id="purchase_product" required>
+</div>
+
+<div>
+<label>Amount</label>
+<input
+id="purchase_amount"
+type="number"
+min="0"
+step="0.01"
+required>
+</div>
 
 <div>
 <label>Payment Status</label>
+
 <select id="purchase_payment">
 <option>Paid</option>
 <option>Partially Paid</option>
 <option>Unpaid</option>
 </select>
-</div>
-
-<div><label>Date</label><input id="purchase_date" type="date"></div>
 
 </div>
 
-<button class="btn" type="submit">Save Purchase</button>
+<div>
+<label>Date</label>
+<input id="purchase_date" type="date">
+</div>
+
+</div>
+
+<button class="btn" type="submit">
+Save Purchase
+</button>
+
 </form>
 
 <div id="purchaseMessage" class="message"></div>
 
 <div class="table-wrap">
+
 <table>
+
 <thead>
 <tr>
 <th>Date</th>
@@ -342,23 +716,49 @@ The invoice number can be used to identify each sale.
 <th>Status</th>
 </tr>
 </thead>
+
 <tbody id="purchaseTableBody"></tbody>
+
 </table>
+
 </div>
+
 </div>
 
 <!-- EXPENSES -->
 
 <div id="expenses" class="card hidden">
+
 <h2>Expenses</h2>
 
 <form id="expenseForm">
+
 <div class="form-grid">
 
-<div><label>Expense</label><input id="expense_name" required></div>
-<div><label>Category</label><input id="expense_category"></div>
-<div><label>Amount</label><input id="expense_amount" type="number" min="0" step="0.01" required></div>
-<div><label>Date</label><input id="expense_date" type="date"></div>
+<div>
+<label>Expense</label>
+<input id="expense_name" required>
+</div>
+
+<div>
+<label>Category</label>
+<input id="expense_category">
+</div>
+
+<div>
+<label>Amount</label>
+<input
+id="expense_amount"
+type="number"
+min="0"
+step="0.01"
+required>
+</div>
+
+<div>
+<label>Date</label>
+<input id="expense_date" type="date">
+</div>
 
 <div class="full">
 <label>Notes</label>
@@ -367,13 +767,18 @@ The invoice number can be used to identify each sale.
 
 </div>
 
-<button class="btn" type="submit">Save Expense</button>
+<button class="btn" type="submit">
+Save Expense
+</button>
+
 </form>
 
 <div id="expenseMessage" class="message"></div>
 
 <div class="table-wrap">
+
 <table>
+
 <thead>
 <tr>
 <th>Date</th>
@@ -383,30 +788,49 @@ The invoice number can be used to identify each sale.
 <th>Notes</th>
 </tr>
 </thead>
+
 <tbody id="expenseTableBody"></tbody>
+
 </table>
+
 </div>
+
 </div>
 
 <!-- PARTNERS -->
 
 <div id="partners" class="card hidden">
+
 <h2>Customers & Partners</h2>
 
 <form id="partnerForm">
+
 <div class="form-grid">
 
-<div><label>Name</label><input id="partner_name" required></div>
-<div><label>Phone</label><input id="partner_phone"></div>
-<div><label>Email</label><input id="partner_email"></div>
+<div>
+<label>Name</label>
+<input id="partner_name" required>
+</div>
+
+<div>
+<label>Phone</label>
+<input id="partner_phone">
+</div>
+
+<div>
+<label>Email</label>
+<input id="partner_email" type="email">
+</div>
 
 <div>
 <label>Type</label>
+
 <select id="partner_type">
 <option>Customer</option>
 <option>Supplier</option>
 <option>Partner</option>
 </select>
+
 </div>
 
 <div class="full">
@@ -416,13 +840,18 @@ The invoice number can be used to identify each sale.
 
 </div>
 
-<button class="btn" type="submit">Save Contact</button>
+<button class="btn" type="submit">
+Save Contact
+</button>
+
 </form>
 
 <div id="partnerMessage" class="message"></div>
 
 <div class="table-wrap">
+
 <table>
+
 <thead>
 <tr>
 <th>Name</th>
@@ -432,44 +861,80 @@ The invoice number can be used to identify each sale.
 <th>Address</th>
 </tr>
 </thead>
+
 <tbody id="partnerTableBody"></tbody>
+
 </table>
+
 </div>
+
 </div>
 
 <!-- PAYROLL -->
 
 <div id="payroll" class="card hidden">
+
 <h2>Payroll</h2>
 
 <form id="payrollForm">
+
 <div class="form-grid">
 
-<div><label>Worker</label><input id="pay_worker" required></div>
-<div><label>Position</label><input id="pay_position"></div>
-<div><label>Month</label><input id="pay_month" type="month"></div>
-<div><label>Base Salary</label><input id="pay_base" type="number" min="0" step="0.01"></div>
-<div><label>Allowance</label><input id="pay_allowance" type="number" min="0" step="0.01"></div>
-<div><label>Deductions</label><input id="pay_deduction" type="number" min="0" step="0.01"></div>
+<div>
+<label>Worker</label>
+<input id="pay_worker" required>
+</div>
+
+<div>
+<label>Position</label>
+<input id="pay_position">
+</div>
+
+<div>
+<label>Month</label>
+<input id="pay_month" type="month">
+</div>
+
+<div>
+<label>Base Salary</label>
+<input id="pay_base" type="number" min="0" step="0.01">
+</div>
+
+<div>
+<label>Allowance</label>
+<input id="pay_allowance" type="number" min="0" step="0.01">
+</div>
+
+<div>
+<label>Deductions</label>
+<input id="pay_deduction" type="number" min="0" step="0.01">
+</div>
 
 <div>
 <label>Status</label>
+
 <select id="pay_status">
 <option>Unpaid</option>
 <option>Partially Paid</option>
 <option>Paid</option>
 </select>
-</div>
 
 </div>
 
-<button class="btn" type="submit">Save Salary Record</button>
+</div>
+
+<button class="btn" type="submit">
+Save Salary Record
+</button>
+
 </form>
 
 <div id="payMessage" class="message"></div>
 
 <div class="table-wrap">
+
 <table>
+
 <thead>
 <tr>
 <th>Month</th>
@@ -482,71 +947,122 @@ The invoice number can be used to identify each sale.
 <th>Status</th>
 </tr>
 </thead>
+
 <tbody id="payTableBody"></tbody>
+
 </table>
+
 </div>
+
 </div>
 
 <!-- ACCOUNTING -->
 
 <div id="accounting" class="card hidden">
+
 <h2>Accounting</h2>
 
 <div class="dashboard">
-<div class="stat">Sales<strong id="accSales">0</strong></div>
-<div class="stat">Purchases<strong id="accPurchases">0</strong></div>
-<div class="stat">Expenses<strong id="accExpenses">0</strong></div>
-<div class="stat">Net Balance<strong id="accBalance">0</strong></div>
+
+<div class="stat">
+Sales
+<strong id="accSales">0</strong>
+</div>
+
+<div class="stat">
+Purchases
+<strong id="accPurchases">0</strong>
+</div>
+
+<div class="stat">
+Expenses
+<strong id="accExpenses">0</strong>
+</div>
+
+<div class="stat">
+Net Balance
+<strong id="accBalance">0</strong>
+</div>
+
 </div>
 
 <p class="small">
 Net Balance = Sales − Purchases − Expenses.
-Payroll is shown separately so salary records are not accidentally counted twice.
+Payroll is displayed separately.
 </p>
+
 </div>
 
 <!-- BUSINESS PLANNER -->
 
 <div id="planner" class="card hidden">
+
 <h2>Business Planner</h2>
 
-<textarea id="planText" rows="10" placeholder="Write your business goals, plans, projects and priorities..."></textarea>
+<textarea
+id="planText"
+rows="10"
+placeholder="Write your business goals, plans, projects and priorities..."></textarea>
 
-<button class="btn" onclick="savePlan()">Save Plan</button>
-<button class="btn secondary" onclick="loadPlan()">Load Plan</button>
+<button class="btn" onclick="savePlan()">
+Save Plan
+</button>
+
+<button
+class="btn secondary"
+onclick="loadPlan()">
+Load Plan
+</button>
 
 <div id="planMessage" class="message"></div>
+
 </div>
 
 <!-- REPORTS -->
 
 <div id="reports" class="card hidden">
+
 <h2>Reports</h2>
+
 <div id="reportContent"></div>
-<button class="btn" onclick="loadReports()">Refresh Reports</button>
+
+<button
+class="btn"
+onclick="loadReports()">
+Refresh Reports
+</button>
+
 </div>
 
 <!-- WEBSITE -->
 
 <div id="website" class="card hidden">
+
 <h2>Website</h2>
-<p>C.W.B company website connection area.</p>
-<p class="small">
-This screen is ready for the company website address when you decide which official website to connect.
+
+<p>
+C.W.B company website connection area.
 </p>
+
+<p class="small">
+This screen is ready for the official company website address.
+</p>
+
 </div>
 
-<!-- SOCIAL CONNECTIONS - UPDATED -->
+<!-- SOCIAL -->
 
 <div id="social" class="card hidden">
 
 <h2>Social Connections</h2>
 
-<p>Connect C.W.B with its social media platforms.</p>
+<p>
+Connect C.W.B with its social media platforms.
+</p>
 
 <p class="small">
 Add the official C.W.B social media links below.
-They will be saved on this device.
+They are saved on this device.
 </p>
 
 <form id="socialForm">
@@ -555,32 +1071,50 @@ They will be saved on this device.
 
 <div>
 <label>Facebook</label>
-<input id="social_facebook" type="url" placeholder="https://facebook.com/...">
+<input
+id="social_facebook"
+type="url"
+placeholder="https://facebook.com/...">
 </div>
 
 <div>
 <label>Instagram</label>
-<input id="social_instagram" type="url" placeholder="https://instagram.com/...">
+<input
+id="social_instagram"
+type="url"
+placeholder="https://instagram.com/...">
 </div>
 
 <div>
 <label>WhatsApp</label>
-<input id="social_whatsapp" type="url" placeholder="https://wa.me/...">
+<input
+id="social_whatsapp"
+type="url"
+placeholder="https://wa.me/...">
 </div>
 
 <div>
 <label>TikTok</label>
-<input id="social_tiktok" type="url" placeholder="https://tiktok.com/@...">
+<input
+id="social_tiktok"
+type="url"
+placeholder="https://tiktok.com/@...">
 </div>
 
 <div>
 <label>YouTube</label>
-<input id="social_youtube" type="url" placeholder="https://youtube.com/...">
+<input
+id="social_youtube"
+type="url"
+placeholder="https://youtube.com/...">
 </div>
 
 <div>
 <label>LinkedIn</label>
-<input id="social_linkedin" type="url" placeholder="https://linkedin.com/...">
+<input
+id="social_linkedin"
+type="url"
+placeholder="https://linkedin.com/...">
 </div>
 
 </div>
@@ -589,7 +1123,10 @@ They will be saved on this device.
 Save Social Connections
 </button>
 
-<button class="btn secondary" type="button" onclick="loadSocialConnections()">
+<button
+class="btn secondary"
+type="button"
+onclick="loadSocialConnections()">
 Load Saved Connections
 </button>
 
@@ -628,178 +1165,338 @@ Better Quality is our priority
 
 <script>
 
-const SUPABASE_URL='https://wicilnypkcumworxnxqv.supabase.co';
+/* =========================================================
+   C.W.B SYSTEM — MASTER VERSION 3
+   ========================================================= */
 
-const SUPABASE_KEY='sb_publishable_1FmSQ0jE7mSaeiujYneSSg_9LkRPbzX';
+const SUPABASE_URL =
+'https://wicilnypkcumworxnxqv.supabase.co';
 
-const supabaseClient=supabase.createClient(
+const SUPABASE_KEY =
+'sb_publishable_1FmSQ0jE7mSaeiujYneSSg_9LkRPbzX';
+
+const supabaseClient =
+supabase.createClient(
 SUPABASE_URL,
 SUPABASE_KEY
 );
 
-const KEY={
-sales:'cwb_sales_v2',
-purchases:'cwb_purchases_v2',
-expenses:'cwb_expenses_v2',
-partners:'cwb_partners_v2',
-payroll:'cwb_payroll_v2'
+
+/* STORAGE */
+
+const KEY = {
+sales:'cwb_sales_v3',
+purchases:'cwb_purchases_v3',
+expenses:'cwb_expenses_v3',
+partners:'cwb_partners_v3',
+payroll:'cwb_payroll_v3',
+plan:'cwb_plan_v3'
 };
 
-function arr(k){
+
+function arr(key){
+
 try{
-return JSON.parse(localStorage.getItem(k))||[]
-}catch(e){
-return[]
-}
+
+const value =
+JSON.parse(localStorage.getItem(key));
+
+return Array.isArray(value) ? value : [];
+
+}catch(error){
+
+return [];
+
 }
 
-function setArr(k,v){
-localStorage.setItem(k,JSON.stringify(v))
 }
 
-let sales=arr(KEY.sales);
-let purchases=arr(KEY.purchases);
-let expenses=arr(KEY.expenses);
-let partners=arr(KEY.partners);
-let payroll=arr(KEY.payroll);
 
-function esc(v){
-return String(v??'').replace(
+function setArr(key,value){
+
+localStorage.setItem(
+key,
+JSON.stringify(value)
+);
+
+}
+
+
+let sales = arr(KEY.sales);
+let purchases = arr(KEY.purchases);
+let expenses = arr(KEY.expenses);
+let partners = arr(KEY.partners);
+let payroll = arr(KEY.payroll);
+
+
+/* HELPERS */
+
+function esc(value){
+
+return String(value ?? '').replace(
 /[&<>"']/g,
-c=>({
+character => ({
 '&':'&amp;',
 '<':'&lt;',
 '>':'&gt;',
 '"':'&quot;',
 "'":'&#39;'
-}[c])
-)
+}[character])
+);
+
 }
 
-function money(v){
-return Number(v||0).toLocaleString()
+
+function money(value){
+
+return Number(value || 0)
+.toLocaleString(
+'en-US',
+{
+maximumFractionDigits:2
+}
+);
+
 }
 
-function msg(id,t,error=false){
 
-const e=document.getElementById(id);
+function today(){
 
-if(!e)return;
+return new Date()
+.toISOString()
+.slice(0,10);
 
-e.textContent=t;
+}
 
-e.classList.toggle('error',error);
 
-e.style.display='block';
+function currentMonth(){
 
-setTimeout(
-()=>e.style.display='none',
+return new Date()
+.toISOString()
+.slice(0,7);
+
+}
+
+
+function msg(id,text,error=false){
+
+const element =
+document.getElementById(id);
+
+if(!element)return;
+
+element.textContent=text;
+
+element.classList.toggle(
+'error',
+error
+);
+
+element.style.display='block';
+
+clearTimeout(
+element._timer
+);
+
+element._timer=setTimeout(
+()=>{
+element.style.display='none';
+},
 4000
 );
 
 }
 
+
 function showModule(id){
 
 document
 .querySelectorAll('.card[id]')
-.forEach(e=>e.classList.add('hidden'));
+.forEach(card=>{
+card.classList.add('hidden');
+});
 
-const e=document.getElementById(id);
+const element =
+document.getElementById(id);
 
-if(e)e.classList.remove('hidden');
+if(!element)return;
 
-if(id==='inventory')loadInventory();
-if(id==='garage')loadGarage();
-if(id==='sales')renderSales();
-if(id==='purchases')renderPurchases();
-if(id==='expenses')renderExpenses();
-if(id==='partners')renderPartners();
-if(id==='payroll')renderPayroll();
-if(id==='accounting')updateDashboard();
-if(id==='reports')loadReports();
-if(id==='social')loadSocialConnections();
+element.classList.remove('hidden');
+
+
+if(id==='inventory'){
+loadInventory();
+}
+
+if(id==='garage'){
+loadGarage();
+}
+
+if(id==='sales'){
+renderSales();
+}
+
+if(id==='purchases'){
+renderPurchases();
+}
+
+if(id==='expenses'){
+renderExpenses();
+}
+
+if(id==='partners'){
+renderPartners();
+}
+
+if(id==='payroll'){
+renderPayroll();
+}
+
+if(id==='accounting'){
+updateDashboard();
+}
+
+if(id==='reports'){
+loadReports();
+}
+
+if(id==='planner'){
+loadPlan();
+}
+
+if(id==='social'){
+loadSocialConnections();
+}
+
 
 window.scrollTo({
-top:e?e.offsetTop-10:0,
+top:element.offsetTop-10,
 behavior:'smooth'
 });
 
 }
 
+
+/* DASHBOARD */
+
 function updateDashboard(){
 
-const s=sales.reduce(
-(a,x)=>a+Number(x.amount||0),0
+const salesTotal =
+sales.reduce(
+(total,item)=>
+total + Number(item.amount || 0),
+0
 );
 
-const p=purchases.reduce(
-(a,x)=>a+Number(x.amount||0),0
+const purchasesTotal =
+purchases.reduce(
+(total,item)=>
+total + Number(item.amount || 0),
+0
 );
 
-const ex=expenses.reduce(
-(a,x)=>a+Number(x.amount||0),0
+const expensesTotal =
+expenses.reduce(
+(total,item)=>
+total + Number(item.amount || 0),
+0
 );
 
-const b=s-p-ex;
+const balance =
+salesTotal -
+purchasesTotal -
+expensesTotal;
 
-document.getElementById('totalSales').textContent=money(s);
 
-document.getElementById('totalPurchases').textContent=money(p);
+document.getElementById(
+'totalSales'
+).textContent=money(salesTotal);
 
-document.getElementById('totalExpenses').textContent=money(ex);
+document.getElementById(
+'totalPurchases'
+).textContent=money(purchasesTotal);
 
-document.getElementById('balance').textContent=money(b);
+document.getElementById(
+'totalExpenses'
+).textContent=money(expensesTotal);
 
-document.getElementById('accSales').textContent=money(s);
+document.getElementById(
+'balance'
+).textContent=money(balance);
 
-document.getElementById('accPurchases').textContent=money(p);
 
-document.getElementById('accExpenses').textContent=money(ex);
+document.getElementById(
+'accSales'
+).textContent=money(salesTotal);
 
-document.getElementById('accBalance').textContent=money(b);
+document.getElementById(
+'accPurchases'
+).textContent=money(purchasesTotal);
+
+document.getElementById(
+'accExpenses'
+).textContent=money(expensesTotal);
+
+document.getElementById(
+'accBalance'
+).textContent=money(balance);
 
 }
 
-/* INVENTORY */
 
-document.getElementById('inventoryForm')
-.addEventListener('submit',async e=>{
+/* =========================================================
+   INVENTORY — SUPABASE
+   ========================================================= */
 
-e.preventDefault();
+document
+.getElementById('inventoryForm')
+.addEventListener(
+'submit',
+async function(event){
+
+event.preventDefault();
 
 const product={
 
-name:document.getElementById('inv_name').value.trim(),
+name:
+document.getElementById(
+'inv_name'
+).value.trim(),
 
 category:
-document.getElementById('inv_category').value.trim()||null,
+document.getElementById(
+'inv_category'
+).value.trim() || null,
 
 quantity:
-Number(document.getElementById('inv_quantity').value||0),
+Number(
+document.getElementById(
+'inv_quantity'
+).value || 0
+),
 
 buying_price:
-Number(document.getElementById('inv_buying_price').value||0),
+Number(
+document.getElementById(
+'inv_buying_price'
+).value || 0
+),
 
 selling_price:
-Number(document.getElementById('inv_selling_price').value||0)
+Number(
+document.getElementById(
+'inv_selling_price'
+).value || 0
+)
 
 };
 
-msg(
-'inventoryMessage',
-'Saving...'
-);
 
-const {error}=await supabaseClient
-.from('products')
-.insert([product]);
-
-if(error){
+if(!product.name){
 
 msg(
 'inventoryMessage',
-'Error saving product: '+error.message,
+'Product name is required.',
 true
 );
 
@@ -807,43 +1504,84 @@ return;
 
 }
 
-e.target.reset();
 
-document.getElementById('inv_quantity').value=0;
+msg(
+'inventoryMessage',
+'Saving...'
+);
 
-document.getElementById('inv_buying_price').value=0;
 
-document.getElementById('inv_selling_price').value=0;
+const {error} =
+await supabaseClient
+.from('products')
+.insert([product]);
+
+
+if(error){
+
+msg(
+'inventoryMessage',
+'Error saving product: '+
+error.message,
+true
+);
+
+return;
+
+}
+
+
+event.target.reset();
+
+document.getElementById(
+'inv_quantity'
+).value=0;
+
+document.getElementById(
+'inv_buying_price'
+).value=0;
+
+document.getElementById(
+'inv_selling_price'
+).value=0;
+
 
 msg(
 'inventoryMessage',
 'Product saved successfully to Supabase.'
 );
 
-loadInventory();
+await loadInventory();
 
-});
+}
+);
+
 
 async function loadInventory(){
 
-const b=document.getElementById(
+const body =
+document.getElementById(
 'inventoryTableBody'
 );
 
-if(!b)return;
+if(!body)return;
 
-b.innerHTML=
+body.innerHTML=
 '<tr><td colspan="6">Loading...</td></tr>';
 
-const {data,error}=await supabaseClient
+
+const {data,error} =
+await supabaseClient
 .from('products')
 .select('*')
 .order('id',{ascending:false});
 
+
 if(error){
 
-b.innerHTML=
-'<tr><td colspan="6">Could not load inventory: '+
+body.innerHTML=
+'<tr><td colspan="6">'+
+'Could not load inventory: '+
 esc(error.message)+
 '</td></tr>';
 
@@ -851,108 +1589,162 @@ return;
 
 }
 
-if(!data?.length){
 
-b.innerHTML=
-'<tr><td colspan="6">No products recorded yet.</td></tr>';
+if(!data || !data.length){
+
+body.innerHTML=
+'<tr><td colspan="6" class="empty">'+
+'No products recorded yet.'+
+'</td></tr>';
 
 return;
 
 }
 
-b.innerHTML=data.map(p=>{
 
-const q=Number(p.quantity||0);
+body.innerHTML =
+data.map(product=>{
 
-const buy=Number(p.buying_price||0);
+const quantity =
+Number(product.quantity || 0);
 
-const sell=Number(p.selling_price||0);
+const buying =
+Number(product.buying_price || 0);
 
-return '<tr>'+
-'<td>'+esc(p.name)+'</td>'+
-'<td>'+esc(p.category)+'</td>'+
-'<td>'+q+'</td>'+
-'<td>'+money(buy)+'</td>'+
-'<td>'+money(sell)+'</td>'+
-'<td>'+money(q*buy)+'</td>'+
-'</tr>';
+const selling =
+Number(product.selling_price || 0);
+
+return `
+<tr>
+<td>${esc(product.name)}</td>
+<td>${esc(product.category)}</td>
+<td>${quantity}</td>
+<td>${money(buying)}</td>
+<td>${money(selling)}</td>
+<td>${money(quantity * buying)}</td>
+</tr>
+`;
 
 }).join('');
 
 }
 
-/* GARAGE */
 
-document.getElementById('garageForm')
-.addEventListener('submit',async e=>{
+/* =========================================================
+   GARAGE — SUPABASE
+   ========================================================= */
 
-e.preventDefault();
+document
+.getElementById('garageForm')
+.addEventListener(
+'submit',
+async function(event){
 
-const v=id=>document.getElementById(id).value;
+event.preventDefault();
+
+
+const value =
+id => document.getElementById(id).value.trim();
+
 
 const job={
 
-'Job_number':v('job_number')||null,
+'Job_number':
+value('job_number') || null,
 
-'Customer name':v('customer_name')||null,
+'Customer name':
+value('customer_name') || null,
 
-'Customer_phone':v('customer_phone')||null,
+'Customer_phone':
+value('customer_phone') || null,
 
-'customer_adress':v('customer_address')||null,
+'customer_adress':
+value('customer_address') || null,
 
-'Vehicle_name':v('vehicle_name')||null,
+'Vehicle_name':
+value('vehicle_name') || null,
 
-'Vehicle_model':v('vehicle_model')||null,
+'Vehicle_model':
+value('vehicle_model') || null,
 
-'Vehicle_color':v('vehicle_color')||null,
+'Vehicle_color':
+value('vehicle_color') || null,
 
-'machanic_name':v('mechanic_name')||null,
+'machanic_name':
+value('mechanic_name') || null,
 
-'Job status':v('job_status')||null,
+'Job status':
+value('job_status') || null,
 
-'Payment_status':v('payment_status')||null,
+'Payment_status':
+value('payment_status') || null,
 
-'Payment_method':v('payment_method')||null,
+'Payment_method':
+value('payment_method') || null,
 
-'Invoice_number':v('invoice_number')||null,
+'Invoice_number':
+value('invoice_number') || null,
 
 'Job_cost':
-v('job_cost')?Number(v('job_cost')):null,
+value('job_cost')
+?
+Number(value('job_cost'))
+:null,
 
 'parts_cost':
-v('parts_cost')?Number(v('parts_cost')):null,
+value('parts_cost')
+?
+Number(value('parts_cost'))
+:null,
 
 'service_date':
-v('service_date')||null,
+value('service_date') || null,
 
 'estimated_completion_date':
-v('estimated_completion_date')||null,
+value('estimated_completion_date') || null,
 
 'completion_date':
-v('completion_date')||null,
+value('completion_date') || null,
 
 'pik up_status':
-v('pickup_status')||null,
+value('pickup_status') || null,
 
 'Warranty':
-v('warranty')||null,
+value('warranty') || null,
 
 'repaire_descrption':
-v('repair_description')||null,
+value('repair_description') || null,
 
 'notes':
-v('garage_notes')||null
+value('garage_notes') || null
 
 };
+
+
+if(!job['Customer name']){
+
+msg(
+'garageMessage',
+'Customer name is required.',
+true
+);
+
+return;
+
+}
+
 
 msg(
 'garageMessage',
 'Saving...'
 );
 
-const {error}=await supabaseClient
+
+const {error} =
+await supabaseClient
 .from('Garage_jobs')
 .insert([job]);
+
 
 if(error){
 
@@ -967,37 +1759,47 @@ return;
 
 }
 
-e.target.reset();
+
+event.target.reset();
+
 
 msg(
 'garageMessage',
 'Garage activity saved successfully to Supabase.'
 );
 
-loadGarage();
 
-});
+await loadGarage();
+
+}
+);
+
 
 async function loadGarage(){
 
-const b=document.getElementById(
+const body =
+document.getElementById(
 'garageTableBody'
 );
 
-if(!b)return;
+if(!body)return;
 
-b.innerHTML=
+body.innerHTML=
 '<tr><td colspan="6">Loading...</td></tr>';
 
-const {data,error}=await supabaseClient
+
+const {data,error} =
+await supabaseClient
 .from('Garage_jobs')
 .select('*')
 .order('id',{ascending:false});
 
+
 if(error){
 
-b.innerHTML=
-'<tr><td colspan="6">Could not load garage activities: '+
+body.innerHTML=
+'<tr><td colspan="6">'+
+'Could not load garage activities: '+
 esc(error.message)+
 '</td></tr>';
 
@@ -1005,587 +1807,1057 @@ return;
 
 }
 
-if(!data?.length){
 
-b.innerHTML=
-'<tr><td colspan="6">No garage activities recorded yet.</td></tr>';
+if(!data || !data.length){
+
+body.innerHTML=
+'<tr><td colspan="6" class="empty">'+
+'No garage activities recorded yet.'+
+'</td></tr>';
 
 return;
 
 }
 
-b.innerHTML=data.map(x=>
 
-'<tr>'+
-'<td>'+esc(x['Customer name'])+'</td>'+
-'<td>'+esc(x.Vehicle_name)+' '+esc(x.Vehicle_model)+'</td>'+
-'<td>'+esc(x.machanic_name)+'</td>'+
-'<td>'+esc(x['Job status'])+'</td>'+
-'<td>'+money(x.Job_cost)+'</td>'+
-'<td>'+esc(x.Payment_status)+'</td>'+
-'</tr>'
+body.innerHTML =
+data.map(job=>`
 
-).join('');
+<tr>
+<td>${esc(job['Customer name'])}</td>
+
+<td>
+${esc(job.Vehicle_name)}
+${job.Vehicle_model
+? ' '+esc(job.Vehicle_model)
+: ''}
+</td>
+
+<td>${esc(job.machanic_name)}</td>
+
+<td>${esc(job['Job status'])}</td>
+
+<td>${money(job.Job_cost)}</td>
+
+<td>${esc(job.Payment_status)}</td>
+</tr>
+
+`).join('');
 
 }
 
-/* SALES */
 
-document.getElementById('salesForm')
-.addEventListener('submit',e=>{
+/* =========================================================
+   SALES
+   ========================================================= */
 
-e.preventDefault();
+document
+.getElementById('salesForm')
+.addEventListener(
+'submit',
+function(event){
 
-sales.push({
+event.preventDefault();
+
+
+const sale={
 
 date:
-document.getElementById('sale_date').value||
-new Date().toISOString().slice(0,10),
+document.getElementById(
+'sale_date'
+).value || today(),
 
 invoice:
-document.getElementById('sale_invoice').value,
+document.getElementById(
+'sale_invoice'
+).value.trim(),
 
 customer:
-document.getElementById('sale_customer').value,
+document.getElementById(
+'sale_customer'
+).value.trim(),
 
 product:
-document.getElementById('sale_product').value,
+document.getElementById(
+'sale_product'
+).value.trim(),
 
 amount:
 Number(
-document.getElementById('sale_amount').value||0
+document.getElementById(
+'sale_amount'
+).value || 0
 ),
 
 status:
-document.getElementById('sale_payment').value
+document.getElementById(
+'sale_payment'
+).value
 
-});
+};
 
-setArr(KEY.sales,sales);
 
-e.target.reset();
+if(!sale.product){
 
 msg(
 'salesMessage',
-'Sale saved.'
+'Product or service is required.',
+true
+);
+
+return;
+
+}
+
+
+if(sale.amount<=0){
+
+msg(
+'salesMessage',
+'Amount must be greater than zero.',
+true
+);
+
+return;
+
+}
+
+
+sales.push(sale);
+
+setArr(KEY.sales,sales);
+
+event.target.reset();
+
+document.getElementById(
+'sale_date'
+).value=today();
+
+
+msg(
+'salesMessage',
+'Sale saved successfully.'
 );
 
 renderSales();
 
 updateDashboard();
 
-});
+loadReports();
+
+}
+);
+
 
 function renderSales(){
 
+const body =
 document.getElementById(
 'salesTableBody'
-).innerHTML=
+);
 
-sales.length?
+if(!body)return;
 
-sales.slice().reverse().map(x=>
 
-'<tr>'+
-'<td>'+esc(x.date)+'</td>'+
-'<td>'+esc(x.invoice)+'</td>'+
-'<td>'+esc(x.customer)+'</td>'+
-'<td>'+esc(x.product)+'</td>'+
-'<td>'+money(x.amount)+'</td>'+
-'<td>'+esc(x.status)+'</td>'+
-'</tr>'
+if(!sales.length){
 
-).join(''):
+body.innerHTML=
+'<tr><td colspan="6" class="empty">'+
+'No sales recorded yet.'+
+'</td></tr>';
 
-'<tr><td colspan="6">No sales recorded yet.</td></tr>';
+return;
 
 }
 
-/* PURCHASES */
 
-document.getElementById('purchaseForm')
-.addEventListener('submit',e=>{
+body.innerHTML =
+sales
+.slice()
+.reverse()
+.map(item=>`
 
-e.preventDefault();
+<tr>
 
-purchases.push({
+<td>${esc(item.date)}</td>
+
+<td>${esc(item.invoice)}</td>
+
+<td>${esc(item.customer)}</td>
+
+<td>${esc(item.product)}</td>
+
+<td>${money(item.amount)}</td>
+
+<td>${esc(item.status)}</td>
+
+</tr>
+
+`).join('');
+
+}
+
+
+/* =========================================================
+   PURCHASES
+   ========================================================= */
+
+document
+.getElementById('purchaseForm')
+.addEventListener(
+'submit',
+function(event){
+
+event.preventDefault();
+
+
+const purchase={
 
 date:
-document.getElementById('purchase_date').value||
-new Date().toISOString().slice(0,10),
+document.getElementById(
+'purchase_date'
+).value || today(),
 
 supplier:
-document.getElementById('purchase_supplier').value,
+document.getElementById(
+'purchase_supplier'
+).value.trim(),
 
 product:
-document.getElementById('purchase_product').value,
+document.getElementById(
+'purchase_product'
+).value.trim(),
 
 amount:
 Number(
-document.getElementById('purchase_amount').value||0
+document.getElementById(
+'purchase_amount'
+).value || 0
 ),
 
 status:
-document.getElementById('purchase_payment').value
+document.getElementById(
+'purchase_payment'
+).value
 
-});
+};
 
-setArr(KEY.purchases,purchases);
 
-e.target.reset();
+if(!purchase.product){
 
 msg(
 'purchaseMessage',
-'Purchase saved.'
+'Product is required.',
+true
+);
+
+return;
+
+}
+
+
+if(purchase.amount<=0){
+
+msg(
+'purchaseMessage',
+'Amount must be greater than zero.',
+true
+);
+
+return;
+
+}
+
+
+purchases.push(purchase);
+
+setArr(KEY.purchases,purchases);
+
+event.target.reset();
+
+document.getElementById(
+'purchase_date'
+).value=today();
+
+
+msg(
+'purchaseMessage',
+'Purchase saved successfully.'
 );
 
 renderPurchases();
 
 updateDashboard();
 
-});
+loadReports();
+
+}
+);
+
 
 function renderPurchases(){
 
+const body =
 document.getElementById(
 'purchaseTableBody'
-).innerHTML=
+);
 
-purchases.length?
+if(!body)return;
 
-purchases.slice().reverse().map(x=>
 
-'<tr>'+
-'<td>'+esc(x.date)+'</td>'+
-'<td>'+esc(x.supplier)+'</td>'+
-'<td>'+esc(x.product)+'</td>'+
-'<td>'+money(x.amount)+'</td>'+
-'<td>'+esc(x.status)+'</td>'+
-'</tr>'
+if(!purchases.length){
 
-).join(''):
+body.innerHTML=
+'<tr><td colspan="5" class="empty">'+
+'No purchases recorded yet.'+
+'</td></tr>';
 
-'<tr><td colspan="5">No purchases recorded yet.</td></tr>';
+return;
 
 }
 
-/* EXPENSES */
 
-document.getElementById('expenseForm')
-.addEventListener('submit',e=>{
+body.innerHTML =
+purchases
+.slice()
+.reverse()
+.map(item=>`
 
-e.preventDefault();
+<tr>
 
-expenses.push({
+<td>${esc(item.date)}</td>
+
+<td>${esc(item.supplier)}</td>
+
+<td>${esc(item.product)}</td>
+
+<td>${money(item.amount)}</td>
+
+<td>${esc(item.status)}</td>
+
+</tr>
+
+`).join('');
+
+}
+
+
+/* =========================================================
+   EXPENSES
+   ========================================================= */
+
+document
+.getElementById('expenseForm')
+.addEventListener(
+'submit',
+function(event){
+
+event.preventDefault();
+
+
+const expense={
 
 date:
-document.getElementById('expense_date').value||
-new Date().toISOString().slice(0,10),
+document.getElementById(
+'expense_date'
+).value || today(),
 
 name:
-document.getElementById('expense_name').value,
+document.getElementById(
+'expense_name'
+).value.trim(),
 
 category:
-document.getElementById('expense_category').value,
+document.getElementById(
+'expense_category'
+).value.trim(),
 
 amount:
 Number(
-document.getElementById('expense_amount').value||0
+document.getElementById(
+'expense_amount'
+).value || 0
 ),
 
 notes:
-document.getElementById('expense_notes').value
+document.getElementById(
+'expense_notes'
+).value.trim()
 
-});
+};
 
-setArr(KEY.expenses,expenses);
 
-e.target.reset();
+if(!expense.name){
 
 msg(
 'expenseMessage',
-'Expense saved.'
+'Expense name is required.',
+true
+);
+
+return;
+
+}
+
+
+if(expense.amount<=0){
+
+msg(
+'expenseMessage',
+'Amount must be greater than zero.',
+true
+);
+
+return;
+
+}
+
+
+expenses.push(expense);
+
+setArr(KEY.expenses,expenses);
+
+event.target.reset();
+
+document.getElementById(
+'expense_date'
+).value=today();
+
+
+msg(
+'expenseMessage',
+'Expense saved successfully.'
 );
 
 renderExpenses();
 
 updateDashboard();
 
-});
+loadReports();
+
+}
+);
+
 
 function renderExpenses(){
 
+const body =
 document.getElementById(
 'expenseTableBody'
-).innerHTML=
+);
 
-expenses.length?
+if(!body)return;
 
-expenses.slice().reverse().map(x=>
 
-'<tr>'+
-'<td>'+esc(x.date)+'</td>'+
-'<td>'+esc(x.name)+'</td>'+
-'<td>'+esc(x.category)+'</td>'+
-'<td>'+money(x.amount)+'</td>'+
-'<td>'+esc(x.notes)+'</td>'+
-'</tr>'
+if(!expenses.length){
 
-).join(''):
+body.innerHTML=
+'<tr><td colspan="5" class="empty">'+
+'No expenses recorded yet.'+
+'</td></tr>';
 
-'<tr><td colspan="5">No expenses recorded yet.</td></tr>';
+return;
 
 }
 
-/* PARTNERS */
 
-document.getElementById('partnerForm')
-.addEventListener('submit',e=>{
+body.innerHTML =
+expenses
+.slice()
+.reverse()
+.map(item=>`
 
-e.preventDefault();
+<tr>
 
-partners.push({
+<td>${esc(item.date)}</td>
+
+<td>${esc(item.name)}</td>
+
+<td>${esc(item.category)}</td>
+
+<td>${money(item.amount)}</td>
+
+<td>${esc(item.notes)}</td>
+
+</tr>
+
+`).join('');
+
+}
+
+
+/* =========================================================
+   CUSTOMERS & PARTNERS
+   ========================================================= */
+
+document
+.getElementById('partnerForm')
+.addEventListener(
+'submit',
+function(event){
+
+event.preventDefault();
+
+
+const contact={
 
 name:
-document.getElementById('partner_name').value,
+document.getElementById(
+'partner_name'
+).value.trim(),
 
 type:
-document.getElementById('partner_type').value,
+document.getElementById(
+'partner_type'
+).value,
 
 phone:
-document.getElementById('partner_phone').value,
+document.getElementById(
+'partner_phone'
+).value.trim(),
 
 email:
-document.getElementById('partner_email').value,
+document.getElementById(
+'partner_email'
+).value.trim(),
 
 address:
-document.getElementById('partner_address').value
+document.getElementById(
+'partner_address'
+).value.trim()
 
-});
+};
 
-setArr(KEY.partners,partners);
 
-e.target.reset();
+if(!contact.name){
 
 msg(
 'partnerMessage',
-'Contact saved.'
+'Name is required.',
+true
+);
+
+return;
+
+}
+
+
+partners.push(contact);
+
+setArr(KEY.partners,partners);
+
+event.target.reset();
+
+
+msg(
+'partnerMessage',
+'Contact saved successfully.'
 );
 
 renderPartners();
 
-});
+}
+);
+
 
 function renderPartners(){
 
+const body =
 document.getElementById(
 'partnerTableBody'
-).innerHTML=
+);
 
-partners.length?
+if(!body)return;
 
-partners.slice().reverse().map(x=>
 
-'<tr>'+
-'<td>'+esc(x.name)+'</td>'+
-'<td>'+esc(x.type)+'</td>'+
-'<td>'+esc(x.phone)+'</td>'+
-'<td>'+esc(x.email)+'</td>'+
-'<td>'+esc(x.address)+'</td>'+
-'</tr>'
+if(!partners.length){
 
-).join(''):
+body.innerHTML=
+'<tr><td colspan="5" class="empty">'+
+'No contacts recorded yet.'+
+'</td></tr>';
 
-'<tr><td colspan="5">No contacts recorded yet.</td></tr>';
+return;
 
 }
 
-/* PAYROLL */
 
-document.getElementById('payrollForm')
-.addEventListener('submit',e=>{
+body.innerHTML =
+partners
+.slice()
+.reverse()
+.map(item=>`
 
-e.preventDefault();
+<tr>
 
-const base=
+<td>${esc(item.name)}</td>
+
+<td>${esc(item.type)}</td>
+
+<td>${esc(item.phone)}</td>
+
+<td>${esc(item.email)}</td>
+
+<td>${esc(item.address)}</td>
+
+</tr>
+
+`).join('');
+
+}
+
+
+/* =========================================================
+   PAYROLL
+   ========================================================= */
+
+document
+.getElementById('payrollForm')
+.addEventListener(
+'submit',
+function(event){
+
+event.preventDefault();
+
+
+const base =
 Number(
-document.getElementById('pay_base').value||0
+document.getElementById(
+'pay_base'
+).value || 0
 );
 
-const allow=
+const allowance =
 Number(
-document.getElementById('pay_allowance').value||0
+document.getElementById(
+'pay_allowance'
+).value || 0
 );
 
-const ded=
+const deduction =
 Number(
-document.getElementById('pay_deduction').value||0
+document.getElementById(
+'pay_deduction'
+).value || 0
 );
 
-payroll.push({
+
+const record={
 
 month:
-document.getElementById('pay_month').value,
+document.getElementById(
+'pay_month'
+).value || currentMonth(),
 
 worker:
-document.getElementById('pay_worker').value,
+document.getElementById(
+'pay_worker'
+).value.trim(),
 
 position:
-document.getElementById('pay_position').value,
+document.getElementById(
+'pay_position'
+).value.trim(),
 
-base,
+base:base,
 
-allowance:allow,
+allowance:allowance,
 
-deduction:ded,
+deduction:deduction,
 
-net:base+allow-ded,
+net:
+base + allowance - deduction,
 
 status:
-document.getElementById('pay_status').value
+document.getElementById(
+'pay_status'
+).value
 
-});
+};
 
-setArr(KEY.payroll,payroll);
 
-e.target.reset();
+if(!record.worker){
 
 msg(
 'payMessage',
-'Salary record saved.'
+'Worker name is required.',
+true
+);
+
+return;
+
+}
+
+
+payroll.push(record);
+
+setArr(KEY.payroll,payroll);
+
+event.target.reset();
+
+document.getElementById(
+'pay_month'
+).value=currentMonth();
+
+
+msg(
+'payMessage',
+'Salary record saved successfully.'
 );
 
 renderPayroll();
 
-});
+}
+);
+
 
 function renderPayroll(){
 
+const body =
 document.getElementById(
 'payTableBody'
-).innerHTML=
+);
 
-payroll.length?
+if(!body)return;
 
-payroll.slice().reverse().map(x=>
 
-'<tr>'+
-'<td>'+esc(x.month)+'</td>'+
-'<td>'+esc(x.worker)+'</td>'+
-'<td>'+esc(x.position)+'</td>'+
-'<td>'+money(x.base)+'</td>'+
-'<td>'+money(x.allowance)+'</td>'+
-'<td>'+money(x.deduction)+'</td>'+
-'<td>'+money(x.net)+'</td>'+
-'<td>'+esc(x.status)+'</td>'+
-'</tr>'
+if(!payroll.length){
 
-).join(''):
+body.innerHTML=
+'<tr><td colspan="8" class="empty">'+
+'No salary records yet.'+
+'</td></tr>';
 
-'<tr><td colspan="8">No salary records yet.</td></tr>';
+return;
 
 }
 
-/* BUSINESS PLAN */
+
+body.innerHTML =
+payroll
+.slice()
+.reverse()
+.map(item=>`
+
+<tr>
+
+<td>${esc(item.month)}</td>
+
+<td>${esc(item.worker)}</td>
+
+<td>${esc(item.position)}</td>
+
+<td>${money(item.base)}</td>
+
+<td>${money(item.allowance)}</td>
+
+<td>${money(item.deduction)}</td>
+
+<td>${money(item.net)}</td>
+
+<td>${esc(item.status)}</td>
+
+</tr>
+
+`).join('');
+
+}
+
+
+/* =========================================================
+   ACCOUNTING
+   ========================================================= */
+
+function refreshAccounting(){
+
+updateDashboard();
+
+}
+
+
+/* =========================================================
+   BUSINESS PLANNER
+   ========================================================= */
 
 function savePlan(){
 
+const text =
+document.getElementById(
+'planText'
+).value;
+
 localStorage.setItem(
-'cwb_plan_v2',
-document.getElementById('planText').value
+KEY.plan,
+text
 );
 
 msg(
 'planMessage',
-'Business plan saved.'
+'Business plan saved successfully.'
 );
 
 }
+
 
 function loadPlan(){
 
-document.getElementById('planText').value=
-localStorage.getItem('cwb_plan_v2')||'';
+const text =
+localStorage.getItem(KEY.plan) || '';
 
-msg(
-'planMessage',
-'Business plan loaded.'
-);
+document.getElementById(
+'planText'
+).value=text;
 
 }
 
-/* REPORTS */
+
+/* =========================================================
+   REPORTS
+   ========================================================= */
 
 function loadReports(){
 
-const s=sales.reduce(
-(a,x)=>a+Number(x.amount||0),0
+const salesTotal =
+sales.reduce(
+(total,item)=>
+total + Number(item.amount || 0),
+0
 );
 
-const p=purchases.reduce(
-(a,x)=>a+Number(x.amount||0),0
+const purchaseTotal =
+purchases.reduce(
+(total,item)=>
+total + Number(item.amount || 0),
+0
 );
 
-const ex=expenses.reduce(
-(a,x)=>a+Number(x.amount||0),0
+const expenseTotal =
+expenses.reduce(
+(total,item)=>
+total + Number(item.amount || 0),
+0
 );
 
+const net =
+salesTotal -
+purchaseTotal -
+expenseTotal;
+
+
+const report =
 document.getElementById(
 'reportContent'
-).innerHTML=
+);
 
-'<div class="dashboard">'+
+if(!report)return;
 
-'<div class="stat">Sales<strong>'+
-money(s)+
-'</strong></div>'+
 
-'<div class="stat">Purchases<strong>'+
-money(p)+
-'</strong></div>'+
+report.innerHTML=`
 
-'<div class="stat">Expenses<strong>'+
-money(ex)+
-'</strong></div>'+
+<div class="dashboard">
 
-'<div class="stat">Net<strong>'+
-money(s-p-ex)+
-'</strong></div>'+
+<div class="stat">
+Sales
+<strong>${money(salesTotal)}</strong>
+</div>
 
-'</div>'+
+<div class="stat">
+Purchases
+<strong>${money(purchaseTotal)}</strong>
+</div>
 
-'<p>'+
+<div class="stat">
+Expenses
+<strong>${money(expenseTotal)}</strong>
+</div>
 
-'<span class="pill">Sales records: '+
-sales.length+
-'</span>'+
+<div class="stat">
+Net
+<strong>${money(net)}</strong>
+</div>
 
-'<span class="pill">Purchase records: '+
-purchases.length+
-'</span>'+
+</div>
 
-'<span class="pill">Expense records: '+
-expenses.length+
-'</span>'+
+<p>
 
-'<span class="pill">Payroll records: '+
-payroll.length+
-'</span>'+
+<span class="pill">
+Sales records: ${sales.length}
+</span>
 
-'</p>';
+<span class="pill">
+Purchase records: ${purchases.length}
+</span>
+
+<span class="pill">
+Expense records: ${expenses.length}
+</span>
+
+<span class="pill">
+Payroll records: ${payroll.length}
+</span>
+
+</p>
+
+`;
 
 }
 
-/* SOCIAL CONNECTIONS */
 
-const SOCIAL_KEY='cwb_social_connections_v1';
+/* =========================================================
+   SOCIAL CONNECTIONS
+   ========================================================= */
+
+const SOCIAL_KEY =
+'cwb_social_connections_v2';
+
+
+function getSocial(){
+
+try{
+
+return JSON.parse(
+localStorage.getItem(SOCIAL_KEY)
+) || {};
+
+}catch(error){
+
+return {};
+
+}
+
+}
+
 
 function saveSocialConnections(){
 
 const social={
 
 facebook:
-document.getElementById('social_facebook').value.trim(),
+document.getElementById(
+'social_facebook'
+).value.trim(),
 
 instagram:
-document.getElementById('social_instagram').value.trim(),
+document.getElementById(
+'social_instagram'
+).value.trim(),
 
 whatsapp:
-document.getElementById('social_whatsapp').value.trim(),
+document.getElementById(
+'social_whatsapp'
+).value.trim(),
 
 tiktok:
-document.getElementById('social_tiktok').value.trim(),
+document.getElementById(
+'social_tiktok'
+).value.trim(),
 
 youtube:
-document.getElementById('social_youtube').value.trim(),
+document.getElementById(
+'social_youtube'
+).value.trim(),
 
 linkedin:
-document.getElementById('social_linkedin').value.trim()
+document.getElementById(
+'social_linkedin'
+).value.trim()
 
 };
+
 
 localStorage.setItem(
 SOCIAL_KEY,
 JSON.stringify(social)
 );
 
+
 msg(
 'socialMessage',
 'Social connections saved successfully.'
 );
 
+
 renderSocialConnections();
 
 }
+
 
 function loadSocialConnections(){
 
-let social={};
+const social=getSocial();
 
-try{
-
-social=
-JSON.parse(
-localStorage.getItem(SOCIAL_KEY)
-)||{};
-
-}catch(e){
-
-social={};
-
-}
 
 document.getElementById(
 'social_facebook'
-).value=social.facebook||'';
+).value=
+social.facebook || '';
 
 document.getElementById(
 'social_instagram'
-).value=social.instagram||'';
+).value=
+social.instagram || '';
 
 document.getElementById(
 'social_whatsapp'
-).value=social.whatsapp||'';
+).value=
+social.whatsapp || '';
 
 document.getElementById(
 'social_tiktok'
-).value=social.tiktok||'';
+).value=
+social.tiktok || '';
 
 document.getElementById(
 'social_youtube'
-).value=social.youtube||'';
+).value=
+social.youtube || '';
 
 document.getElementById(
 'social_linkedin'
-).value=social.linkedin||'';
+).value=
+social.linkedin || '';
+
 
 renderSocialConnections();
 
 }
 
+
+function safeUrl(url){
+
+try{
+
+const parsed =
+new URL(url);
+
+if(
+parsed.protocol==='https:' ||
+parsed.protocol==='http:'
+){
+
+return parsed.href;
+
+}
+
+}catch(error){}
+
+return '';
+
+}
+
+
 function renderSocialConnections(){
 
-const body=
+const body =
 document.getElementById(
 'socialTableBody'
 );
 
 if(!body)return;
 
-let social={};
 
-try{
+const social=getSocial();
 
-social=
-JSON.parse(
-localStorage.getItem(SOCIAL_KEY)
-)||{};
-
-}catch(e){
-
-social={};
-
-}
 
 const platforms=[
 
@@ -1598,52 +2870,117 @@ const platforms=[
 
 ];
 
-body.innerHTML=
 
-platforms.map(x=>{
+body.innerHTML =
+platforms.map(platform=>{
 
-const name=x[0];
+const name=platform[0];
 
-const url=x[1];
+const rawUrl=platform[1];
+
+const url=safeUrl(rawUrl);
+
 
 if(!url){
 
-return '<tr>'+
-'<td>'+esc(name)+'</td>'+
-'<td>Not connected</td>'+
-'<td>—</td>'+
-'</tr>';
+return `
+
+<tr>
+
+<td>${esc(name)}</td>
+
+<td>Not connected</td>
+
+<td>—</td>
+
+</tr>
+
+`;
 
 }
 
-return '<tr>'+
-'<td>'+esc(name)+'</td>'+
-'<td>'+esc(url)+'</td>'+
-'<td>'+
-'<a class="social-link" href="'+
-esc(url)+
-'" target="_blank" rel="noopener noreferrer">'+
-'<button class="btn" type="button">Open</button>'+
-'</a>'+
-'</td>'+
-'</tr>';
+
+return `
+
+<tr>
+
+<td>${esc(name)}</td>
+
+<td>${esc(url)}</td>
+
+<td>
+
+<a
+class="social-link"
+href="${esc(url)}"
+target="_blank"
+rel="noopener noreferrer">
+
+<button
+class="btn"
+type="button">
+Open
+</button>
+
+</a>
+
+</td>
+
+</tr>
+
+`;
 
 }).join('');
 
 }
 
-document.getElementById('socialForm')
-.addEventListener('submit',e=>{
 
-e.preventDefault();
+document
+.getElementById('socialForm')
+.addEventListener(
+'submit',
+function(event){
+
+event.preventDefault();
 
 saveSocialConnections();
 
-});
+}
+);
 
-/* START */
+
+/* =========================================================
+   DEFAULT DATES
+   ========================================================= */
+
+document.getElementById(
+'sale_date'
+).value=today();
+
+document.getElementById(
+'purchase_date'
+).value=today();
+
+document.getElementById(
+'expense_date'
+).value=today();
+
+document.getElementById(
+'service_date'
+).value=today();
+
+document.getElementById(
+'pay_month'
+).value=currentMonth();
+
+
+/* =========================================================
+   START SYSTEM
+   ========================================================= */
 
 loadSocialConnections();
+
+loadPlan();
 
 updateDashboard();
 
@@ -1661,8 +2998,12 @@ loadReports();
 
 </script>
 
-<div class="small" style="text-align:center;margin:18px 0 6px">
-C.W.B System • Master Version 2
+<div
+class="small"
+style="text-align:center;margin:18px 0 6px">
+
+C.W.B System • Master Version 3
+
 </div>
 
 </body>
