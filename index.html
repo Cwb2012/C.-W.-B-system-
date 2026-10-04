@@ -1073,17 +1073,25 @@ return;
 }
 
 const paymentText=
-'C.W.B PAYMENT\n'+
-'Camel Work and Business company\n'+
-'Merchant Code: 984868\n'+
-'Payment Number: 06691086015\n'+
-'Customer: '+customer+'\n'+
-'Invoice: '+invoice+'\n'+
-'Amount: '+amount+' '+currency+'\n'+
-'Method: '+method+'\n'+
-'Account: '+account+'\n'+
-'Account Name: '+accountName+'\n'+
-'Note: '+note;
+'CWB PAYMENT|Merchant:984868|Number:06691086015|Customer:'+customer+
+'|Invoice:'+invoice+'|Amount:'+amount+' '+currency+
+'|Method:'+method+'|Account:'+account+'|Name:'+accountName+
+'|Note:'+note;
+
+const qrTarget=document.getElementById('generatedQRCode');
+qrTarget.innerHTML='';
+
+if(typeof QRCode==='undefined'){
+msg('qrMessage','QR generator could not load. Please refresh the page.',true);
+return;
+}
+
+new QRCode(qrTarget,{
+text:paymentText,
+width:300,
+height:300,
+correctLevel:QRCode.CorrectLevel.L
+});
 
 const area=document.getElementById('qrArea');
 
