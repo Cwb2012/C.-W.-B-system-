@@ -1169,12 +1169,7 @@ C.W.B System • Master Version 2
 </div>
 `;
 
-new QRCode(document.getElementById('generatedQRCode'),{
-text:paymentText,
-width:220,
-height:220,
-correctLevel:QRCode.CorrectLevel.M
-});
+
 
 document.getElementById('qrText').textContent=paymentText;
 
