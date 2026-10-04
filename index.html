@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <head>
 <link rel="icon" type="image/png" href="file_000000009d80820694001bdae16e2e4b.png">
 <link rel="apple-touch-icon" href="file_000000009d80820694001bdae16e2e4b.png">
@@ -8,7 +9,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="theme-color" content="#111827">
 <title>C.W.B System — Camel Work and Business company</title>
-
+#qrArea canvas,#qrArea img{margin:auto;display:block}
 <style>
 *{box-sizing:border-box}
 
@@ -304,6 +305,8 @@ Business Planner
 
 <button class="module" onclick="showModule('reports')">
 Reports
+</button><button class="module" onclick="showModule('scanpay')">
+Scan & Pay
 </button>
 
 <button class="module" onclick="showModule('website')">
@@ -1033,7 +1036,58 @@ Load Plan
 
 <!-- REPORTS -->
 
-<div id="reports" class="card hidden">
+  <div id="scanpay" class="card hidden">
+<h2>Scan & Pay</h2>
+<p class="small">Create a QR code for a customer payment.</p>
+
+<form id="scanPayForm" onsubmit="event.preventDefault();generateQR()">
+<div class="form-grid">
+
+<div><label>Customer Name</label>
+<input id="qr_customer" required></div>
+
+<div><label>Invoice Number</label>
+<input id="qr_invoice" required></div>
+
+<div><label>Amount</label>
+<input id="qr_amount" type="number" min="0" step="0.01" required></div>
+
+<div><label>Currency</label>
+<select id="qr_currency">
+<option>BIF</option>
+<option>USD</option>
+<option>EUR</option>
+</select></div>
+
+<div><label>Payment Method</label>
+<select id="qr_method">
+<option>Mobile Money</option>
+<option>Bank</option>
+<option>Cash</option>
+<option>Card</option>
+<option>Other</option>
+</select></div>
+
+<div><label>Payment Account / Number</label>
+<input id="qr_account"></div>
+
+<div><label>Payment Name / Account Name</label>
+<input id="qr_account_name"></div>
+
+<div class="full"><label>Note</label>
+<textarea id="qr_note"></textarea></div>
+
+</div>
+
+<button class="btn" type="submit">Generate QR</button>
+<button class="btn secondary" type="button" onclick="clearQR()">Clear QR</button>
+</form>
+
+<div id="qrMessage" class="message"></div>
+<div id="qrArea" class="connection-box"></div>
+<div class="small" style="white-space:pre-wrap;margin-top:10px" id="qrText"></div>
+
+</div>        <div id="reports" class="card hidden">
 
 <h2>Reports</h2>
 
@@ -2858,7 +2912,63 @@ return{};
 
 }
 
+function generateQR(){
+const customer=document.getElementById('qr_customer').value.trim();
+const invoice=document.getElementById('qr_invoice').value.trim();
+const amount=document.getElementById('qr_amount').value;
+const currency=document.getElementById('qr_currency').value;
+const method=document.getElementById('qr_method').value;
+const account=document.getElementById('qr_account').value.trim();
+const accountName=document.getElementById('qr_account_name').value.trim();
+const note=document.getElementById('qr_note').value.trim();
 
+if(!customer || !invoice || !amount){
+msg('qrMessage','Please enter customer name, invoice number and amount.',true);
+return;
+}
+
+if(typeof QRCode==='undefined'){
+msg('qrMessage','QR generator is not available. Check your internet connection and reload.',true);
+return;
+}
+
+const payload=[
+'C.W.B PAYMENT',
+'Camel Work and Business company',
+'Customer: '+customer,
+'Invoice: '+invoice,
+'Amount: '+Number(amount).toLocaleString()+' '+currency,
+'Payment Method: '+method,
+'Payment Account: '+(account || 'Not provided'),
+'Account Name: '+(accountName || 'Not provided'),
+'Note: '+(note || '')
+].join('\n');
+
+const area=document.getElementById('qrArea');
+area.innerHTML='';
+
+new QRCode(area,{
+text:payload,
+width:220,
+height:220,
+correctLevel:QRCode.CorrectLevel.M
+});
+
+document.getElementById('qrText').textContent=payload;
+msg('qrMessage','QR code created successfully.');
+}
+
+function clearQR(){
+document.getElementById('qr_customer').value='';
+document.getElementById('qr_invoice').value='';
+document.getElementById('qr_amount').value='';
+document.getElementById('qr_account').value='';
+document.getElementById('qr_account_name').value='';
+document.getElementById('qr_note').value='';
+document.getElementById('qrArea').innerHTML='';
+document.getElementById('qrText').textContent='';
+document.getElementById('qrMessage').style.display='none';
+}
 function saveSocial(platform){
 
 const input=
