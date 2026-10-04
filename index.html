@@ -1082,9 +1082,15 @@ const qrTarget=document.getElementById('generatedQRCode');
 qrTarget.innerHTML='';
 
 if(typeof QRCode==='undefined'){
-msg('qrMessage','QR generator could not load. Please refresh the page.',true);
-return;
+  msg('qrMessage','QR generator is not loaded. Please refresh the page.',true);
+  return;
 }
+
+new QRCode(qrTarget,{
+  text:paymentText,
+  width:300,
+  height:300
+});
 
 new QRCode(qrTarget,{
 text:paymentText,
