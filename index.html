@@ -1078,26 +1078,7 @@ const paymentText=
 '|Method:'+method+'|Account:'+account+'|Name:'+accountName+
 '|Note:'+note;
 
-const qrTarget=document.getElementById('generatedQRCode');
-qrTarget.innerHTML='';
 
-if(typeof QRCode==='undefined'){
-  msg('qrMessage','QR generator is not loaded. Please refresh the page.',true);
-  return;
-}
-
-new QRCode(qrTarget,{
-  text:paymentText,
-  width:300,
-  height:300
-});
-
-new QRCode(qrTarget,{
-text:paymentText,
-width:300,
-height:300,
-correctLevel:QRCode.CorrectLevel.L
-});
 
 const area=document.getElementById('qrArea');
 
@@ -1169,7 +1150,19 @@ C.W.B System • Master Version 2
 </div>
 `;
 
+const qrTarget=document.getElementById('generatedQRCode');
 
+if(typeof QRCode==='undefined'){
+  msg('qrMessage','QR generator is not loaded. Please refresh the page.',true);
+  return;
+}
+
+new QRCode(qrTarget,{
+  text:paymentText,
+  width:300,
+  height:300,
+  correctLevel:QRCode.CorrectLevel.L
+});
 
 document.getElementById('qrText').textContent=paymentText;
 
