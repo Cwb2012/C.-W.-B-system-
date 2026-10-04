@@ -9,389 +9,70 @@
 <link rel="icon" type="image/png" href="file_000000009d80820694001bdae16e2e4b.png">
 <link rel="apple-touch-icon" href="file_000000009d80820694001bdae16e2e4b.png">
 <link rel="manifest" href="manifest.json">
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
 *{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}
+header{background:linear-gradient(135deg,#111827,#b91c1c);color:#fff;padding:22px 16px;text-align:center}
+header h1{margin:0;font-size:26px}
+header p{margin:7px 0 0}
+.container{max-width:1150px;margin:auto;padding:16px}
+.card{background:#fff;border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 3px 12px rgba(0,0,0,.08)}
+h2{margin-top:0;color:#b91c1c}
+.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px}
+.module,.btn{border:0;border-radius:9px;padding:13px;background:#111827;color:#fff;font-weight:bold;cursor:pointer}
+.module{min-height:58px}.btn{background:#b91c1c;margin:6px 4px 0 0}.btn.secondary{background:#111827}.btn.light{background:#6b7280}
+.stat{background:#f9fafb;border-radius:10px;padding:14px;text-align:center}
+.stat strong{display:block;font-size:20px;margin-top:5px}
+.hidden{display:none}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+label{display:block;font-size:13px;font-weight:bold;margin-bottom:5px}
+input,select,textarea{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:8px;font-size:14px}
+textarea{min-height:80px;resize:vertical}
+.full{grid-column:1/-1}
+.table-wrap{overflow:auto;margin-top:16px}
+table{width:100%;border-collapse:collapse;min-width:750px}
+th,td{border:1px solid #e5e7eb;padding:9px;font-size:12px;text-align:left}
+th{background:#111827;color:#fff}
+.message{margin-top:10px;padding:10px;border-radius:7px;background:#ecfdf5;color:#065f46;display:none}
+.message.error{background:#fef2f2;color:#991b1b}
+.small{font-size:12px;color:#6b7280}
+.footer{text-align:center;color:#6b7280;font-size:12px;padding:20px}
+.pill{display:inline-block;padding:4px 8px;border-radius:12px;background:#f3f4f6;margin:2px;font-size:11px}
+.connection-box{border:1px solid #e5e7eb;border-radius:12px;padding:15px;margin-top:12px;background:#fafafa}
+.connection-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;margin-bottom:12px}
+.connection-row .input-area{min-width:0}
+.connection-actions{display:flex;gap:6px;flex-wrap:wrap}
+.connection-actions .btn{margin:0}
+.link-status{margin-top:5px;font-size:12px;color:#6b7280}
+.social-title{font-weight:bold;font-size:15px;margin-bottom:4px}
+#qrArea canvas,#qrArea img{margin:auto;display:block}
 
-body{
-margin:0;
-font-family:Arial,sans-serif;
-background:#f3f4f6;
-color:#111827
-}
-
-header{
-background:linear-gradient(135deg,#111827,#b91c1c);
-color:#fff;
-padding:22px 16px;
-text-align:center
-}
-
-header h1{
-margin:0;
-font-size:26px
-}
-
-header p{
-margin:7px 0 0
-}
-
-.container{
-max-width:1150px;
-margin:auto;
-padding:16px
-}
-
-.card{
-background:#fff;
-border-radius:14px;
-padding:18px;
-margin-bottom:16px;
-box-shadow:0 3px 12px rgba(0,0,0,.08)
-}
-
-h2{
-margin-top:0;
-color:#b91c1c
-}
-
-.dashboard{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(135px,1fr));
-gap:10px
-}
-
-.module,.btn{
-border:0;
-border-radius:9px;
-padding:13px;
-background:#111827;
-color:#fff;
-font-weight:bold;
-cursor:pointer
-}
-
-.module{
-min-height:58px
-}
-
-.btn{
-background:#b91c1c;
-margin:6px 4px 0 0
-}
-
-.btn.secondary{
-background:#111827
-}
-
-.btn.light{
-background:#6b7280
-}
-
-.stat{
-background:#f9fafb;
-border-radius:10px;
-padding:14px;
-text-align:center
-}
-
-.stat strong{
-display:block;
-font-size:20px;
-margin-top:5px
-}
-
-.hidden{
-display:none
-}
-
-.form-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
-gap:12px
-}
-
-label{
-display:block;
-font-size:13px;
-font-weight:bold;
-margin-bottom:5px
-}
-
-input,select,textarea{
-width:100%;
-padding:10px;
-border:1px solid #d1d5db;
-border-radius:8px;
-font-size:14px
-}
-
-textarea{
-min-height:80px;
-resize:vertical
-}
-
-.full{
-grid-column:1/-1
-}
-
-.table-wrap{
-overflow:auto;
-margin-top:16px
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-min-width:750px
-}
-
-th,td{
-border:1px solid #e5e7eb;
-padding:9px;
-font-size:12px;
-text-align:left
-}
-
-th{
-background:#111827;
-color:#fff
-}
-
-.message{
-margin-top:10px;
-padding:10px;
-border-radius:7px;
-background:#ecfdf5;
-color:#065f46;
-display:none
-}
-
-.message.error{
-background:#fef2f2;
-color:#991b1b
-}
-
-.small{
-font-size:12px;
-color:#6b7280
-}
-
-.footer{
-text-align:center;
-color:#6b7280;
-font-size:12px;
-padding:20px
-}
-
-.pill{
-display:inline-block;
-padding:4px 8px;
-border-radius:12px;
-background:#f3f4f6;
-margin:2px;
-font-size:11px
-}
-
-.connection-box{
-border:1px solid #e5e7eb;
-border-radius:12px;
-padding:15px;
-margin-top:12px;
-background:#fafafa
-}
-
-.connection-row{
-display:grid;
-grid-template-columns:1fr auto;
-gap:8px;
-align-items:end;
-margin-bottom:12px
-}
-
-.connection-row .input-area{
-min-width:0
-}
-
-.connection-actions{
-display:flex;
-gap:6px;
-flex-wrap:wrap
-}
-
-.connection-actions .btn{
-margin:0
-}
-
-.link-status{
-margin-top:5px;
-font-size:12px;
-color:#6b7280
-}
-
-.social-title{
-font-weight:bold;
-font-size:15px;
-margin-bottom:4px
-}
-
-#qrArea canvas,
-#qrArea img{
-margin:auto;
-display:block
-}
-
-/* ============================= */
-/* PROFESSIONAL C.W.B QR DESIGN */
-/* ============================= */
-
-.cwb-qr-card{
-width:100%;
-max-width:520px;
-margin:0 auto;
-border-radius:18px;
-overflow:hidden;
-background:#fff;
-border:2px solid #b91c1c;
-box-shadow:0 5px 20px rgba(0,0,0,.14)
-}
-
-.cwb-qr-header{
-background:linear-gradient(135deg,#111827,#b91c1c);
-color:#fff;
-text-align:center;
-padding:20px 15px
-}
-
-.cwb-qr-logo{
-width:76px;
-height:76px;
-object-fit:contain;
-background:#fff;
-border-radius:15px;
-padding:6px;
-display:block;
-margin:0 auto 10px
-}
-
-.cwb-qr-title{
-font-size:22px;
-font-weight:bold
-}
-
-.cwb-qr-company{
-font-size:13px;
-font-weight:bold;
-margin-top:5px
-}
-
-.cwb-qr-slogan{
-font-size:11px;
-margin-top:5px;
-opacity:.9
-}
-
-.cwb-qr-body{
-padding:18px;
-text-align:center
-}
-
-.cwb-qr-code{
-background:#fff;
-border-radius:14px;
-padding:12px;
-display:inline-block;
-box-shadow:0 2px 10px rgba(0,0,0,.10);
-border:1px solid #e5e7eb
-}
-
-.cwb-qr-code canvas,
-.cwb-qr-code img{
-display:block;
-margin:auto
-}
-
-.cwb-payment-details{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:8px;
-margin-top:16px;
-text-align:left
-}
-
-.cwb-payment-detail{
-background:#f3f4f6;
-border-radius:9px;
-padding:10px;
-font-size:12px;
-overflow-wrap:anywhere
-}
-
-.cwb-payment-detail b{
-display:block;
-font-size:9px;
-color:#6b7280;
-text-transform:uppercase;
-margin-bottom:4px
-}
-
-.cwb-payment-note{
-background:#f9fafb;
-border-radius:9px;
-padding:10px;
-margin-top:10px;
-font-size:12px;
-text-align:left;
-white-space:pre-wrap;
-overflow-wrap:anywhere
-}
-
-.cwb-payment-number{
-margin-top:12px;
-background:#111827;
-color:#fff;
-border-radius:10px;
-padding:11px;
-font-size:13px
-}
-
-.cwb-payment-number strong{
-display:block;
-font-size:18px;
-margin-top:3px;
-letter-spacing:1px
-}
-
-.cwb-qr-footer{
-font-size:10px;
-color:#6b7280;
-margin-top:14px
-}
+.cwb-qr-card{width:100%;max-width:520px;margin:0 auto;border-radius:18px;overflow:hidden;background:#fff;border:2px solid #b91c1c;box-shadow:0 5px 20px rgba(0,0,0,.14)}
+.cwb-qr-header{background:linear-gradient(135deg,#111827,#b91c1c);color:#fff;text-align:center;padding:20px 15px}
+.cwb-qr-logo{width:76px;height:76px;object-fit:contain;background:#fff;border-radius:15px;padding:6px;display:block;margin:0 auto 10px}
+.cwb-qr-title{font-size:22px;font-weight:bold}
+.cwb-qr-company{font-size:13px;font-weight:bold;margin-top:5px}
+.cwb-qr-slogan{font-size:11px;margin-top:5px;opacity:.9}
+.cwb-qr-body{padding:18px;text-align:center}
+.cwb-qr-code{background:#fff;border-radius:14px;padding:12px;display:inline-block;box-shadow:0 2px 10px rgba(0,0,0,.10);border:1px solid #e5e7eb}
+.cwb-qr-code canvas,.cwb-qr-code img{display:block;margin:auto}
+.cwb-payment-details{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:16px;text-align:left}
+.cwb-payment-detail{background:#f3f4f6;border-radius:9px;padding:10px;font-size:12px;overflow-wrap:anywhere}
+.cwb-payment-detail b{display:block;font-size:9px;color:#6b7280;text-transform:uppercase;margin-bottom:4px}
+.cwb-payment-note{background:#f9fafb;border-radius:9px;padding:10px;margin-top:10px;font-size:12px;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere}
+.cwb-payment-number{margin-top:12px;background:#111827;color:#fff;border-radius:10px;padding:11px;font-size:13px}
+.cwb-payment-number strong{display:block;font-size:18px;margin-top:3px;letter-spacing:1px}
+.cwb-bank-box{background:#f3f4f6;border-radius:10px;padding:12px;margin-top:10px;text-align:left;font-size:13px;line-height:1.6}
+.cwb-qr-footer{font-size:10px;color:#6b7280;margin-top:14px}
 
 @media(max-width:600px){
-
-.connection-row{
-grid-template-columns:1fr
-}
-
-.connection-actions{
-width:100%
-}
-
-.connection-actions .btn{
-flex:1
-}
-
-.cwb-payment-details{
-grid-template-columns:1fr
-}
-
-.cwb-qr-title{
-font-size:19px
-}
-
+.connection-row{grid-template-columns:1fr}
+.connection-actions{width:100%}
+.connection-actions .btn{flex:1}
+.cwb-payment-details{grid-template-columns:1fr}
+.cwb-qr-title{font-size:19px}
 }
 </style>
 </head>
@@ -408,9 +89,7 @@ font-size:19px
 
 <div class="card">
 <h2>Business Dashboard</h2>
-
 <div class="dashboard">
-
 <button class="module" onclick="showModule('accounting')">Accounting</button>
 <button class="module" onclick="showModule('payroll')">Payroll</button>
 <button class="module" onclick="showModule('inventory')">Inventory</button>
@@ -424,115 +103,45 @@ font-size:19px
 <button class="module" onclick="showModule('scanpay')">Scan & Pay</button>
 <button class="module" onclick="showModule('website')">Website</button>
 <button class="module" onclick="showModule('social')">Social Connections</button>
-
 </div>
 </div>
 
 <div class="card">
 <div class="dashboard">
-
-<div class="stat">
-Total Sales
-<strong id="totalSales">0</strong>
-</div>
-
-<div class="stat">
-Total Purchases
-<strong id="totalPurchases">0</strong>
-</div>
-
-<div class="stat">
-Expenses
-<strong id="totalExpenses">0</strong>
-</div>
-
-<div class="stat">
-Balance
-<strong id="balance">0</strong>
-</div>
-
+<div class="stat">Total Sales<strong id="totalSales">0</strong></div>
+<div class="stat">Total Purchases<strong id="totalPurchases">0</strong></div>
+<div class="stat">Expenses<strong id="totalExpenses">0</strong></div>
+<div class="stat">Balance<strong id="balance">0</strong></div>
 </div>
 </div>
-
 
 <!-- INVENTORY -->
-
 <div id="inventory" class="card hidden">
-
 <h2>Inventory</h2>
 <p>Products and stock management.</p>
-
 <form id="inventoryForm">
-
 <div class="form-grid">
-
-<div>
-<label>Product Name</label>
-<input id="inv_name" required>
+<div><label>Product Name</label><input id="inv_name" required></div>
+<div><label>Category</label><input id="inv_category"></div>
+<div><label>Quantity</label><input id="inv_quantity" type="number" min="0" value="0" required></div>
+<div><label>Buying Price</label><input id="inv_buying_price" type="number" min="0" step="0.01" value="0"></div>
+<div><label>Selling Price</label><input id="inv_selling_price" type="number" min="0" step="0.01" value="0"></div>
 </div>
-
-<div>
-<label>Category</label>
-<input id="inv_category">
-</div>
-
-<div>
-<label>Quantity</label>
-<input id="inv_quantity" type="number" min="0" value="0" required>
-</div>
-
-<div>
-<label>Buying Price</label>
-<input id="inv_buying_price" type="number" min="0" step="0.01" value="0">
-</div>
-
-<div>
-<label>Selling Price</label>
-<input id="inv_selling_price" type="number" min="0" step="0.01" value="0">
-</div>
-
-</div>
-
 <button class="btn" type="submit">Save Product</button>
 <button class="btn secondary" type="button" onclick="loadInventory()">Refresh Inventory</button>
-
 </form>
-
 <div id="inventoryMessage" class="message"></div>
-
 <div class="table-wrap">
-
-<table>
-
-<thead>
-<tr>
-<th>Product</th>
-<th>Category</th>
-<th>Quantity</th>
-<th>Buying Price</th>
-<th>Selling Price</th>
-<th>Stock Value</th>
-</tr>
-</thead>
-
-<tbody id="inventoryTableBody"></tbody>
-
-</table>
-
+<table><thead><tr><th>Product</th><th>Category</th><th>Quantity</th><th>Buying Price</th><th>Selling Price</th><th>Stock Value</th></tr></thead>
+<tbody id="inventoryTableBody"></tbody></table>
 </div>
 </div>
-
 
 <!-- GARAGE -->
-
 <div id="garage" class="card hidden">
-
 <h2>Garage Activities</h2>
-
 <form id="garageForm">
-
 <div class="form-grid">
-
 <div><label>Job Number</label><input id="job_number"></div>
 <div><label>Customer Name</label><input id="customer_name" required></div>
 <div><label>Customer Phone</label><input id="customer_phone"></div>
@@ -541,644 +150,191 @@ Balance
 <div><label>Vehicle Model</label><input id="vehicle_model"></div>
 <div><label>Vehicle Color</label><input id="vehicle_color"></div>
 <div><label>Mechanic Name</label><input id="mechanic_name"></div>
-
-<div>
-<label>Job Status</label>
-<select id="job_status">
-<option>Pending</option>
-<option>In Progress</option>
-<option>Completed</option>
-<option>Cancelled</option>
-</select>
-</div>
-
-<div>
-<label>Payment Status</label>
-<select id="payment_status">
-<option>Unpaid</option>
-<option>Partially Paid</option>
-<option>Paid</option>
-</select>
-</div>
-
-<div>
-<label>Payment Method</label>
-<select id="payment_method">
-<option>Cash</option>
-<option>Bank</option>
-<option>Mobile Money</option>
-<option>Card</option>
-<option>Other</option>
-</select>
-</div>
-
+<div><label>Job Status</label><select id="job_status"><option>Pending</option><option>In Progress</option><option>Completed</option><option>Cancelled</option></select></div>
+<div><label>Payment Status</label><select id="payment_status"><option>Unpaid</option><option>Partially Paid</option><option>Paid</option></select></div>
+<div><label>Payment Method</label><select id="payment_method"><option>Cash</option><option>Bank</option><option>Mobile Money</option><option>Card</option><option>Other</option></select></div>
 <div><label>Invoice Number</label><input id="invoice_number"></div>
 <div><label>Job Cost</label><input id="job_cost" type="number" step="0.01"></div>
 <div><label>Parts Cost</label><input id="parts_cost" type="number" step="0.01"></div>
 <div><label>Service Date</label><input id="service_date" type="date"></div>
 <div><label>Estimated Completion</label><input id="estimated_completion_date" type="date"></div>
 <div><label>Completion Date</label><input id="completion_date" type="date"></div>
-
-<div>
-<label>Pick Up Status</label>
-<select id="pickup_status">
-<option>Pending</option>
-<option>Ready</option>
-<option>Picked Up</option>
-</select>
+<div><label>Pick Up Status</label><select id="pickup_status"><option>Pending</option><option>Ready</option><option>Picked Up</option></select></div>
+<div><label>Warranty</label><select id="warranty"><option>No</option><option>Yes</option></select></div>
+<div class="full"><label>Repair Description</label><textarea id="repair_description"></textarea></div>
+<div class="full"><label>Notes</label><textarea id="garage_notes"></textarea></div>
 </div>
-
-<div>
-<label>Warranty</label>
-<select id="warranty">
-<option>No</option>
-<option>Yes</option>
-</select>
-</div>
-
-<div class="full">
-<label>Repair Description</label>
-<textarea id="repair_description"></textarea>
-</div>
-
-<div class="full">
-<label>Notes</label>
-<textarea id="garage_notes"></textarea>
-</div>
-
-</div>
-
 <button class="btn" type="submit">Save Garage Activity</button>
 <button class="btn secondary" type="button" onclick="loadGarage()">Refresh Garage</button>
-
 </form>
-
 <div id="garageMessage" class="message"></div>
-
 <div class="table-wrap">
-
-<table>
-
-<thead>
-<tr>
-<th>Customer</th>
-<th>Vehicle</th>
-<th>Mechanic</th>
-<th>Status</th>
-<th>Job Cost</th>
-<th>Payment</th>
-</tr>
-</thead>
-
-<tbody id="garageTableBody"></tbody>
-
-</table>
-
+<table><thead><tr><th>Customer</th><th>Vehicle</th><th>Mechanic</th><th>Status</th><th>Job Cost</th><th>Payment</th></tr></thead>
+<tbody id="garageTableBody"></tbody></table>
 </div>
 </div>
-
 
 <!-- SALES -->
-
 <div id="sales" class="card hidden">
-
 <h2>Sales & Invoice</h2>
-
-<p class="small">
-Sales are kept in the system and used in dashboard totals.
-</p>
-
+<p class="small">Sales are kept in the system and used in dashboard totals.</p>
 <form id="salesForm">
-
 <div class="form-grid">
-
-<div>
-<label>Customer</label>
-<input id="sale_customer">
+<div><label>Customer</label><input id="sale_customer"></div>
+<div><label>Product / Service</label><input id="sale_product" required></div>
+<div><label>Invoice Number</label><input id="sale_invoice"></div>
+<div><label>Amount</label><input id="sale_amount" type="number" min="0" step="0.01" required></div>
+<div><label>Payment Status</label><select id="sale_payment"><option>Paid</option><option>Partially Paid</option><option>Unpaid</option></select></div>
+<div><label>Date</label><input id="sale_date" type="date"></div>
 </div>
-
-<div>
-<label>Product / Service</label>
-<input id="sale_product" required>
-</div>
-
-<div>
-<label>Invoice Number</label>
-<input id="sale_invoice">
-</div>
-
-<div>
-<label>Amount</label>
-<input id="sale_amount" type="number" min="0" step="0.01" required>
-</div>
-
-<div>
-<label>Payment Status</label>
-<select id="sale_payment">
-<option>Paid</option>
-<option>Partially Paid</option>
-<option>Unpaid</option>
-</select>
-</div>
-
-<div>
-<label>Date</label>
-<input id="sale_date" type="date">
-</div>
-
-</div>
-
 <button class="btn" type="submit">Save Sale</button>
-
 </form>
-
 <div id="salesMessage" class="message"></div>
-
 <div class="table-wrap">
-
-<table>
-
-<thead>
-<tr>
-<th>Date</th>
-<th>Invoice</th>
-<th>Customer</th>
-<th>Product / Service</th>
-<th>Amount</th>
-<th>Status</th>
-</tr>
-</thead>
-
-<tbody id="salesTableBody"></tbody>
-
-</table>
-
+<table><thead><tr><th>Date</th><th>Invoice</th><th>Customer</th><th>Product / Service</th><th>Amount</th><th>Status</th></tr></thead>
+<tbody id="salesTableBody"></tbody></table>
 </div>
 </div>
-
 
 <!-- PURCHASES -->
-
 <div id="purchases" class="card hidden">
-
 <h2>Purchases & Suppliers</h2>
-
 <form id="purchaseForm">
-
 <div class="form-grid">
-
-<div>
-<label>Supplier</label>
-<input id="purchase_supplier">
+<div><label>Supplier</label><input id="purchase_supplier"></div>
+<div><label>Product</label><input id="purchase_product" required></div>
+<div><label>Amount</label><input id="purchase_amount" type="number" min="0" step="0.01" required></div>
+<div><label>Payment Status</label><select id="purchase_payment"><option>Paid</option><option>Partially Paid</option><option>Unpaid</option></select></div>
+<div><label>Date</label><input id="purchase_date" type="date"></div>
 </div>
-
-<div>
-<label>Product</label>
-<input id="purchase_product" required>
-</div>
-
-<div>
-<label>Amount</label>
-<input id="purchase_amount" type="number" min="0" step="0.01" required>
-</div>
-
-<div>
-<label>Payment Status</label>
-<select id="purchase_payment">
-<option>Paid</option>
-<option>Partially Paid</option>
-<option>Unpaid</option>
-</select>
-</div>
-
-<div>
-<label>Date</label>
-<input id="purchase_date" type="date">
-</div>
-
-</div>
-
 <button class="btn" type="submit">Save Purchase</button>
-
 </form>
-
 <div id="purchaseMessage" class="message"></div>
-
 <div class="table-wrap">
-
-<table>
-
-<thead>
-<tr>
-<th>Date</th>
-<th>Supplier</th>
-<th>Product</th>
-<th>Amount</th>
-<th>Status</th>
-</tr>
-</thead>
-
-<tbody id="purchaseTableBody"></tbody>
-
-</table>
-
+<table><thead><tr><th>Date</th><th>Supplier</th><th>Product</th><th>Amount</th><th>Status</th></tr></thead>
+<tbody id="purchaseTableBody"></tbody></table>
 </div>
 </div>
-
 
 <!-- EXPENSES -->
-
 <div id="expenses" class="card hidden">
-
 <h2>Expenses</h2>
-
 <form id="expenseForm">
-
 <div class="form-grid">
-
-<div>
-<label>Expense</label>
-<input id="expense_name" required>
+<div><label>Expense</label><input id="expense_name" required></div>
+<div><label>Category</label><input id="expense_category"></div>
+<div><label>Amount</label><input id="expense_amount" type="number" min="0" step="0.01" required></div>
+<div><label>Date</label><input id="expense_date" type="date"></div>
+<div class="full"><label>Notes</label><textarea id="expense_notes"></textarea></div>
 </div>
-
-<div>
-<label>Category</label>
-<input id="expense_category">
-</div>
-
-<div>
-<label>Amount</label>
-<input id="expense_amount" type="number" min="0" step="0.01" required>
-</div>
-
-<div>
-<label>Date</label>
-<input id="expense_date" type="date">
-</div>
-
-<div class="full">
-<label>Notes</label>
-<textarea id="expense_notes"></textarea>
-</div>
-
-</div>
-
 <button class="btn" type="submit">Save Expense</button>
-
 </form>
-
 <div id="expenseMessage" class="message"></div>
-
 <div class="table-wrap">
-
-<table>
-
-<thead>
-<tr>
-<th>Date</th>
-<th>Expense</th>
-<th>Category</th>
-<th>Amount</th>
-<th>Notes</th>
-</tr>
-</thead>
-
-<tbody id="expenseTableBody"></tbody>
-
-</table>
-
+<table><thead><tr><th>Date</th><th>Expense</th><th>Category</th><th>Amount</th><th>Notes</th></tr></thead>
+<tbody id="expenseTableBody"></tbody></table>
 </div>
 </div>
-
 
 <!-- PARTNERS -->
-
 <div id="partners" class="card hidden">
-
 <h2>Customers & Partners</h2>
-
 <form id="partnerForm">
-
 <div class="form-grid">
-
-<div>
-<label>Name</label>
-<input id="partner_name" required>
+<div><label>Name</label><input id="partner_name" required></div>
+<div><label>Phone</label><input id="partner_phone"></div>
+<div><label>Email</label><input id="partner_email"></div>
+<div><label>Type</label><select id="partner_type"><option>Customer</option><option>Supplier</option><option>Partner</option></select></div>
+<div class="full"><label>Address</label><input id="partner_address"></div>
 </div>
-
-<div>
-<label>Phone</label>
-<input id="partner_phone">
-</div>
-
-<div>
-<label>Email</label>
-<input id="partner_email">
-</div>
-
-<div>
-<label>Type</label>
-<select id="partner_type">
-<option>Customer</option>
-<option>Supplier</option>
-<option>Partner</option>
-</select>
-</div>
-
-<div class="full">
-<label>Address</label>
-<input id="partner_address">
-</div>
-
-</div>
-
 <button class="btn" type="submit">Save Contact</button>
-
 </form>
-
 <div id="partnerMessage" class="message"></div>
-
 <div class="table-wrap">
-
-<table>
-
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Phone</th>
-<th>Email</th>
-<th>Address</th>
-</tr>
-</thead>
-
-<tbody id="partnerTableBody"></tbody>
-
-</table>
-
+<table><thead><tr><th>Name</th><th>Type</th><th>Phone</th><th>Email</th><th>Address</th></tr></thead>
+<tbody id="partnerTableBody"></tbody></table>
 </div>
 </div>
-
 
 <!-- PAYROLL -->
-
 <div id="payroll" class="card hidden">
-
 <h2>Payroll</h2>
-
 <form id="payrollForm">
-
 <div class="form-grid">
-
-<div>
-<label>Worker</label>
-<input id="pay_worker" required>
+<div><label>Worker</label><input id="pay_worker" required></div>
+<div><label>Position</label><input id="pay_position"></div>
+<div><label>Month</label><input id="pay_month" type="month"></div>
+<div><label>Base Salary</label><input id="pay_base" type="number" min="0" step="0.01"></div>
+<div><label>Allowance</label><input id="pay_allowance" type="number" min="0" step="0.01"></div>
+<div><label>Deductions</label><input id="pay_deduction" type="number" min="0" step="0.01"></div>
+<div><label>Status</label><select id="pay_status"><option>Unpaid</option><option>Partially Paid</option><option>Paid</option></select></div>
 </div>
-
-<div>
-<label>Position</label>
-<input id="pay_position">
-</div>
-
-<div>
-<label>Month</label>
-<input id="pay_month" type="month">
-</div>
-
-<div>
-<label>Base Salary</label>
-<input id="pay_base" type="number" min="0" step="0.01">
-</div>
-
-<div>
-<label>Allowance</label>
-<input id="pay_allowance" type="number" min="0" step="0.01">
-</div>
-
-<div>
-<label>Deductions</label>
-<input id="pay_deduction" type="number" min="0" step="0.01">
-</div>
-
-<div>
-<label>Status</label>
-<select id="pay_status">
-<option>Unpaid</option>
-<option>Partially Paid</option>
-<option>Paid</option>
-</select>
-</div>
-
-</div>
-
 <button class="btn" type="submit">Save Salary Record</button>
-
 </form>
-
 <div id="payMessage" class="message"></div>
-
 <div class="table-wrap">
-
-<table>
-
-<thead>
-<tr>
-<th>Month</th>
-<th>Worker</th>
-<th>Position</th>
-<th>Base</th>
-<th>Allowance</th>
-<th>Deductions</th>
-<th>Net</th>
-<th>Status</th>
-</tr>
-</thead>
-
-<tbody id="payTableBody"></tbody>
-
-</table>
-
+<table><thead><tr><th>Month</th><th>Worker</th><th>Position</th><th>Base</th><th>Allowance</th><th>Deductions</th><th>Net</th><th>Status</th></tr></thead>
+<tbody id="payTableBody"></tbody></table>
 </div>
 </div>
-
 
 <!-- ACCOUNTING -->
-
 <div id="accounting" class="card hidden">
-
 <h2>Accounting</h2>
-
 <div class="dashboard">
-
-<div class="stat">
-Sales
-<strong id="accSales">0</strong>
+<div class="stat">Sales<strong id="accSales">0</strong></div>
+<div class="stat">Purchases<strong id="accPurchases">0</strong></div>
+<div class="stat">Expenses<strong id="accExpenses">0</strong></div>
+<div class="stat">Net Balance<strong id="accBalance">0</strong></div>
 </div>
-
-<div class="stat">
-Purchases
-<strong id="accPurchases">0</strong>
+<p class="small">Net Balance = Sales − Purchases − Expenses. Payroll is shown separately.</p>
 </div>
-
-<div class="stat">
-Expenses
-<strong id="accExpenses">0</strong>
-</div>
-
-<div class="stat">
-Net Balance
-<strong id="accBalance">0</strong>
-</div>
-
-</div>
-
-<p class="small">
-Net Balance = Sales − Purchases − Expenses.
-Payroll is shown separately.
-</p>
-
-</div>
-
 
 <!-- PLANNER -->
-
 <div id="planner" class="card hidden">
-
 <h2>Business Planner</h2>
-
-<textarea id="planText" rows="10"
-placeholder="Write your business goals, plans, projects and priorities..."></textarea>
-
+<textarea id="planText" rows="10" placeholder="Write your business goals, plans, projects and priorities..."></textarea>
 <button class="btn" onclick="savePlan()">Save Plan</button>
 <button class="btn secondary" onclick="loadPlan()">Load Plan</button>
-
 <div id="planMessage" class="message"></div>
-
 </div>
 
-
-<!-- PROFESSIONAL SCAN & PAY -->
-
+<!-- SCAN & PAY -->
 <div id="scanpay" class="card hidden">
-
 <h2>💳 C.W.B Scan & Pay</h2>
-
-<p class="small">
-Create a professional C.W.B payment QR code for your customer.
-</p>
+<p class="small">Create a professional C.W.B payment QR code for your customer.</p>
 
 <div class="connection-box">
 
-<div style="
-background:linear-gradient(135deg,#111827,#b91c1c);
-color:#fff;
-border-radius:12px;
-padding:14px;
-text-align:center;
-margin-bottom:15px;
-">
-
-<img
-src="file_000000009d80820694001bdae16e2e4b.png"
-alt="C.W.B Logo"
-style="
-width:65px;
-height:65px;
-object-fit:contain;
-background:#fff;
-border-radius:12px;
-padding:5px;
-">
-
-<div style="font-size:19px;font-weight:bold;margin-top:8px">
-C.W.B PAYMENT
+<div style="background:linear-gradient(135deg,#111827,#b91c1c);color:#fff;border-radius:12px;padding:14px;text-align:center;margin-bottom:15px">
+<img src="file_000000009d80820694001bdae16e2e4b.png" alt="C.W.B Logo" style="width:65px;height:65px;object-fit:contain;background:#fff;border-radius:12px;padding:5px">
+<div style="font-size:19px;font-weight:bold;margin-top:8px">C.W.B PAYMENT</div>
+<div style="font-size:13px;margin-top:4px">CAMEL WORK AND BUSINESS COMPANY</div>
+<div style="font-size:11px;margin-top:4px">Better Quality is our priority</div>
 </div>
 
-<div style="font-size:13px;margin-top:4px">
-CAMEL WORK AND BUSINESS COMPANY
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+<div style="background:#111827;color:#fff;border-radius:9px;padding:10px;text-align:center">
+<div style="font-size:9px;opacity:.75">MERCHANT CODE</div>
+<strong style="font-size:17px">984868</strong>
+</div>
+<div style="background:#111827;color:#fff;border-radius:9px;padding:10px;text-align:center">
+<div style="font-size:9px;opacity:.75">PAYMENT NUMBER</div>
+<strong style="font-size:16px">06691086015</strong>
+</div>
 </div>
 
-<div style="font-size:11px;margin-top:4px">
-Better Quality is our priority
-</div>
-
-</div>
-
-<div style="
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:8px;
-margin-bottom:14px;
-">
-
-<div style="
-background:#111827;
-color:#fff;
-border-radius:9px;
-padding:10px;
-text-align:center;
-">
-
-<div style="font-size:9px;opacity:.75">
-MERCHANT CODE
-</div>
-
-<strong style="font-size:17px">
-984868
-</strong>
-
-</div>
-
-<div style="
-background:#111827;
-color:#fff;
-border-radius:9px;
-padding:10px;
-text-align:center;
-">
-
-<div style="font-size:9px;opacity:.75">
-PAYMENT NUMBER
-</div>
-
-<strong style="font-size:16px">
-06691086015
-</strong>
-
-</div>
-
-</div>
-
-<form id="scanPayForm"
-onsubmit="event.preventDefault();generateQR()">
-
+<form id="scanPayForm" onsubmit="event.preventDefault();generateQR()">
 <div class="form-grid">
 
-<div>
-<label>Customer Name</label>
-<input id="qr_customer" required>
-</div>
-
-<div>
-<label>Invoice Number</label>
-<input id="qr_invoice" required>
-</div>
-
-<div>
-<label>Amount</label>
-<input id="qr_amount"
-type="number"
-min="0"
-step="0.01"
-required>
-</div>
+<div><label>Customer Name</label><input id="qr_customer" required></div>
+<div><label>Invoice Number</label><input id="qr_invoice" required></div>
+<div><label>Amount</label><input id="qr_amount" type="number" min="0" step="0.01" required></div>
 
 <div>
 <label>Currency</label>
 <select id="qr_currency">
-<option>BIF</option>
-<option>USD</option>
-<option>EUR</option>
+<option>BIF</option><option>USD</option><option>EUR</option>
 </select>
 </div>
 
@@ -1194,15 +350,19 @@ required>
 </div>
 
 <div>
-<label>Payment Account / Number</label>
-<input id="qr_account"
-value="06691086015">
+<label id="qr_account_label">Payment Account / Number</label>
+<input id="qr_account" value="06691086015">
 </div>
 
 <div>
 <label>Payment Name / Account Name</label>
-<input id="qr_account_name"
-value="CAMEL WORK AND BUSINESS COMPANY">
+<input id="qr_account_name" value="CAMEL WORK AND BUSINESS COMPANY">
+</div>
+
+<div id="qr_bank_box" class="full" style="display:none;background:#f3f4f6;border-radius:10px;padding:12px">
+<strong>KCB Bank Burundi</strong><br>
+<span class="small">Company Bank Account: 06691086015</span><br>
+<span class="small">Account Name: CAMEL WORK AND BUSINESS COMPANY</span>
 </div>
 
 <div class="full">
@@ -1212,188 +372,77 @@ value="CAMEL WORK AND BUSINESS COMPANY">
 
 </div>
 
-<button class="btn" type="submit">
-Generate Professional QR
-</button>
-
-<button class="btn secondary"
-type="button"
-onclick="clearQR()">
-Clear QR
-</button>
-
-<button class="btn"
-type="button"
-onclick="printQR()">
-Share / Print QR
-</button>
-
+<button class="btn" type="submit">Generate Professional QR</button>
+<button class="btn secondary" type="button" onclick="clearQR()">Clear QR</button>
+<button class="btn" type="button" onclick="printQR()">Share / Print QR</button>
 </form>
 
 <div id="qrMessage" class="message"></div>
 
-<div id="qrArea"
-style="
-border:1px dashed #b91c1c;
-border-radius:14px;
-padding:15px;
-margin-top:15px;
-background:#fafafa;
-text-align:center;
-min-height:80px;
-">
-
-<div class="small">
-Your professional payment QR will appear here.
+<div id="qrArea" style="border:1px dashed #b91c1c;border-radius:14px;padding:15px;margin-top:15px;background:#fafafa;text-align:center;min-height:80px">
+<div class="small">Your professional payment QR will appear here.</div>
 </div>
 
-</div>
-
-<div id="qrText"
-class="small"
-style="
-white-space:pre-wrap;
-margin-top:10px
-"></div>
+<div id="qrText" class="small" style="white-space:pre-wrap;margin-top:10px"></div>
 
 </div>
-
 </div>
-
 
 <!-- REPORTS -->
-
 <div id="reports" class="card hidden">
-
 <h2>Reports</h2>
-
 <div id="reportContent"></div>
-
-<button class="btn" onclick="loadReports()">
-Refresh Reports
-</button>
-
+<button class="btn" onclick="loadReports()">Refresh Reports</button>
 </div>
-
 
 <!-- WEBSITE -->
-
 <div id="website" class="card hidden">
-
 <h2>🌐 C.W.B Official Website</h2>
-
-<p>
-Connect the official C.W.B company website here.
-</p>
-
+<p>Connect the official C.W.B company website here.</p>
 <div class="connection-box">
-
-<div class="social-title">
-Official Website
-</div>
-
-<p class="small">
-Enter the complete website address.
-</p>
-
+<div class="social-title">Official Website</div>
+<p class="small">Enter the complete website address.</p>
 <div class="connection-row">
-
 <div class="input-area">
-
 <label>Website Address</label>
-
-<input
-id="website_url"
-type="url"
-placeholder="https://example.com">
-
+<input id="website_url" type="url" placeholder="https://example.com">
 </div>
-
 <div class="connection-actions">
-
-<button class="btn"
-type="button"
-onclick="saveWebsite()">
-Save
-</button>
-
-<button class="btn secondary"
-type="button"
-onclick="openSavedWebsite()">
-Open
-</button>
-
+<button class="btn" type="button" onclick="saveWebsite()">Save</button>
+<button class="btn secondary" type="button" onclick="openSavedWebsite()">Open</button>
 </div>
-
 </div>
-
 <div id="websiteMessage" class="message"></div>
-
-<div id="websiteStatus"
-class="link-status">
-No website saved yet.
+<div id="websiteStatus" class="link-status">No website saved yet.</div>
 </div>
-
 </div>
-
-</div>
-
 
 <!-- SOCIAL -->
-
 <div id="social" class="card hidden">
-
 <h2>📱 Social Connections</h2>
-
-<p>
-Connect C.W.B with its official social media platforms.
-</p>
-
-<p class="small">
-Add the official business links below.
-They are saved on this device.
-</p>
-
+<p>Connect C.W.B with its official social media platforms.</p>
+<p class="small">Add the official business links below. They are saved on this device.</p>
 <div id="socialBoxes"></div>
-
 <div id="socialMessage" class="message"></div>
-
 </div>
-
 
 <div class="footer">
-
 C.W.B — Camel Work and Business company<br>
 Better Quality is our priority
-
 </div>
 
-<div class="small"
-style="text-align:center;margin:18px 0 6px">
-
+<div class="small" style="text-align:center;margin:18px 0 6px">
 C.W.B System • Master Version 2
-
 </div>
 
 </div>
-
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-
-const SUPABASE_URL=
-'https://wicilnypkcumworxnxqv.supabase.co';
-
-const SUPABASE_KEY=
-'sb_publishable_1FmSQ0jE7mSaeiujYneSSg_9LkRPbzX';
-
-const supabaseClient=
-supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-);
-
+const SUPABASE_URL='https://wicilnypkcumworxnxqv.supabase.co';
+const SUPABASE_KEY='sb_publishable_1FmSQ0jE7mSaeiujYneSSg_9LkRPbzX';
+const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 const KEY={
 sales:'cwb_sales_v2',
@@ -1403,95 +452,25 @@ partners:'cwb_partners_v2',
 payroll:'cwb_payroll_v2'
 };
 
-
 function arr(k){
-
-try{
-return JSON.parse(
-localStorage.getItem(k)
-)||[]
+try{return JSON.parse(localStorage.getItem(k))||[]}catch(e){return[]}
 }
-
-catch(e){
-return[]
-}
-
-}
-
-
-function setArr(k,v){
-
-localStorage.setItem(
-k,
-JSON.stringify(v)
-)
-
-}
-
-
-let sales=arr(KEY.sales);
-let purchases=arr(KEY.purchases);
-let expenses=arr(KEY.expenses);
-let partners=arr(KEY.partners);
-let payroll=arr(KEY.payroll);
-
+function setArr(k,v){localStorage.setItem(k,JSON.stringify(v))}
+let sales=arr(KEY.sales),purchases=arr(KEY.purchases),expenses=arr(KEY.expenses),partners=arr(KEY.partners),payroll=arr(KEY.payroll);
 
 function esc(v){
-
-return String(v??'')
-.replace(/[&<>"']/g,c=>({
-'&':'&amp;',
-'<':'&lt;',
-'>':'&gt;',
-'"':'&quot;',
-"'":'&#39;'
-}[c]))
-
+return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
 }
-
-
-function money(v){
-
-return Number(v||0).toLocaleString()
-
-}
-
-
+function money(v){return Number(v||0).toLocaleString()}
 function msg(id,t,error=false){
-
-const e=document.getElementById(id);
-
-if(!e)return;
-
-e.textContent=t;
-
-e.classList.toggle(
-'error',
-error
-);
-
-e.style.display='block';
-
-setTimeout(
-()=>e.style.display='none',
-4000
-)
-
+const e=document.getElementById(id);if(!e)return;
+e.textContent=t;e.classList.toggle('error',error);e.style.display='block';
+setTimeout(()=>e.style.display='none',4000)
 }
-
 
 function showModule(id){
-
-document
-.querySelectorAll('.card[id]')
-.forEach(e=>
-e.classList.add('hidden')
-);
-
-const e=document.getElementById(id);
-
-if(e)e.classList.remove('hidden');
-
+document.querySelectorAll('.card[id]').forEach(e=>e.classList.add('hidden'));
+const e=document.getElementById(id);if(e)e.classList.remove('hidden');
 if(id==='inventory')loadInventory();
 if(id==='garage')loadGarage();
 if(id==='sales')renderSales();
@@ -1503,2353 +482,47 @@ if(id==='accounting')updateDashboard();
 if(id==='reports')loadReports();
 if(id==='website')loadWebsite();
 if(id==='social')loadSocial();
-
-window.scrollTo({
-top:e?e.offsetTop-10:0,
-behavior:'smooth'
-})
-
+if(id==='scanpay')updatePaymentMethod();
+window.scrollTo({top:e?e.offsetTop-10:0,behavior:'smooth'})
 }
-
 
 function updateDashboard(){
-
-const s=sales.reduce(
-(a,x)=>a+Number(x.amount||0),
-0
-);
-
-const p=purchases.reduce(
-(a,x)=>a+Number(x.amount||0),
-0
-);
-
-const ex=expenses.reduce(
-(a,x)=>a+Number(x.amount||0),
-0
-);
-
+const s=sales.reduce((a,x)=>a+Number(x.amount||0),0);
+const p=purchases.reduce((a,x)=>a+Number(x.amount||0),0);
+const ex=expenses.reduce((a,x)=>a+Number(x.amount||0),0);
 const b=s-p-ex;
-
-document.getElementById('totalSales')
-.textContent=money(s);
-
-document.getElementById('totalPurchases')
-.textContent=money(p);
-
-document.getElementById('totalExpenses')
-.textContent=money(ex);
-
-document.getElementById('balance')
-.textContent=money(b);
-
-document.getElementById('accSales')
-.textContent=money(s);
-
-document.getElementById('accPurchases')
-.textContent=money(p);
-
-document.getElementById('accExpenses')
-.textContent=money(ex);
-
-document.getElementById('accBalance')
-.textContent=money(b)
-
+document.getElementById('totalSales').textContent=money(s);
+document.getElementById('totalPurchases').textContent=money(p);
+document.getElementById('totalExpenses').textContent=money(ex);
+document.getElementById('balance').textContent=money(b);
+document.getElementById('accSales').textContent=money(s);
+document.getElementById('accPurchases').textContent=money(p);
+document.getElementById('accExpenses').textContent=money(ex);
+document.getElementById('accBalance').textContent=money(b)
 }
-
 
 /* INVENTORY */
-
-document
-.getElementById('inventoryForm')
-.addEventListener('submit',async e=>{
-
+document.getElementById('inventoryForm').addEventListener('submit',async e=>{
 e.preventDefault();
-
 const product={
-
-name:
-document.getElementById('inv_name')
-.value.trim(),
-
-category:
-document.getElementById('inv_category')
-.value.trim()||null,
-
-quantity:
-Number(
-document.getElementById('inv_quantity')
-.value||0
-),
-
-buying_price:
-Number(
-document.getElementById('inv_buying_price')
-.value||0
-),
-
-selling_price:
-Number(
-document.getElementById('inv_selling_price')
-.value||0
-)
-
+name:document.getElementById('inv_name').value.trim(),
+category:document.getElementById('inv_category').value.trim()||null,
+quantity:Number(document.getElementById('inv_quantity').value||0),
+buying_price:Number(document.getElementById('inv_buying_price').value||0),
+selling_price:Number(document.getElementById('inv_selling_price').value||0)
 };
-
-msg(
-'inventoryMessage',
-'Saving...'
-);
-
-const {error}=
-await supabaseClient
-.from('products')
-.insert([product]);
-
-if(error){
-
-msg(
-'inventoryMessage',
-'Error saving product: '+error.message,
-true
-);
-
-return
-}
-
+msg('inventoryMessage','Saving...');
+const {error}=await supabaseClient.from('products').insert([product]);
+if(error){msg('inventoryMessage','Error saving product: '+error.message,true);return}
 e.target.reset();
-
-document.getElementById(
-'inv_quantity'
-).value=0;
-
-document.getElementById(
-'inv_buying_price'
-).value=0;
-
-document.getElementById(
-'inv_selling_price'
-).value=0;
-
-msg(
-'inventoryMessage',
-'Product saved successfully to Supabase.'
-);
-
+document.getElementById('inv_quantity').value=0;
+document.getElementById('inv_buying_price').value=0;
+document.getElementById('inv_selling_price').value=0;
+msg('inventoryMessage','Product saved successfully to Supabase.');
 loadInventory()
-
 });
-
 
 async function loadInventory(){
-
-const b=
-document.getElementById(
-'inventoryTableBody'
-);
-
-if(!b)return;
-
-b.innerHTML=
-'<tr><td colspan="6">Loading...</td></tr>';
-
-const {data,error}=
-await supabaseClient
-.from('products')
-.select('*')
-.order('id',{ascending:false});
-
-if(error){
-
-b.innerHTML=
-'<tr><td colspan="6">Could not load inventory: '+
-esc(error.message)+
-'</td></tr>';
-
-return
-}
-
-if(!data?.length){
-
-b.innerHTML=
-'<tr><td colspan="6">No products recorded yet.</td></tr>';
-
-return
-}
-
-b.innerHTML=
-data.map(p=>{
-
-const q=Number(p.quantity||0);
-const buy=Number(p.buying_price||0);
-const sell=Number(p.selling_price||0);
-
-return '<tr><td>'+
-esc(p.name)+
-'</td><td>'+
-esc(p.category)+
-'</td><td>'+
-q+
-'</td><td>'+
-money(buy)+
-'</td><td>'+
-money(sell)+
-'</td><td>'+
-money(q*buy)+
-'</td></tr>'
-
-}).join('')
-
-}
-
-
-/* GARAGE */
-
-document
-.getElementById('garageForm')
-.addEventListener('submit',async e=>{
-
-e.preventDefault();
-
-const v=id=>
-document.getElementById(id).value;
-
-const job={
-
-'Job_number':
-v('job_number')||null,
-
-'Customer name':
-v('customer_name')||null,
-
-'Customer_phone':
-v('customer_phone')||null,
-
-'customer_adress':
-v('customer_address')||null,
-
-'Vehicle_name':
-v('vehicle_name')||null,
-
-'Vehicle_model':
-v('vehicle_model')||null,
-
-'Vehicle_color':
-v('vehicle_color')||null,
-
-'machanic_name':
-v('mechanic_name')||null,
-
-'Job status':
-v('job_status')||null,
-
-'Payment_status':
-v('payment_status')||null,
-
-'Payment_method':
-v('payment_method')||null,
-
-'Invoice_number':
-v('invoice_number')||null,
-
-'Job_cost':
-v('job_cost')?
-Number(v('job_cost')):null,
-
-'parts_cost':
-v('parts_cost')?
-Number(v('parts_cost')):null,
-
-'service_date':
-v('service_date')||null,
-
-'estimated_completion_date':
-v('estimated_completion_date')||null,
-
-'completion_date':
-v('completion_date')||null,
-
-'pik up_status':
-v('pickup_status')||null,
-
-'Warranty':
-v('warranty')||null,
-
-'repaire_descrption':
-v('repair_description')||null,
-
-'notes':
-v('garage_notes')||null
-
-};
-
-msg(
-'garageMessage',
-'Saving...'
-);
-
-const {error}=
-await supabaseClient
-.from('Garage_jobs')
-.insert([job]);
-
-if(error){
-
-msg(
-'garageMessage',
-'Error saving garage activity: '+
-error.message,
-true
-);
-
-return
-}
-
-e.target.reset();
-
-msg(
-'garageMessage',
-'Garage activity saved successfully to Supabase.'
-);
-
-loadGarage()
-
-});
-
-
-async function loadGarage(){
-
-const b=
-document.getElementById(
-'garageTableBody'
-);
-
-if(!b)return;
-
-b.innerHTML=
-'<tr><td colspan="6">Loading...</td></tr>';
-
-const {data,error}=
-await supabaseClient
-.from('Garage_jobs')
-.select('*')
-.order('id',{ascending:false});
-
-if(error){
-
-b.innerHTML=
-'<tr><td colspan="6">Could not load garage activities: '+
-esc(error.message)+
-'</td></tr>';
-
-return
-}
-
-if(!data?.length){
-
-b.innerHTML=
-'<tr><td colspan="6">No garage activities recorded yet.</td></tr>';
-
-return
-}
-
-b.innerHTML=
-data.map(x=>
-
-'<tr><td>'+
-esc(x['Customer name'])+
-'</td><td>'+
-esc(x.Vehicle_name)+
-' '+
-esc(x.Vehicle_model)+
-'</td><td>'+
-esc(x.machanic_name)+
-'</td><td>'+
-esc(x['Job status'])+
-'</td><td>'+
-money(x.Job_cost)+
-'</td><td>'+
-esc(x.Payment_status)+
-'</td></tr>'
-
-).join('')
-
-}
-
-
-/* SALES */
-
-document
-.getElementById('salesForm')
-.addEventListener('submit',e=>{
-
-e.preventDefault();
-
-sales.push({
-
-date:
-document.getElementById('sale_date')
-.value||
-new Date().toISOString().slice(0,10),
-
-invoice:
-document.getElementById('sale_invoice').value,
-
-customer:
-document.getElementById('sale_customer').value,
-
-product:
-document.getElementById('sale_product').value,
-
-amount:
-Number(
-document.getElementById('sale_amount').value||0
-),
-
-status:
-document.getElementById('sale_payment').value
-
-});
-
-setArr(
-KEY.sales,
-sales
-);
-
-e.target.reset();
-
-msg(
-'salesMessage',
-'Sale saved.'
-);
-
-renderSales();
-
-updateDashboard()
-
-});
-
-
-function renderSales(){
-
-document.getElementById(
-'salesTableBody'
-).innerHTML=
-
-sales.length
-
-?
-
-sales.slice()
-.reverse()
-.map(x=>
-
-'<tr><td>'+
-esc(x.date)+
-'</td><td>'+
-esc(x.invoice)+
-'</td><td>'+
-esc(x.customer)+
-'</td><td>'+
-esc(x.product)+
-'</td><td>'+
-money(x.amount)+
-'</td><td>'+
-esc(x.status)+
-'</td></tr>'
-
-).join('')
-
-:
-
-'<tr><td colspan="6">No sales recorded yet.</td></tr>'
-
-}
-
-
-/* PURCHASES */
-
-document
-.getElementById('purchaseForm')
-.addEventListener('submit',e=>{
-
-e.preventDefault();
-
-purchases.push({
-
-date:
-document.getElementById('purchase_date')
-.value||
-new Date().toISOString().slice(0,10),
-
-supplier:
-document.getElementById('purchase_supplier')
-.value,
-
-product:
-document.getElementById('purchase_product')
-.value,
-
-amount:
-Number(
-document.getElementById('purchase_amount')
-.value||0
-),
-
-status:
-document.getElementById('purchase_payment')
-.value
-
-});
-
-setArr(
-KEY.purchases,
-purchases
-);
-
-e.target.reset();
-
-msg(
-'purchaseMessage',
-'Purchase saved.'
-);
-
-renderPurchases();
-
-updateDashboard()
-
-});
-
-
-function renderPurchases(){
-
-document.getElementById(
-'purchaseTableBody'
-).innerHTML=
-
-purchases.length
-
-?
-
-purchases.slice()
-.reverse()
-.map(x=>
-
-'<tr><td>'+
-esc(x.date)+
-'</td><td>'+
-esc(x.supplier)+
-'</td><td>'+
-esc(x.product)+
-'</td><td>'+
-money(x.amount)+
-'</td><td>'+
-esc(x.status)+
-'</td></tr>'
-
-).join('')
-
-:
-
-'<tr><td colspan="5">No purchases recorded yet.</td></tr>'
-
-}
-
-
-/* EXPENSES */
-
-document
-.getElementById('expenseForm')
-.addEventListener('submit',e=>{
-
-e.preventDefault();
-
-expenses.push({
-
-date:
-document.getElementById('expense_date')
-.value||
-new Date().toISOString().slice(0,10),
-
-name:
-document.getElementById('expense_name')
-.value,
-
-category:
-document.getElementById('expense_category')
-.value,
-
-amount:
-Number(
-document.getElementById('expense_amount')
-.value||0
-),
-
-notes:
-document.getElementById('expense_notes')
-.value
-
-});
-
-setArr(
-KEY.expenses,
-expenses
-);
-
-e.target.reset();
-
-msg(
-'expenseMessage',
-'Expense saved.'
-);
-
-renderExpenses();
-
-updateDashboard()
-
-});
-
-
-function renderExpenses(){
-
-document.getElementById(
-'expenseTableBody'
-).innerHTML=
-
-expenses.length
-
-?
-
-expenses.slice()
-.reverse()
-.map(x=>
-
-'<tr><td>'+
-esc(x.date)+
-'</td><td>'+
-esc(x.name)+
-'</td><td>'+
-esc(x.category)+
-'</td><td>'+
-money(x.amount)+
-'</td><td>'+
-esc(x.notes)+
-'</td></tr>'
-
-).join('')
-
-:
-
-'<tr><td colspan="5">No expenses recorded yet.</td></tr>'
-
-}
-
-
-/* PARTNERS */
-
-document
-.getElementById('partnerForm')
-.addEventListener('submit',e=>{
-
-e.preventDefault();
-
-partners.push({
-
-name:
-document.getElementById('partner_name')
-.value,
-
-type:
-document.getElementById('partner_type')
-.value,
-
-phone:
-document.getElementById('partner_phone')
-.value,
-
-email:
-document.getElementById('partner_email')
-.value,
-
-address:
-document.getElementById('partner_address')
-.value
-
-});
-
-setArr(
-KEY.partners,
-partners
-);
-
-e.target.reset();
-
-msg(
-'partnerMessage',
-'Contact saved.'
-);
-
-renderPartners()
-
-});
-
-
-function renderPartners(){
-
-document.getElementById(
-'partnerTableBody'
-).innerHTML=
-
-partners.length
-
-?
-
-partners.slice()
-.reverse()
-.map(x=>
-
-'<tr><td>'+
-esc(x.name)+
-'</td><td>'+
-esc(x.type)+
-'</td><td>'+
-esc(x.phone)+
-'</td><td>'+
-esc(x.email)+
-'</td><td>'+
-esc(x.address)+
-'</td></tr>'
-
-).join('')
-
-:
-
-'<tr><td colspan="5">No contacts recorded yet.</td></tr>'
-
-}
-
-
-/* PAYROLL */
-
-document
-.getElementById('payrollForm')
-.addEventListener('submit',e=>{
-
-e.preventDefault();
-
-const base=
-Number(
-document.getElementById('pay_base')
-.value||0
-);
-
-const allow=
-Number(
-document.getElementById('pay_allowance')
-.value||0
-);
-
-const ded=
-Number(
-document.getElementById('pay_deduction')
-.value||0
-);
-
-payroll.push({
-
-month:
-document.getElementById('pay_month').value,
-
-worker:
-document.getElementById('pay_worker').value,
-
-position:
-document.getElementById('pay_position').value,
-
-base,
-
-allowance:allow,
-
-deduction:ded,
-
-net:base+allow-ded,
-
-status:
-document.getElementById('pay_status').value
-
-});
-
-setArr(
-KEY.payroll,
-payroll
-);
-
-e.target.reset();
-
-msg(
-'payMessage',
-'Salary record saved.'
-);
-
-renderPayroll()
-
-});
-
-
-function renderPayroll(){
-
-document.getElementById(
-'payTableBody'
-).innerHTML=
-
-payroll.length
-
-?
-
-payroll.slice()
-.reverse()
-.map(x=>
-
-'<tr><td>'+
-esc(x.month)+
-'</td><td>'+
-esc(x.worker)+
-'</td><td>'+
-esc(x.position)+
-'</td><td>'+
-money(x.base)+
-'</td><td>'+
-money(x.allowance)+
-'</td><td>'+
-money(x.deduction)+
-'</td><td>'+
-money(x.net)+
-'</td><td>'+
-esc(x.status)+
-'</td></tr>'
-
-).join('')
-
-:
-
-'<tr><td colspan="8">No salary records yet.</td></tr>'
-
-}
-
-
-/* PLANNER */
-
-function savePlan(){
-
-localStorage.setItem(
-'cwb_plan_v2',
-document.getElementById('planText').value
-);
-
-msg(
-'planMessage',
-'Business plan saved.'
-)
-
-}
-
-
-function loadPlan(){
-
-document.getElementById(
-'planText'
-).value=
-localStorage.getItem(
-'cwb_plan_v2'
-)||'';
-
-msg(
-'planMessage',
-'Business plan loaded.'
-)
-
-}
-
-
-/* REPORTS */
-
-function loadReports(){
-
-const s=sales.reduce(
-(a,x)=>a+Number(x.amount||0),
-0
-);
-
-const p=purchases.reduce(
-(a,x)=>a+Number(x.amount||0),
-0
-);
-
-const ex=expenses.reduce(
-(a,x)=>a+Number(x.amount||0),
-0
-);
-
-document.getElementById(
-'reportContent'
-).innerHTML=
-
-'<div class="dashboard">'+
-
-'<div class="stat">Sales<strong>'+
-money(s)+
-'</strong></div>'+
-
-'<div class="stat">Purchases<strong>'+
-money(p)+
-'</strong></div>'+
-
-'<div class="stat">Expenses<strong>'+
-money(ex)+
-'</strong></div>'+
-
-'<div class="stat">Net<strong>'+
-money(s-p-ex)+
-'</strong></div>'+
-
-'</div>'+
-
-'<p>'+
-
-'<span class="pill">Sales records: '+
-sales.length+
-'</span>'+
-
-'<span class="pill">Purchase records: '+
-purchases.length+
-'</span>'+
-
-'<span class="pill">Expense records: '+
-expenses.length+
-'</span>'+
-
-'<span class="pill">Payroll records: '+
-payroll.length+
-'</span>'+
-
-'</p>'
-
-}
-
-
-/* WEBSITE */
-
-const WEBSITE_KEY=
-'cwb_official_website_v2';
-
-const SOCIAL_KEY=
-'cwb_social_connections_v2';
-
-
-function cleanUrl(value){
-
-let url=
-String(value||'').trim();
-
-if(!url)return '';
-
-if(!/^https?:\/\//i.test(url))
-url='https://'+url;
-
-return url
-
-}
-
-
-function validUrl(value){
-
-try{
-
-const u=
-new URL(cleanUrl(value));
-
-return u.protocol==='http:'||
-u.protocol==='https:';
-
-}
-
-catch(e){
-
-return false
-
-}
-
-}
-
-
-function saveWebsite(){
-
-const input=
-document.getElementById(
-'website_url'
-);
-
-const url=
-cleanUrl(input.value);
-
-if(!url){
-
-msg(
-'websiteMessage',
-'Please enter the official website address.',
-true
-);
-
-return
-}
-
-if(!validUrl(url)){
-
-msg(
-'websiteMessage',
-'Please enter a valid website address.',
-true
-);
-
-return
-}
-
-localStorage.setItem(
-WEBSITE_KEY,
-url
-);
-
-input.value=url;
-
-msg(
-'websiteMessage',
-'Official website saved successfully.'
-);
-
-loadWebsite()
-
-}
-
-
-function loadWebsite(){
-
-const url=
-localStorage.getItem(
-WEBSITE_KEY
-)||'';
-
-const input=
-document.getElementById(
-'website_url'
-);
-
-const status=
-document.getElementById(
-'websiteStatus'
-);
-
-if(input)
-input.value=url;
-
-if(status){
-
-status.innerHTML=
-
-url
-
-?
-
-'Saved website: <b>'+
-esc(url)+
-'</b>'
-
-:
-
-'No website saved yet.'
-
-}
-
-}
-
-
-function openSavedWebsite(){
-
-const url=
-localStorage.getItem(
-WEBSITE_KEY
-)||'';
-
-if(!url){
-
-msg(
-'websiteMessage',
-'No website has been saved yet.',
-true
-);
-
-return
-}
-
-window.open(
-url,
-'_blank',
-'noopener,noreferrer'
-)
-
-}
-
-
-/* SOCIAL CONNECTIONS */
-
-const SOCIAL_NAMES=[
-'facebook',
-'instagram',
-'whatsapp',
-'tiktok',
-'youtube',
-'linkedin'
-];
-
-
-function getSocialData(){
-
-try{
-
-return JSON.parse(
-localStorage.getItem(
-SOCIAL_KEY
-)
-)||{}
-
-}
-
-catch(e){
-
-return{}
-
-}
-
-}
-
-
-function createSocialBoxes(){
-
-const box=
-document.getElementById(
-'socialBoxes'
-);
-
-if(!box)return;
-
-const names={
-
-facebook:'Facebook',
-instagram:'Instagram',
-whatsapp:'WhatsApp',
-tiktok:'TikTok',
-youtube:'YouTube',
-linkedin:'LinkedIn'
-
-};
-
-const placeholders={
-
-facebook:
-'https://www.facebook.com/yourpage',
-
-instagram:
-'https://www.instagram.com/yourpage',
-
-whatsapp:
-'https://wa.me/257XXXXXXXX',
-
-tiktok:
-'https://www.tiktok.com/@yourpage',
-
-youtube:
-'https://www.youtube.com/@yourpage',
-
-linkedin:
-'https://www.linkedin.com/company/yourpage'
-
-};
-
-box.innerHTML=
-SOCIAL_NAMES.map(platform=>
-
-'<div class="connection-box">'+
-
-'<div class="social-title">'+
-names[platform]+
-'</div>'+
-
-'<div class="connection-row">'+
-
-'<div class="input-area">'+
-
-'<label>'+
-names[platform]+
-' Link</label>'+
-
-'<input id="social_'+
-platform+
-'" type="url" placeholder="'+
-placeholders[platform]+
-'">'+
-
-'</div>'+
-
-'<div class="connection-actions">'+
-
-'<button class="btn" type="button" onclick="saveSocial(\''+
-platform+
-'\')">Save</button>'+
-
-'<button class="btn secondary" type="button" onclick="openSocial(\''+
-platform+
-'\')">Open</button>'+
-
-'</div></div>'+
-
-'<div id="'+
-platform+
-'Status" class="link-status">No '+
-names[platform]+
-' link saved.</div>'+
-
-'</div>'
-
-).join('')
-
-}
-
-
-function saveSocial(platform){
-
-const input=
-document.getElementById(
-'social_'+platform
-);
-
-const url=
-cleanUrl(input.value);
-
-if(!url){
-
-msg(
-'socialMessage',
-'Please enter the '+
-platform+
-' link.',
-true
-);
-
-return
-}
-
-if(!validUrl(url)){
-
-msg(
-'socialMessage',
-'Please enter a valid '+
-platform+
-' link.',
-true
-);
-
-return
-}
-
-const data=
-getSocialData();
-
-data[platform]=url;
-
-localStorage.setItem(
-SOCIAL_KEY,
-JSON.stringify(data)
-);
-
-input.value=url;
-
-msg(
-'socialMessage',
-platform.charAt(0).toUpperCase()+
-platform.slice(1)+
-' link saved successfully.'
-);
-
-loadSocial()
-
-}
-
-
-function loadSocial(){
-
-const data=
-getSocialData();
-
-SOCIAL_NAMES.forEach(platform=>{
-
-const input=
-document.getElementById(
-'social_'+platform
-);
-
-const status=
-document.getElementById(
-platform+'Status'
-);
-
-const url=
-data[platform]||'';
-
-if(input)
-input.value=url;
-
-if(status){
-
-status.innerHTML=
-
-url
-
-?
-
-'Saved link: <b>'+
-esc(url)+
-'</b>'
-
-:
-
-'No '+
-platform+
-' link saved.'
-
-}
-
-})
-
-}
-
-
-function openSocial(platform){
-
-const data=
-getSocialData();
-
-const url=
-data[platform]||'';
-
-if(!url){
-
-msg(
-'socialMessage',
-'No '+
-platform+
-' link has been saved yet.',
-true
-);
-
-return
-}
-
-window.open(
-url,
-'_blank',
-'noopener,noreferrer'
-)
-
-}
-
-
-/* ============================= */
-/* C.W.B PROFESSIONAL SCAN PAY   */
-/* ============================= */
-
-const CWB_LOGO_URL=
-new URL(
-'file_000000009d80820694001bdae16e2e4b.png',
-window.location.href
-).href;
-
-
-function generateQR(){
-
-const customer=
-document.getElementById(
-'qr_customer'
-).value.trim();
-
-const invoice=
-document.getElementById(
-'qr_invoice'
-).value.trim();
-
-const amount=
-document.getElementById(
-'qr_amount'
-).value;
-
-const currency=
-document.getElementById(
-'qr_currency'
-).value;
-
-const method=
-document.getElementById(
-'qr_method'
-).value;
-
-const account=
-document.getElementById(
-'qr_account'
-).value.trim()
-||
-'06691086015';
-
-const accountName=
-document.getElementById(
-'qr_account_name'
-).value.trim()
-||
-'CAMEL WORK AND BUSINESS COMPANY';
-
-const note=
-document.getElementById(
-'qr_note'
-).value.trim();
-
-
-if(!customer||!invoice||!amount){
-
-msg(
-'qrMessage',
-'Please enter customer name, invoice number and amount.',
-true
-);
-
-return
-
-}
-
-
-if(typeof QRCode==='undefined'){
-
-msg(
-'qrMessage',
-'QR generator is not available. Check your internet connection and reload.',
-true
-);
-
-return
-
-}
-
-
-const formattedAmount=
-Number(amount).toLocaleString();
-
-
-const payload=[
-
-'C.W.B PAYMENT',
-
-'CAMEL WORK AND BUSINESS COMPANY',
-
-'Merchant Code: 984868',
-
-'Payment Account: '+account,
-
-'Customer: '+customer,
-
-'Invoice: '+invoice,
-
-'Amount: '+formattedAmount+
-' '+currency,
-
-'Payment Method: '+method,
-
-'Account Name: '+accountName,
-
-'Note: '+(note||'')
-
-].join('\n');
-
-
-const area=
-document.getElementById(
-'qrArea'
-);
-
-area.innerHTML=`
-
-<div class="cwb-qr-card">
-
-<div class="cwb-qr-header">
-
-<img
-class="cwb-qr-logo"
-src="${CWB_LOGO_URL}"
-alt="C.W.B Logo">
-
-<div class="cwb-qr-title">
-C.W.B PAYMENT
-</div>
-
-<div class="cwb-qr-company">
-CAMEL WORK AND BUSINESS COMPANY
-</div>
-
-<div class="cwb-qr-slogan">
-Better Quality is our priority
-</div>
-
-</div>
-
-
-<div class="cwb-qr-body">
-
-<div class="cwb-qr-code"
-id="cwbQrCode">
-</div>
-
-
-<div class="cwb-payment-number">
-
-Payment Number
-
-<strong>
-${esc(account)}
-</strong>
-
-</div>
-
-
-<div class="cwb-payment-details">
-
-<div class="cwb-payment-detail">
-<b>Merchant Code</b>
-${esc('984868')}
-</div>
-
-<div class="cwb-payment-detail">
-<b>Customer</b>
-${esc(customer)}
-</div>
-
-<div class="cwb-payment-detail">
-<b>Invoice</b>
-${esc(invoice)}
-</div>
-
-<div class="cwb-payment-detail">
-<b>Amount</b>
-${esc(formattedAmount+' '+currency)}
-</div>
-
-<div class="cwb-payment-detail">
-<b>Payment Method</b>
-${esc(method)}
-</div>
-
-<div class="cwb-payment-detail">
-<b>Account Name</b>
-${esc(accountName)}
-</div>
-
-</div>
-
-
-${
-note
-?
-'<div class="cwb-payment-note"><b>Note:</b> '+
-esc(note)+
-'</div>'
-:
-''
-}
-
-
-<div class="cwb-qr-footer">
-C.W.B System • Master Version 2
-</div>
-
-</div>
-
-</div>
-`;
-
-
-new QRCode(
-document.getElementById(
-'cwbQrCode'
-),
-{
-text:payload,
-width:240,
-height:240,
-correctLevel:
-QRCode.CorrectLevel.M
-}
-);
-
-
-document.getElementById(
-'qrText'
-).textContent=payload;
-
-
-msg(
-'qrMessage',
-'C.W.B professional QR code created successfully.'
-)
-
-}
-
-
-function clearQR(){
-
-document.getElementById(
-'qr_customer'
-).value='';
-
-document.getElementById(
-'qr_invoice'
-).value='';
-
-document.getElementById(
-'qr_amount'
-).value='';
-
-document.getElementById(
-'qr_currency'
-).value='BIF';
-
-document.getElementById(
-'qr_method'
-).value='Mobile Money';
-
-document.getElementById(
-'qr_account'
-).value='06691086015';
-
-document.getElementById(
-'qr_account_name'
-).value=
-'CAMEL WORK AND BUSINESS COMPANY';
-
-document.getElementById(
-'qr_note'
-).value='';
-
-
-document.getElementById(
-'qrArea'
-).innerHTML=`
-
-<div class="small">
-Your professional payment QR will appear here.
-</div>
-
-`;
-
-
-document.getElementById(
-'qrText'
-).textContent='';
-
-document.getElementById(
-'qrMessage'
-).style.display='none'
-
-}
-
-
-async function printQR(){
-
-const qrHost=
-document.getElementById(
-'cwbQrCode'
-);
-
-if(!qrHost){
-
-msg(
-'qrMessage',
-'Please generate the QR code first.',
-true
-);
-
-return
-
-}
-
-
-const qrCanvas=
-qrHost.querySelector(
-'canvas'
-);
-
-const qrImage=
-qrHost.querySelector(
-'img'
-);
-
-
-let qrSrc='';
-
-if(qrCanvas){
-
-try{
-qrSrc=
-qrCanvas.toDataURL(
-'image/png'
-);
-}
-catch(e){}
-
-}
-
-if(!qrSrc&&qrImage){
-
-qrSrc=qrImage.src;
-
-}
-
-
-if(!qrSrc){
-
-msg(
-'qrMessage',
-'QR image is not ready. Please generate it again.',
-true
-);
-
-return
-
-}
-
-
-const payload=
-document.getElementById(
-'qrText'
-).textContent||'';
-
-
-const customer=
-document.getElementById(
-'qr_customer'
-).value.trim();
-
-const invoice=
-document.getElementById(
-'qr_invoice'
-).value.trim();
-
-const amount=
-document.getElementById(
-'qr_amount'
-).value;
-
-const currency=
-document.getElementById(
-'qr_currency'
-).value;
-
-const method=
-document.getElementById(
-'qr_method'
-).value;
-
-const account=
-document.getElementById(
-'qr_account'
-).value.trim()
-||
-'06691086015';
-
-const accountName=
-document.getElementById(
-'qr_account_name'
-).value.trim()
-||
-'CAMEL WORK AND BUSINESS COMPANY';
-
-const note=
-document.getElementById(
-'qr_note'
-).value.trim();
-
-
-/* TRY ANDROID SHARE FIRST */
-
-try{
-
-if(
-navigator.share&&
-navigator.canShare&&
-qrCanvas&&
-qrCanvas.toBlob
-){
-
-const blob=
-await new Promise(resolve=>
-qrCanvas.toBlob(
-resolve,
-'image/png'
-)
-);
-
-if(blob){
-
-const file=
-new File(
-[blob],
-'CWB-Payment-QR.png',
-{
-type:'image/png'
-}
-);
-
-if(
-navigator.canShare({
-files:[file]
-})
-){
-
-await navigator.share({
-
-title:
-'C.W.B Payment QR',
-
-text:
-'C.W.B PAYMENT\n'+
-'CAMEL WORK AND BUSINESS COMPANY\n'+
-'Merchant Code: 984868\n'+
-'Payment Account: '+account,
-
-files:[file]
-
-});
-
-return
-
-}
-
-}
-
-}
-
-}
-catch(e){
-
-/* FALL BACK TO PRINT PAGE */
-
-}
-
-
-/* PRINT PAGE */
-
-const w=
-window.open(
-'',
-'_blank'
-);
-
-
-if(!w){
-
-msg(
-'qrMessage',
-'Please allow pop-ups to print the QR code.',
-true
-);
-
-return
-
-}
-
-
-w.document.write(`
-
-<!DOCTYPE html>
-
-<html>
-
-<head>
-
-<meta charset="UTF-8">
-
-<meta
-name="viewport"
-content="width=device-width,initial-scale=1.0">
-
-<title>
-C.W.B Payment QR
-</title>
-
-
-<style>
-
-body{
-
-font-family:Arial,sans-serif;
-
-background:#f3f4f6;
-
-margin:0;
-
-padding:20px;
-
-color:#111827
-
-}
-
-
-.card{
-
-max-width:520px;
-
-margin:auto;
-
-background:#fff;
-
-border-radius:18px;
-
-overflow:hidden;
-
-box-shadow:
-0 5px 20px rgba(0,0,0,.15);
-
-border:
-2px solid #b91c1c
-
-}
-
-
-.head{
-
-background:
-linear-gradient(
-135deg,
-#111827,
-#b91c1c
-);
-
-color:#fff;
-
-text-align:center;
-
-padding:20px
-
-}
-
-
-.logo{
-
-width:76px;
-
-height:76px;
-
-object-fit:contain;
-
-background:#fff;
-
-border-radius:15px;
-
-padding:6px
-
-}
-
-
-h1{
-
-font-size:23px;
-
-margin:10px 0 4px
-
-}
-
-
-.company{
-
-font-size:13px;
-
-font-weight:bold
-
-}
-
-
-.slogan{
-
-font-size:11px;
-
-margin-top:4px
-
-}
-
-
-.body{
-
-padding:20px;
-
-text-align:center
-
-}
-
-
-.qr{
-
-width:240px;
-
-height:240px;
-
-display:block;
-
-margin:0 auto 18px;
-
-padding:10px;
-
-background:#fff;
-
-border:
-1px solid #e5e7eb;
-
-border-radius:12px
-
-}
-
-
-.number{
-
-background:#111827;
-
-color:#fff;
-
-border-radius:10px;
-
-padding:10px;
-
-margin-bottom:12px
-
-}
-
-
-.number span{
-
-display:block;
-
-font-size:10px;
-
-opacity:.8
-
-}
-
-
-.number strong{
-
-font-size:18px;
-
-display:block;
-
-margin-top:3px
-
-}
-
-
-.details{
-
-display:grid;
-
-grid-template-columns:1fr 1fr;
-
-gap:8px;
-
-text-align:left
-
-}
-
-
-.detail{
-
-background:#f3f4f6;
-
-border-radius:9px;
-
-padding:10px;
-
-font-size:12px;
-
-overflow-wrap:anywhere
-
-}
-
-
-.detail b{
-
-display:block;
-
-font-size:9px;
-
-color:#6b7280;
-
-text-transform:uppercase;
-
-margin-bottom:4px
-
-}
-
-
-.note{
-
-text-align:left;
-
-background:#f9fafb;
-
-border-radius:9px;
-
-padding:10px;
-
-margin-top:10px;
-
-font-size:12px;
-
-white-space:pre-wrap
-
-}
-
-
-button{
-
-margin-top:18px;
-
-padding:12px 22px;
-
-background:#b91c1c;
-
-color:#fff;
-
-border:0;
-
-border-radius:9px;
-
-font-weight:bold;
-
-font-size:15px
-
-}
-
-
-.footer{
-
-font-size:10px;
-
-color:#6b7280;
-
-margin-top:15px
-
-}
-
-
-@media print{
-
-button{
-
-display:none
-
-}
-
-body{
-
-background:#fff;
-
-padding:0
-
-}
-
-.card{
-
-box-shadow:none
-
-}
-
-}
-
-@media(max-width:500px){
-
-.details{
-
-grid-template-columns:1fr
-
-}
-
-}
-
-</style>
-
-</head>
-
-
-<body>
-
-
-<div class="card">
-
-
-<div class="head">
-
-<img
-class="logo"
-src="${CWB_LOGO_URL}"
-alt="C.W.B Logo">
-
-<h1>
-C.W.B PAYMENT
-</h1>
-
-<div class="company">
-CAMEL WORK AND BUSINESS COMPANY
-</div>
-
-<div class="slogan">
-Better Quality is our priority
-</div>
-
-</div>
-
-
-<div class="body">
-
-
-<img
-class="qr"
-src="${qrSrc}"
-alt="C.W.B Payment QR">
-
-
-<div class="number">
-
-<span>
-PAYMENT ACCOUNT
-</span>
-
-<strong>
-${esc(account)}
-</strong>
-
-</div>
-
-
-<div class="details">
-
-
-<div class="detail">
-<b>Merchant Code</b>
-984868
-</div>
-
-
-<div class="detail">
-<b>Customer</b>
-${esc(customer)}
-</div>
-
-
-<div class="detail">
-<b>Invoice</b>
-${esc(invoice)}
-</div>
-
-
-<div class="detail">
-<b>Amount</b>
-${esc(
-Number(amount).toLocaleString()+
-' '+
-currency
-)}
-</div>
-
-
-<div class="detail">
-<b>Payment Method</b>
-${esc(method)}
-</div>
-
-
-<div class="detail">
-<b>Account Name</b>
-${esc(accountName)}
-</div>
-
-
-</div>
-
-
-${
-note
-?
-'<div class="note"><b>Note:</b> '+
-esc(note)+
-'</div>'
-:
-''
-}
-
-
-<div class="footer">
-
-C.W.B System • Master Version 2
-
-</div>
-
-
-<button onclick="window.print()">
-Print Payment QR
-</button>
-
-
-</div>
-
-</div>
-
-
-</body>
-
-</html>
-
-`);
-
-
-w.document.close()
-
-}
-
-
-/* STARTUP */
-
-createSocialBoxes();
-
-updateDashboard();
-
-renderSales();
-
-renderPurchases();
-
-renderExpenses();
-
-renderPartners();
-
-renderPayroll();
-
-loadReports();
-
-loadWebsite();
-
-loadSocial();
-
-</script>
-
-</body>
-</html>
+const b=document.getElementById('inventoryTableBody');if(!b)return;
+b.innerHTML='<tr><td colspan="6">Loading...</td></tr>';
+const {data
