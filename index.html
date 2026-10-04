@@ -499,10 +499,11 @@ document.getElementById('accPurchases').textContent=money(p);
 document.getElementById('accExpenses').textContent=money(ex);
 document.getElementById('accBalance').textContent=money(b)
 }
-
 /* INVENTORY */
+
 document.getElementById('inventoryForm').addEventListener('submit',async e=>{
 e.preventDefault();
+
 const product={
 name:document.getElementById('inv_name').value.trim(),
 category:document.getElementById('inv_category').value.trim()||null,
@@ -510,18 +511,833 @@ quantity:Number(document.getElementById('inv_quantity').value||0),
 buying_price:Number(document.getElementById('inv_buying_price').value||0),
 selling_price:Number(document.getElementById('inv_selling_price').value||0)
 };
+
 msg('inventoryMessage','Saving...');
+
 const {error}=await supabaseClient.from('products').insert([product]);
-if(error){msg('inventoryMessage','Error saving product: '+error.message,true);return}
+
+if(error){
+msg('inventoryMessage','Error saving product: '+error.message,true);
+return;
+}
+
 e.target.reset();
 document.getElementById('inv_quantity').value=0;
 document.getElementById('inv_buying_price').value=0;
 document.getElementById('inv_selling_price').value=0;
+
 msg('inventoryMessage','Product saved successfully to Supabase.');
-loadInventory()
+loadInventory();
 });
 
 async function loadInventory(){
-const b=document.getElementById('inventoryTableBody');if(!b)return;
+const b=document.getElementById('inventoryTableBody');
+if(!b)return;
+
 b.innerHTML='<tr><td colspan="6">Loading...</td></tr>';
-const {data
+
+const {data,error}=await supabaseClient
+.from('products')
+.select('*')
+.order('created_at',{ascending:false});
+
+if(error){
+b.innerHTML='<tr><td colspan="6">Error loading inventory</td></tr>';
+return;
+}
+
+if(!data||!data.length){
+b.innerHTML='<tr><td colspan="6">No products yet.</td></tr>';
+return;
+}
+
+b.innerHTML=data.map(x=>{
+const value=Number(x.quantity||0)*Number(x.buying_price||0);
+
+return `
+<tr>
+<td>${esc(x.name)}</td>
+<td>${esc(x.category||'')}</td>
+<td>${money(x.quantity)}</td>
+<td>${money(x.buying_price)}</td>
+<td>${money(x.selling_price)}</td>
+<td>${money(value)}</td>
+</tr>`;
+}).join('');
+}
+
+
+/* GARAGE */
+
+document.getElementById('garageForm').addEventListener('submit',async e=>{
+e.preventDefault();
+
+const job={
+job_number:document.getElementById('job_number').value.trim()||null,
+customer_name:document.getElementById('customer_name').value.trim(),
+customer_phone:document.getElementById('customer_phone').value.trim()||null,
+customer_address:document.getElementById('customer_address').value.trim()||null,
+vehicle_name:document.getElementById('vehicle_name').value.trim()||null,
+vehicle_model:document.getElementById('vehicle_model').value.trim()||null,
+vehicle_color:document.getElementById('vehicle_color').value.trim()||null,
+mechanic_name:document.getElementById('mechanic_name').value.trim()||null,
+job_status:document.getElementById('job_status').value,
+payment_status:document.getElementById('payment_status').value,
+payment_method:document.getElementById('payment_method').value,
+invoice_number:document.getElementById('invoice_number').value.trim()||null,
+job_cost:Number(document.getElementById('job_cost').value||0),
+parts_cost:Number(document.getElementById('parts_cost').value||0),
+service_date:document.getElementById('service_date').value||null,
+estimated_completion_date:document.getElementById('estimated_completion_date').value||null,
+completion_date:document.getElementById('completion_date').value||null,
+pickup_status:document.getElementById('pickup_status').value,
+warranty:document.getElementById('warranty').value,
+repair_description:document.getElementById('repair_description').value.trim()||null,
+notes:document.getElementById('garage_notes').value.trim()||null
+};
+
+msg('garageMessage','Saving...');
+
+const {error}=await supabaseClient.from('Garage_jobs').insert([job]);
+
+if(error){
+msg('garageMessage','Error saving garage activity: '+error.message,true);
+return;
+}
+
+e.target.reset();
+
+msg('garageMessage','Garage activity saved successfully in Supabase.');
+loadGarage();
+});
+
+async function loadGarage(){
+const b=document.getElementById('garageTableBody');
+if(!b)return;
+
+b.innerHTML='<tr><td colspan="6">Loading...</td></tr>';
+
+const {data,error}=await supabaseClient
+.from('Garage_jobs')
+.select('*')
+.order('created_at',{ascending:false});
+
+if(error){
+b.innerHTML='<tr><td colspan="6">Error loading garage activities</td></tr>';
+return;
+}
+
+if(!data||!data.length){
+b.innerHTML='<tr><td colspan="6">No garage activities yet.</td></tr>';
+return;
+}
+
+b.innerHTML=data.map(x=>`
+<tr>
+<td>${esc(x.customer_name||'')}</td>
+<td>${esc((x.vehicle_name||'')+' '+(x.vehicle_model||''))}</td>
+<td>${esc(x.mechanic_name||'')}</td>
+<td>${esc(x.job_status||'')}</td>
+<td>${money(x.job_cost)}</td>
+<td>${esc(x.payment_status||'')}</td>
+</tr>
+`).join('');
+}
+
+
+/* SALES */
+
+document.getElementById('salesForm').addEventListener('submit',e=>{
+e.preventDefault();
+
+const item={
+customer:document.getElementById('sale_customer').value.trim(),
+product:document.getElementById('sale_product').value.trim(),
+invoice:document.getElementById('sale_invoice').value.trim(),
+amount:Number(document.getElementById('sale_amount').value||0),
+payment:document.getElementById('sale_payment').value,
+date:document.getElementById('sale_date').value||new Date().toISOString().slice(0,10)
+};
+
+sales.push(item);
+setArr(KEY.sales,sales);
+
+e.target.reset();
+
+msg('salesMessage','Sale saved successfully.');
+renderSales();
+updateDashboard();
+});
+
+function renderSales(){
+const b=document.getElementById('salesTableBody');
+if(!b)return;
+
+if(!sales.length){
+b.innerHTML='<tr><td colspan="6">No sales yet.</td></tr>';
+return;
+}
+
+b.innerHTML=sales.map(x=>`
+<tr>
+<td>${esc(x.date)}</td>
+<td>${esc(x.invoice)}</td>
+<td>${esc(x.customer)}</td>
+<td>${esc(x.product)}</td>
+<td>${money(x.amount)}</td>
+<td>${esc(x.payment)}</td>
+</tr>
+`).join('');
+}
+
+
+/* PURCHASES */
+
+document.getElementById('purchaseForm').addEventListener('submit',e=>{
+e.preventDefault();
+
+const item={
+supplier:document.getElementById('purchase_supplier').value.trim(),
+product:document.getElementById('purchase_product').value.trim(),
+amount:Number(document.getElementById('purchase_amount').value||0),
+payment:document.getElementById('purchase_payment').value,
+date:document.getElementById('purchase_date').value||new Date().toISOString().slice(0,10)
+};
+
+purchases.push(item);
+setArr(KEY.purchases,purchases);
+
+e.target.reset();
+
+msg('purchaseMessage','Purchase saved successfully.');
+renderPurchases();
+updateDashboard();
+});
+
+function renderPurchases(){
+const b=document.getElementById('purchaseTableBody');
+if(!b)return;
+
+if(!purchases.length){
+b.innerHTML='<tr><td colspan="5">No purchases yet.</td></tr>';
+return;
+}
+
+b.innerHTML=purchases.map(x=>`
+<tr>
+<td>${esc(x.date)}</td>
+<td>${esc(x.supplier)}</td>
+<td>${esc(x.product)}</td>
+<td>${money(x.amount)}</td>
+<td>${esc(x.payment)}</td>
+</tr>
+`).join('');
+}
+
+
+/* EXPENSES */
+
+document.getElementById('expenseForm').addEventListener('submit',e=>{
+e.preventDefault();
+
+const item={
+name:document.getElementById('expense_name').value.trim(),
+category:document.getElementById('expense_category').value.trim(),
+amount:Number(document.getElementById('expense_amount').value||0),
+date:document.getElementById('expense_date').value||new Date().toISOString().slice(0,10),
+notes:document.getElementById('expense_notes').value.trim()
+};
+
+expenses.push(item);
+setArr(KEY.expenses,expenses);
+
+e.target.reset();
+
+msg('expenseMessage','Expense saved successfully.');
+renderExpenses();
+updateDashboard();
+});
+
+function renderExpenses(){
+const b=document.getElementById('expenseTableBody');
+if(!b)return;
+
+if(!expenses.length){
+b.innerHTML='<tr><td colspan="5">No expenses yet.</td></tr>';
+return;
+}
+
+b.innerHTML=expenses.map(x=>`
+<tr>
+<td>${esc(x.date)}</td>
+<td>${esc(x.name)}</td>
+<td>${esc(x.category)}</td>
+<td>${money(x.amount)}</td>
+<td>${esc(x.notes)}</td>
+</tr>
+`).join('');
+}
+
+
+/* CUSTOMERS & PARTNERS */
+
+document.getElementById('partnerForm').addEventListener('submit',e=>{
+e.preventDefault();
+
+const item={
+name:document.getElementById('partner_name').value.trim(),
+phone:document.getElementById('partner_phone').value.trim(),
+email:document.getElementById('partner_email').value.trim(),
+type:document.getElementById('partner_type').value,
+address:document.getElementById('partner_address').value.trim()
+};
+
+partners.push(item);
+setArr(KEY.partners,partners);
+
+e.target.reset();
+
+msg('partnerMessage','Contact saved successfully.');
+renderPartners();
+});
+
+function renderPartners(){
+const b=document.getElementById('partnerTableBody');
+if(!b)return;
+
+if(!partners.length){
+b.innerHTML='<tr><td colspan="5">No contacts yet.</td></tr>';
+return;
+}
+
+b.innerHTML=partners.map(x=>`
+<tr>
+<td>${esc(x.name)}</td>
+<td>${esc(x.type)}</td>
+<td>${esc(x.phone)}</td>
+<td>${esc(x.email)}</td>
+<td>${esc(x.address)}</td>
+</tr>
+`).join('');
+}
+
+
+/* PAYROLL */
+
+document.getElementById('payrollForm').addEventListener('submit',e=>{
+e.preventDefault();
+
+const base=Number(document.getElementById('pay_base').value||0);
+const allowance=Number(document.getElementById('pay_allowance').value||0);
+const deduction=Number(document.getElementById('pay_deduction').value||0);
+
+const item={
+worker:document.getElementById('pay_worker').value.trim(),
+position:document.getElementById('pay_position').value.trim(),
+month:document.getElementById('pay_month').value,
+base:base,
+allowance:allowance,
+deduction:deduction,
+net:base+allowance-deduction,
+status:document.getElementById('pay_status').value
+};
+
+payroll.push(item);
+setArr(KEY.payroll,payroll);
+
+e.target.reset();
+
+msg('payMessage','Salary record saved successfully.');
+renderPayroll();
+});
+
+function renderPayroll(){
+const b=document.getElementById('payTableBody');
+if(!b)return;
+
+if(!payroll.length){
+b.innerHTML='<tr><td colspan="8">No payroll records yet.</td></tr>';
+return;
+}
+
+b.innerHTML=payroll.map(x=>`
+<tr>
+<td>${esc(x.month)}</td>
+<td>${esc(x.worker)}</td>
+<td>${esc(x.position)}</td>
+<td>${money(x.base)}</td>
+<td>${money(x.allowance)}</td>
+<td>${money(x.deduction)}</td>
+<td>${money(x.net)}</td>
+<td>${esc(x.status)}</td>
+</tr>
+`).join('');
+}
+
+
+/* BUSINESS PLANNER */
+
+function savePlan(){
+localStorage.setItem('cwb_plan',document.getElementById('planText').value);
+msg('planMessage','Business plan saved successfully.');
+}
+
+function loadPlan(){
+document.getElementById('planText').value=localStorage.getItem('cwb_plan')||'';
+msg('planMessage','Business plan loaded.');
+}
+
+
+/* REPORTS */
+
+function loadReports(){
+const report=document.getElementById('reportContent');
+if(!report)return;
+
+const salesTotal=sales.reduce((a,x)=>a+Number(x.amount||0),0);
+const purchaseTotal=purchases.reduce((a,x)=>a+Number(x.amount||0),0);
+const expenseTotal=expenses.reduce((a,x)=>a+Number(x.amount||0),0);
+const payrollTotal=payroll.reduce((a,x)=>a+Number(x.net||0),0);
+const balance=salesTotal-purchaseTotal-expenseTotal;
+
+report.innerHTML=`
+<div class="dashboard">
+<div class="stat">Sales Records<strong>${sales.length}</strong></div>
+<div class="stat">Purchase Records<strong>${purchases.length}</strong></div>
+<div class="stat">Expense Records<strong>${expenses.length}</strong></div>
+<div class="stat">Payroll Records<strong>${payroll.length}</strong></div>
+</div>
+
+<div class="card" style="margin-top:15px">
+<p><b>Total Sales:</b> ${money(salesTotal)}</p>
+<p><b>Total Purchases:</b> ${money(purchaseTotal)}</p>
+<p><b>Total Expenses:</b> ${money(expenseTotal)}</p>
+<p><b>Total Payroll:</b> ${money(payrollTotal)}</p>
+<p><b>Net Balance:</b> ${money(balance)}</p>
+</div>
+`;
+}
+
+
+/* WEBSITE */
+
+function saveWebsite(){
+let url=document.getElementById('website_url').value.trim();
+
+if(!url){
+msg('websiteMessage','Please enter a website address.',true);
+return;
+}
+
+if(!/^https?:\/\//i.test(url)){
+url='https://'+url;
+}
+
+localStorage.setItem('cwb_website',url);
+
+msg('websiteMessage','Website saved successfully.');
+loadWebsite();
+}
+
+function loadWebsite(){
+const input=document.getElementById('website_url');
+const status=document.getElementById('websiteStatus');
+
+if(!input||!status)return;
+
+const url=localStorage.getItem('cwb_website')||'';
+
+if(url){
+input.value=url;
+status.innerHTML='Saved website: <b>'+esc(url)+'</b>';
+}else{
+status.textContent='No website saved yet.';
+}
+}
+
+function openSavedWebsite(){
+const url=localStorage.getItem('cwb_website');
+
+if(!url){
+msg('websiteMessage','No website saved yet.',true);
+return;
+}
+
+window.open(url,'_blank');
+}
+
+
+/* SOCIAL CONNECTIONS */
+
+const socialPlatforms=[
+['Facebook','facebook'],
+['Instagram','instagram'],
+['WhatsApp','whatsapp'],
+['TikTok','tiktok'],
+['YouTube','youtube']
+];
+
+function loadSocial(){
+const box=document.getElementById('socialBoxes');
+if(!box)return;
+
+box.innerHTML=socialPlatforms.map(([name,key])=>{
+const saved=localStorage.getItem('cwb_social_'+key)||'';
+
+return `
+<div class="connection-box">
+<div class="social-title">${name}</div>
+
+<div class="connection-row">
+<div class="input-area">
+<label>${name} Link</label>
+<input id="social_${key}" type="url" placeholder="https://..." value="${esc(saved)}">
+</div>
+
+<div class="connection-actions">
+<button class="btn" type="button" onclick="saveSocial('${key}')">Save</button>
+<button class="btn secondary" type="button" onclick="openSocial('${key}')">Open</button>
+</div>
+</div>
+
+</div>`;
+}).join('');
+}
+
+function saveSocial(key){
+const input=document.getElementById('social_'+key);
+if(!input)return;
+
+let url=input.value.trim();
+
+if(!url){
+msg('socialMessage','Please enter the social media link.',true);
+return;
+}
+
+if(!/^https?:\/\//i.test(url)){
+url='https://'+url;
+}
+
+localStorage.setItem('cwb_social_'+key,url);
+
+msg('socialMessage','Social connection saved successfully.');
+}
+
+function openSocial(key){
+const url=localStorage.getItem('cwb_social_'+key);
+
+if(!url){
+msg('socialMessage','No link saved for this platform.',true);
+return;
+}
+
+window.open(url,'_blank');
+}
+
+
+/* SCAN & PAY */
+
+function updatePaymentMethod(){
+const method=document.getElementById('qr_method');
+const bank=document.getElementById('qr_bank_box');
+const label=document.getElementById('qr_account_label');
+
+if(!method||!bank||!label)return;
+
+if(method.value==='Bank'){
+bank.style.display='block';
+label.textContent='Bank Account Number';
+}else{
+bank.style.display='none';
+label.textContent='Payment Account / Number';
+}
+}
+
+document.getElementById('qr_method').addEventListener('change',updatePaymentMethod);
+
+function generateQR(){
+
+const customer=document.getElementById('qr_customer').value.trim();
+const invoice=document.getElementById('qr_invoice').value.trim();
+const amount=document.getElementById('qr_amount').value;
+const currency=document.getElementById('qr_currency').value;
+const method=document.getElementById('qr_method').value;
+const account=document.getElementById('qr_account').value.trim();
+const accountName=document.getElementById('qr_account_name').value.trim();
+const note=document.getElementById('qr_note').value.trim();
+
+if(!customer||!invoice||!amount){
+msg('qrMessage','Please complete Customer Name, Invoice Number and Amount.',true);
+return;
+}
+
+const paymentText=
+'C.W.B PAYMENT\n'+
+'Camel Work and Business company\n'+
+'Merchant Code: 984868\n'+
+'Payment Number: 06691086015\n'+
+'Customer: '+customer+'\n'+
+'Invoice: '+invoice+'\n'+
+'Amount: '+amount+' '+currency+'\n'+
+'Method: '+method+'\n'+
+'Account: '+account+'\n'+
+'Account Name: '+accountName+'\n'+
+'Note: '+note;
+
+const area=document.getElementById('qrArea');
+
+area.innerHTML=`
+<div class="cwb-qr-card">
+
+<div class="cwb-qr-header">
+<img class="cwb-qr-logo"
+src="./file_000000009d80820694001bdae16e2e4b.png"
+alt="C.W.B Logo">
+
+<div class="cwb-qr-title">C.W.B PAYMENT</div>
+<div class="cwb-qr-company">CAMEL WORK AND BUSINESS COMPANY</div>
+<div class="cwb-qr-slogan">Better Quality is our priority</div>
+</div>
+
+<div class="cwb-qr-body">
+
+<div class="cwb-qr-code">
+<div id="generatedQRCode"></div>
+</div>
+
+<div class="cwb-payment-details">
+
+<div class="cwb-payment-detail">
+<b>Customer</b>
+${esc(customer)}
+</div>
+
+<div class="cwb-payment-detail">
+<b>Invoice</b>
+${esc(invoice)}
+</div>
+
+<div class="cwb-payment-detail">
+<b>Amount</b>
+${esc(amount)} ${esc(currency)}
+</div>
+
+<div class="cwb-payment-detail">
+<b>Payment Method</b>
+${esc(method)}
+</div>
+
+</div>
+
+<div class="cwb-payment-number">
+Payment Number
+<strong>06691086015</strong>
+</div>
+
+<div class="cwb-bank-box">
+<b>Payment Account</b><br>
+${esc(accountName)}<br>
+${esc(account)}
+</div>
+
+${note?`
+<div class="cwb-payment-note">
+<b>Note</b><br>
+${esc(note)}
+</div>`:''}
+
+<div class="cwb-qr-footer">
+C.W.B System • Master Version 2
+</div>
+
+</div>
+</div>
+`;
+
+new QRCode(document.getElementById('generatedQRCode'),{
+text:paymentText,
+width:220,
+height:220,
+correctLevel:QRCode.CorrectLevel.M
+});
+
+document.getElementById('qrText').textContent=paymentText;
+
+msg('qrMessage','Professional payment QR generated successfully.');
+}
+
+function clearQR(){
+document.getElementById('qrArea').innerHTML=
+'<div class="small">Your professional payment QR will appear here.</div>';
+
+document.getElementById('qrText').textContent='';
+}
+
+function printQR(){
+const area=document.getElementById('qrArea');
+
+if(!area||!area.querySelector('.cwb-qr-card')){
+msg('qrMessage','Generate the QR first.',true);
+return;
+}
+
+const printWindow=window.open('','_blank');
+
+if(!printWindow){
+msg('qrMessage','Please allow pop-ups to print the QR.',true);
+return;
+}
+
+printWindow.document.write(`
+<!DOCTYPE html>
+<html>
+<head>
+<title>C.W.B Payment QR</title>
+<style>
+body{
+font-family:Arial,sans-serif;
+margin:0;
+padding:20px;
+background:#fff;
+}
+.cwb-qr-card{
+max-width:520px;
+margin:auto;
+border:2px solid #b91c1c;
+border-radius:18px;
+overflow:hidden;
+}
+.cwb-qr-header{
+background:linear-gradient(135deg,#111827,#b91c1c);
+color:#fff;
+text-align:center;
+padding:20px;
+}
+.cwb-qr-logo{
+width:76px;
+height:76px;
+object-fit:contain;
+background:#fff;
+border-radius:15px;
+padding:6px;
+}
+.cwb-qr-title{
+font-size:22px;
+font-weight:bold;
+margin-top:8px;
+}
+.cwb-qr-company{
+font-size:13px;
+font-weight:bold;
+margin-top:5px;
+}
+.cwb-qr-slogan{
+font-size:11px;
+margin-top:5px;
+}
+.cwb-qr-body{
+padding:18px;
+text-align:center;
+}
+.cwb-qr-code{
+display:inline-block;
+padding:12px;
+border:1px solid #ddd;
+border-radius:14px;
+}
+.cwb-payment-details{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:8px;
+margin-top:16px;
+text-align:left;
+}
+.cwb-payment-detail{
+background:#f3f4f6;
+border-radius:9px;
+padding:10px;
+font-size:12px;
+}
+.cwb-payment-detail b{
+display:block;
+font-size:9px;
+color:#6b7280;
+margin-bottom:4px;
+}
+.cwb-payment-number{
+margin-top:12px;
+background:#111827;
+color:#fff;
+border-radius:10px;
+padding:11px;
+text-align:center;
+}
+.cwb-payment-number strong{
+display:block;
+font-size:18px;
+margin-top:3px;
+}
+.cwb-bank-box{
+background:#f3f4f6;
+border-radius:10px;
+padding:12px;
+margin-top:10px;
+text-align:left;
+font-size:13px;
+}
+.cwb-payment-note{
+background:#f9fafb;
+border-radius:9px;
+padding:10px;
+margin-top:10px;
+text-align:left;
+font-size:12px;
+white-space:pre-wrap;
+}
+.cwb-qr-footer{
+font-size:10px;
+color:#6b7280;
+margin-top:14px;
+}
+</style>
+</head>
+<body>
+${area.innerHTML}
+<script>
+window.onload=function(){
+window.print();
+};
+<\/script>
+</body>
+</html>
+`);
+
+printWindow.document.close();
+}
+
+
+/* STARTUP */
+
+function startup(){
+
+updateDashboard();
+renderSales();
+renderPurchases();
+renderExpenses();
+renderPartners();
+renderPayroll();
+loadPlan();
+loadWebsite();
+loadSocial();
+loadInventory();
+loadGarage();
+updatePaymentMethod();
+
+}
+
+startup();
+
+</script>
+</body>
+</html>
