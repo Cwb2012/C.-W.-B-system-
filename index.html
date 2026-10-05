@@ -238,23 +238,466 @@ th{background:#111827;color:#fff}
 </form>
 
 <div id="garageMessage" class="message"></div>
-
+<div id="garageInvoiceArea" class="hidden"></div>
 <div class="table-wrap">
 <table>
 <thead>
+<!-- GARAGE -->
+document.getElementById('garageForm').addEventListener('submit',async e=>{
+
+e.preventDefault();
+
+const invoiceNumber =
+document.getElementById('invoice_number').value.trim() ||
+('CWB-G-' + new Date().toISOString().replace(/\D/g,'').slice(0,14));
+
+document.getElementById('invoice_number').value=invoiceNumber;
+
+const job={
+job_number:document.getElementById('job_number').value.trim()||null,
+customer_name:document.getElementById('customer_name').value.trim(),
+customer_phone:document.getElementById('customer_phone').value.trim()||null,
+customer_address:document.getElementById('customer_address').value.trim()||null,
+vehicle_name:document.getElementById('vehicle_name').value.trim()||null,
+vehicle_model:document.getElementById('vehicle_model').value.trim()||null,
+vehicle_color:document.getElementById('vehicle_color').value.trim()||null,
+mechanic_name:document.getElementById('mechanic_name').value.trim()||null,
+job_status:document.getElementById('job_status').value,
+payment_status:document.getElementById('payment_status').value,
+payment_method:document.getElementById('payment_method').value,
+job_cost:num(document.getElementById('job_cost').value),
+parts_cost:num(document.getElementById('parts_cost').value),
+service_date:document.getElementById('service_date').value||null,
+estimated_completion_date:document.getElementById('estimated_completion_date').value||null,
+completion_date:document.getElementById('completion_date').value||null,
+pickup_status:document.getElementById('pickup_status').value,
+warranty:document.getElementById('warranty').value,
+repair_description:document.getElementById('repair_description').value.trim()||null,
+notes:document.getElementById('garage_notes').value.trim()||null
+};
+
+msg('garageMessage','Saving garage activity...');
+
+let saveJob={...job};
+let omitted=[];
+
+for(let attempt=0;attempt<10;attempt++){
+
+const {error}=await supabaseClient
+.from('Garage_jobs')
+.insert([saveJob]);
+
+if(!error){
+
+e.target.reset();
+
+document.getElementById('service_date').value=today();
+
+msg(
+'garageMessage',
+'Garage activity saved successfully in Supabase.'
+);
+
+renderGarageInvoice({
+...job,
+invoice_number:invoiceNumber
+});
+
+loadGarage();
+
+return;
+}
+
+const match=error.message.match(/Could not find the '([^']+)' column/);
+
+if(!match){
+
+msg(
+'garageMessage',
+'Error saving garage activity: '+error.message,
+true
+);
+
+return;
+}
+
+const missingColumn=match[1];
+
+if(!(missingColumn in saveJob)){
+
+msg(
+'garageMessage',
+'Garage database column problem: '+missingColumn,
+true
+);
+
+return;
+}
+
+delete saveJob[missingColumn];
+omitted.push(missingColumn);
+}
+
+msg(
+'garageMessage',
+'Garage activity could not be saved.',
+true
+);
+
+});
+
+
+function renderGarageInvoice(job){
+
+const area=document.getElementById('garageInvoiceArea');
+
+if(!area)return;
+
+const total=
+Number(job.job_cost||0)+
+Number(job.parts_cost||0);
+
+area.classList.remove('hidden');
+
+area.innerHTML=`
+
+<div id="cwbGarageInvoice">
+
+<div class="invoice-top">
+
+<div>
+<img src="./file_000000009d80820694001bdae16e2e4b.png"
+style="width:75px;height:75px;object-fit:contain">
+
+<h2>C.W.B SYSTEM</h2>
+
+<strong>Camel Work and Business company</strong>
+
+<div>Better Quality is our priority</div>
+</div>
+
+<div style="text-align:right">
+
+<h1>GARAGE INVOICE</h1>
+
+<div><strong>Invoice:</strong>
+${esc(job.invoice_number||'')}</div>
+
+<div><strong>Date:</strong>
+${esc(job.service_date||today())}</div>
+
+<div><strong>Job No:</strong>
+${esc(job.job_number||'-')}</div>
+
+</div>
+
+</div>
+
+<hr>
+
+<div class="invoice-grid">
+
+<div>
+<strong>CUSTOMER</strong>
+<p>${esc(job.customer_name||'-')}</p>
+<p>${esc(job.customer_phone||'')}</p>
+<p>${esc(job.customer_address||'')}</p>
+</div>
+
+<div>
+<strong>VEHICLE</strong>
+<p>${esc(job.vehicle_name||'-')}</p>
+<p>Model: ${esc(job.vehicle_model||'-')}</p>
+<p>Color: ${esc(job.vehicle_color||'-')}</p>
+</div>
+
+<div>
+<strong>SERVICE</strong>
+<p>Mechanic: ${esc(job.mechanic_name||'-')}</p>
+<p>Status: ${esc(job.job_status||'-')}</p>
+<p>Warranty: ${esc(job.warranty||'-')}</p>
+</div>
+
+</div>
+
+<h3>REPAIR DESCRIPTION</h3>
+
+<div class="invoice-box">
+${esc(job.repair_description||'No description provided.')}
+</div>
+
+<table class="invoice-table">
+
+<thead>
 <tr>
-<th>Customer</th>
-<th>Vehicle</th>
-<th>Mechanic</th>
-<th>Status</th>
-<th>Job Cost</th>
-<th>Payment</th>
+<th>Description</th>
+<th style="text-align:right">Amount</th>
 </tr>
 </thead>
-<tbody id="garageTableBody"></tbody>
+
+<tbody>
+
+<tr>
+<td>Garage / Service Cost</td>
+<td style="text-align:right">
+${money(job.job_cost)}
+</td>
+</tr>
+
+<tr>
+<td>Parts Cost</td>
+<td style="text-align:right">
+${money(job.parts_cost)}
+</td>
+</tr>
+
+<tr>
+<td><strong>TOTAL</strong></td>
+<td style="text-align:right">
+<strong>${money(total)}</strong>
+</td>
+</tr>
+
+</tbody>
+
 </table>
+
+<div class="invoice-payment">
+
+<strong>Payment:</strong>
+${esc(job.payment_status||'-')}
+
+&nbsp;&nbsp;
+
+<strong>Method:</strong>
+${esc(job.payment_method||'-')}
+
 </div>
+
+<div class="invoice-payment">
+
+<strong>Pick Up:</strong>
+${esc(job.pickup_status||'-')}
+
 </div>
+
+<div class="invoice-notes">
+
+<strong>Notes:</strong><br>
+
+${esc(job.notes||'')}
+
+</div>
+
+<div class="invoice-footer">
+
+Thank you for choosing
+
+<strong>Camel Work and Business company</strong>
+
+<br>
+
+C.W.B System • Master Version 2
+
+</div>
+
+</div>
+
+<div style="margin-top:12px">
+
+<button class="btn" type="button"
+onclick="printGarageInvoice()">
+🖨 Print Invoice
+</button>
+
+</div>
+
+`;
+
+}
+
+
+function printGarageInvoice(){
+
+const invoice=
+document.getElementById('cwbGarageInvoice');
+
+if(!invoice)return;
+
+const w=window.open('','','width=900,height=700');
+
+w.document.write(`
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>C.W.B Garage Invoice</title>
+
+<style>
+
+body{
+font-family:Arial,sans-serif;
+margin:30px;
+color:#111827;
+}
+
+.invoice-top{
+display:flex;
+justify-content:space-between;
+gap:20px;
+}
+
+.invoice-top h2{
+margin:5px 0;
+}
+
+.invoice-top h1{
+margin:0 0 10px;
+}
+
+.invoice-grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:20px;
+margin:20px 0;
+}
+
+.invoice-box{
+border:1px solid #ddd;
+padding:12px;
+min-height:50px;
+}
+
+.invoice-table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+.invoice-table th,
+.invoice-table td{
+border:1px solid #ddd;
+padding:12px;
+}
+
+.invoice-table th{
+text-align:left;
+}
+
+.invoice-payment{
+margin-top:15px;
+padding:10px;
+border:1px solid #ddd;
+}
+
+.invoice-notes{
+margin-top:20px;
+padding:12px;
+border:1px solid #ddd;
+}
+
+.invoice-footer{
+text-align:center;
+margin-top:40px;
+padding-top:20px;
+border-top:1px solid #ddd;
+}
+
+@media print{
+
+body{
+margin:10mm;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+${invoice.innerHTML}
+
+<script>
+
+window.onload=function(){
+window.print();
+}
+
+<\/script>
+
+</body>
+
+</html>
+
+`);
+
+w.document.close();
+
+}
+
+
+async function loadGarage(){
+
+const b=
+document.getElementById('garageTableBody');
+
+if(!b)return;
+
+b.innerHTML=
+'<tr><td colspan="6">Loading...</td></tr>';
+
+const {data,error}=
+await supabaseClient
+.from('Garage_jobs')
+.select('*')
+.order('created_at',{ascending:false});
+
+if(error){
+
+b.innerHTML=
+'<tr><td colspan="6">Error loading garage activities</td></tr>';
+
+return;
+}
+
+if(!data||!data.length){
+
+b.innerHTML=
+'<tr><td colspan="6">No garage activities yet.</td></tr>';
+
+return;
+}
+
+b.innerHTML=data.map(x=>`
+
+<tr>
+
+<td>${esc(x.customer_name||'')}</td>
+
+<td>${esc(
+(x.vehicle_name||'')+
+' '+
+(x.vehicle_model||'')
+)}</td>
+
+<td>${esc(x.mechanic_name||'')}</td>
+
+<td>${esc(x.job_status||'')}</td>
+
+<td>${money(x.job_cost)}</td>
+
+<td>${esc(x.payment_status||'')}</td>
+
+</tr>
+
+`).join('');
+
+}
 
 <!-- SALES -->
 <div id="sales" class="card hidden">
