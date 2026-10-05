@@ -389,9 +389,56 @@ th{background:#111827;color:#fff}
 
 <!-- REPORTS -->
 <div id="reports" class="card hidden">
-<h2>Reports</h2>
-<div id="reportContent"></div>
-<button class="btn" onclick="loadReports()">Refresh Reports</button>
+<h2>📊 C.W.B Financial Reports</h2>
+<p class="small">Business financial summary from your C.W.B System records.</p>
+
+<div class="dashboard">
+<div class="stat">Sales<strong id="reportSales">0</strong></div>
+<div class="stat">Purchases<strong id="reportPurchases">0</strong></div>
+<div class="stat">Expenses<strong id="reportExpenses">0</strong></div>
+<div class="stat">Payroll<strong id="reportPayroll">0</strong></div>
+</div>
+
+<div class="card" style="margin-top:15px;background:#f9fafb">
+<h2 style="font-size:18px">Financial Summary</h2>
+
+<p><b>Total Sales:</b> <span id="reportTotalSales">0</span></p>
+<p><b>Total Purchases:</b> <span id="reportTotalPurchases">0</span></p>
+<p><b>Total Expenses:</b> <span id="reportTotalExpenses">0</span></p>
+<p><b>Total Payroll:</b> <span id="reportTotalPayroll">0</span></p>
+
+<hr>
+
+<p style="font-size:17px">
+<b>Operating Balance:</b>
+<strong id="reportOperatingBalance">0</strong>
+</p>
+
+<p style="font-size:18px">
+<b>Final Balance:</b>
+<strong id="reportFinalBalance">0</strong>
+</p>
+
+<div id="reportResult" style="margin-top:12px;padding:12px;border-radius:9px;font-weight:bold">
+Financial result
+</div>
+
+</div>
+
+<div class="card" style="margin-top:15px;background:#fafafa">
+<h2 style="font-size:18px">Record Summary</h2>
+
+<div class="dashboard">
+<div class="stat">Sales Records<strong id="reportSalesRecords">0</strong></div>
+<div class="stat">Purchase Records<strong id="reportPurchaseRecords">0</strong></div>
+<div class="stat">Expense Records<strong id="reportExpenseRecords">0</strong></div>
+<div class="stat">Payroll Records<strong id="reportPayrollRecords">0</strong></div>
+</div>
+
+</div>
+
+<button class="btn" onclick="loadReports()">🔄 Refresh Reports</button>
+
 </div>
 
 <!-- WEBSITE -->
@@ -454,22 +501,47 @@ payroll:'cwb_payroll_v2'
 function arr(k){
 try{return JSON.parse(localStorage.getItem(k))||[]}catch(e){return[]}
 }
-function setArr(k,v){localStorage.setItem(k,JSON.stringify(v))}
-let sales=arr(KEY.sales),purchases=arr(KEY.purchases),expenses=arr(KEY.expenses),partners=arr(KEY.partners),payroll=arr(KEY.payroll);
+
+function setArr(k,v){
+localStorage.setItem(k,JSON.stringify(v))
+}
+
+let sales=arr(KEY.sales),
+purchases=arr(KEY.purchases),
+expenses=arr(KEY.expenses),
+partners=arr(KEY.partners),
+payroll=arr(KEY.payroll);
 
 function esc(v){
-return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
+return String(v??'').replace(/[&<>"']/g,c=>({
+'&':'&amp;',
+'<':'&lt;',
+'>':'&gt;',
+'"':'&quot;',
+"'":'&#39;'
+}[c]))
 }
-function money(v){return Number(v||0).toLocaleString()}
+
+function money(v){
+return Number(v||0).toLocaleString()
+}
+
 function msg(id,t,error=false){
-const e=document.getElementById(id);if(!e)return;
-e.textContent=t;e.classList.toggle('error',error);e.style.display='block';
+const e=document.getElementById(id);
+if(!e)return;
+e.textContent=t;
+e.classList.toggle('error',error);
+e.style.display='block';
 setTimeout(()=>e.style.display='none',4000)
 }
 
 function showModule(id){
 document.querySelectorAll('.card[id]').forEach(e=>e.classList.add('hidden'));
-const e=document.getElementById(id);if(e)e.classList.remove('hidden');
+
+const e=document.getElementById(id);
+
+if(e)e.classList.remove('hidden');
+
 if(id==='inventory')loadInventory();
 if(id==='garage')loadGarage();
 if(id==='sales')renderSales();
@@ -482,23 +554,33 @@ if(id==='reports')loadReports();
 if(id==='website')loadWebsite();
 if(id==='social')loadSocial();
 if(id==='scanpay')updatePaymentMethod();
-window.scrollTo({top:e?e.offsetTop-10:0,behavior:'smooth'})
+
+window.scrollTo({
+top:e?e.offsetTop-10:0,
+behavior:'smooth'
+})
 }
 
 function updateDashboard(){
+
 const s=sales.reduce((a,x)=>a+Number(x.amount||0),0);
 const p=purchases.reduce((a,x)=>a+Number(x.amount||0),0);
 const ex=expenses.reduce((a,x)=>a+Number(x.amount||0),0);
+
 const b=s-p-ex;
+
 document.getElementById('totalSales').textContent=money(s);
 document.getElementById('totalPurchases').textContent=money(p);
 document.getElementById('totalExpenses').textContent=money(ex);
 document.getElementById('balance').textContent=money(b);
+
 document.getElementById('accSales').textContent=money(s);
 document.getElementById('accPurchases').textContent=money(p);
 document.getElementById('accExpenses').textContent=money(ex);
 document.getElementById('accBalance').textContent=money(b)
 }
+
+
 /* INVENTORY */
 
 document.getElementById('inventoryForm').addEventListener('submit',async e=>{
@@ -514,7 +596,9 @@ selling_price:Number(document.getElementById('inv_selling_price').value||0)
 
 msg('inventoryMessage','Saving...');
 
-const {error}=await supabaseClient.from('products').insert([product]);
+const {error}=await supabaseClient
+.from('products')
+.insert([product]);
 
 if(error){
 msg('inventoryMessage','Error saving product: '+error.message,true);
@@ -522,16 +606,20 @@ return;
 }
 
 e.target.reset();
+
 document.getElementById('inv_quantity').value=0;
 document.getElementById('inv_buying_price').value=0;
 document.getElementById('inv_selling_price').value=0;
 
 msg('inventoryMessage','Product saved successfully to Supabase.');
+
 loadInventory();
 });
 
 async function loadInventory(){
+
 const b=document.getElementById('inventoryTableBody');
+
 if(!b)return;
 
 b.innerHTML='<tr><td colspan="6">Loading...</td></tr>';
@@ -552,7 +640,10 @@ return;
 }
 
 b.innerHTML=data.map(x=>{
-const value=Number(x.quantity||0)*Number(x.buying_price||0);
+
+const value=
+Number(x.quantity||0)*
+Number(x.buying_price||0);
 
 return `
 <tr>
@@ -563,6 +654,7 @@ return `
 <td>${money(x.selling_price)}</td>
 <td>${money(value)}</td>
 </tr>`;
+
 }).join('');
 }
 
@@ -598,7 +690,9 @@ notes:document.getElementById('garage_notes').value.trim()||null
 
 msg('garageMessage','Saving...');
 
-const {error}=await supabaseClient.from('Garage_jobs').insert([job]);
+const {error}=await supabaseClient
+.from('Garage_jobs')
+.insert([job]);
 
 if(error){
 msg('garageMessage','Error saving garage activity: '+error.message,true);
@@ -608,11 +702,14 @@ return;
 e.target.reset();
 
 msg('garageMessage','Garage activity saved successfully in Supabase.');
+
 loadGarage();
 });
 
 async function loadGarage(){
+
 const b=document.getElementById('garageTableBody');
+
 if(!b)return;
 
 b.innerHTML='<tr><td colspan="6">Loading...</td></tr>';
@@ -660,17 +757,21 @@ date:document.getElementById('sale_date').value||new Date().toISOString().slice(
 };
 
 sales.push(item);
+
 setArr(KEY.sales,sales);
 
 e.target.reset();
 
 msg('salesMessage','Sale saved successfully.');
+
 renderSales();
 updateDashboard();
 });
 
 function renderSales(){
+
 const b=document.getElementById('salesTableBody');
+
 if(!b)return;
 
 if(!sales.length){
@@ -705,17 +806,21 @@ date:document.getElementById('purchase_date').value||new Date().toISOString().sl
 };
 
 purchases.push(item);
+
 setArr(KEY.purchases,purchases);
 
 e.target.reset();
 
 msg('purchaseMessage','Purchase saved successfully.');
+
 renderPurchases();
 updateDashboard();
 });
 
 function renderPurchases(){
+
 const b=document.getElementById('purchaseTableBody');
+
 if(!b)return;
 
 if(!purchases.length){
@@ -749,17 +854,21 @@ notes:document.getElementById('expense_notes').value.trim()
 };
 
 expenses.push(item);
+
 setArr(KEY.expenses,expenses);
 
 e.target.reset();
 
 msg('expenseMessage','Expense saved successfully.');
+
 renderExpenses();
 updateDashboard();
 });
 
 function renderExpenses(){
+
 const b=document.getElementById('expenseTableBody');
+
 if(!b)return;
 
 if(!expenses.length){
@@ -793,16 +902,20 @@ address:document.getElementById('partner_address').value.trim()
 };
 
 partners.push(item);
+
 setArr(KEY.partners,partners);
 
 e.target.reset();
 
 msg('partnerMessage','Contact saved successfully.');
+
 renderPartners();
 });
 
 function renderPartners(){
+
 const b=document.getElementById('partnerTableBody');
+
 if(!b)return;
 
 if(!partners.length){
@@ -827,9 +940,14 @@ b.innerHTML=partners.map(x=>`
 document.getElementById('payrollForm').addEventListener('submit',e=>{
 e.preventDefault();
 
-const base=Number(document.getElementById('pay_base').value||0);
-const allowance=Number(document.getElementById('pay_allowance').value||0);
-const deduction=Number(document.getElementById('pay_deduction').value||0);
+const base=
+Number(document.getElementById('pay_base').value||0);
+
+const allowance=
+Number(document.getElementById('pay_allowance').value||0);
+
+const deduction=
+Number(document.getElementById('pay_deduction').value||0);
 
 const item={
 worker:document.getElementById('pay_worker').value.trim(),
@@ -843,16 +961,20 @@ status:document.getElementById('pay_status').value
 };
 
 payroll.push(item);
+
 setArr(KEY.payroll,payroll);
 
 e.target.reset();
 
 msg('payMessage','Salary record saved successfully.');
+
 renderPayroll();
 });
 
 function renderPayroll(){
+
 const b=document.getElementById('payTableBody');
+
 if(!b)return;
 
 if(!payroll.length){
@@ -878,54 +1000,137 @@ b.innerHTML=payroll.map(x=>`
 /* BUSINESS PLANNER */
 
 function savePlan(){
-localStorage.setItem('cwb_plan',document.getElementById('planText').value);
+
+localStorage.setItem(
+'cwb_plan',
+document.getElementById('planText').value
+);
+
 msg('planMessage','Business plan saved successfully.');
 }
 
 function loadPlan(){
-document.getElementById('planText').value=localStorage.getItem('cwb_plan')||'';
+
+document.getElementById('planText').value=
+localStorage.getItem('cwb_plan')||'';
+
 msg('planMessage','Business plan loaded.');
 }
 
 
-/* REPORTS */
+/* REPORTS — MASTER VERSION 2 */
 
 function loadReports(){
-const report=document.getElementById('reportContent');
-if(!report)return;
 
-const salesTotal=sales.reduce((a,x)=>a+Number(x.amount||0),0);
-const purchaseTotal=purchases.reduce((a,x)=>a+Number(x.amount||0),0);
-const expenseTotal=expenses.reduce((a,x)=>a+Number(x.amount||0),0);
-const payrollTotal=payroll.reduce((a,x)=>a+Number(x.net||0),0);
-const balance=salesTotal-purchaseTotal-expenseTotal;
+const salesTotal=sales.reduce(
+(a,x)=>a+Number(x.amount||0),0
+);
 
-report.innerHTML=`
-<div class="dashboard">
-<div class="stat">Sales Records<strong>${sales.length}</strong></div>
-<div class="stat">Purchase Records<strong>${purchases.length}</strong></div>
-<div class="stat">Expense Records<strong>${expenses.length}</strong></div>
-<div class="stat">Payroll Records<strong>${payroll.length}</strong></div>
-</div>
+const purchaseTotal=purchases.reduce(
+(a,x)=>a+Number(x.amount||0),0
+);
 
-<div class="card" style="margin-top:15px">
-<p><b>Total Sales:</b> ${money(salesTotal)}</p>
-<p><b>Total Purchases:</b> ${money(purchaseTotal)}</p>
-<p><b>Total Expenses:</b> ${money(expenseTotal)}</p>
-<p><b>Total Payroll:</b> ${money(payrollTotal)}</p>
-<p><b>Net Balance:</b> ${money(balance)}</p>
-</div>
-`;
+const expenseTotal=expenses.reduce(
+(a,x)=>a+Number(x.amount||0),0
+);
+
+const payrollTotal=payroll.reduce(
+(a,x)=>a+Number(x.net||0),0
+);
+
+const operatingBalance=
+salesTotal-purchaseTotal-expenseTotal;
+
+const finalBalance=
+operatingBalance-payrollTotal;
+
+document.getElementById('reportSales').textContent=
+money(salesTotal);
+
+document.getElementById('reportPurchases').textContent=
+money(purchaseTotal);
+
+document.getElementById('reportExpenses').textContent=
+money(expenseTotal);
+
+document.getElementById('reportPayroll').textContent=
+money(payrollTotal);
+
+document.getElementById('reportTotalSales').textContent=
+money(salesTotal);
+
+document.getElementById('reportTotalPurchases').textContent=
+money(purchaseTotal);
+
+document.getElementById('reportTotalExpenses').textContent=
+money(expenseTotal);
+
+document.getElementById('reportTotalPayroll').textContent=
+money(payrollTotal);
+
+document.getElementById('reportOperatingBalance').textContent=
+money(operatingBalance);
+
+document.getElementById('reportFinalBalance').textContent=
+money(finalBalance);
+
+document.getElementById('reportSalesRecords').textContent=
+sales.length;
+
+document.getElementById('reportPurchaseRecords').textContent=
+purchases.length;
+
+document.getElementById('reportExpenseRecords').textContent=
+expenses.length;
+
+document.getElementById('reportPayrollRecords').textContent=
+payroll.length;
+
+const result=
+document.getElementById('reportResult');
+
+if(finalBalance>0){
+
+result.textContent=
+'✅ PROFIT — Your final balance is positive.';
+
+result.style.background='#ecfdf5';
+result.style.color='#065f46';
+
+}else if(finalBalance<0){
+
+result.textContent=
+'⚠️ LOSS — Your expenses and payroll are higher than the remaining balance.';
+
+result.style.background='#fef2f2';
+result.style.color='#991b1b';
+
+}else{
+
+result.textContent=
+'ℹ️ BREAK-EVEN — Your final balance is zero.';
+
+result.style.background='#f3f4f6';
+result.style.color='#374151';
+
+}
+
 }
 
 
 /* WEBSITE */
 
 function saveWebsite(){
-let url=document.getElementById('website_url').value.trim();
+
+let url=
+document.getElementById('website_url').value.trim();
 
 if(!url){
-msg('websiteMessage','Please enter a website address.',true);
+msg(
+'websiteMessage',
+'Please enter a website address.',
+true
+);
 return;
 }
 
@@ -935,31 +1140,57 @@ url='https://'+url;
 
 localStorage.setItem('cwb_website',url);
 
-msg('websiteMessage','Website saved successfully.');
+msg(
+'websiteMessage',
+'Website saved successfully.'
+);
+
 loadWebsite();
 }
 
 function loadWebsite(){
-const input=document.getElementById('website_url');
-const status=document.getElementById('websiteStatus');
+
+const input=
+document.getElementById('website_url');
+
+const status=
+document.getElementById('websiteStatus');
 
 if(!input||!status)return;
 
-const url=localStorage.getItem('cwb_website')||'';
+const url=
+localStorage.getItem('cwb_website')||'';
 
 if(url){
+
 input.value=url;
-status.innerHTML='Saved website: <b>'+esc(url)+'</b>';
+
+status.innerHTML=
+'Saved website: <b>'+
+esc(url)+
+'</b>';
+
 }else{
-status.textContent='No website saved yet.';
+
+status.textContent=
+'No website saved yet.';
+
 }
 }
 
 function openSavedWebsite(){
-const url=localStorage.getItem('cwb_website');
+
+const url=
+localStorage.getItem('cwb_website');
 
 if(!url){
-msg('websiteMessage','No website saved yet.',true);
+
+msg(
+'websiteMessage',
+'No website saved yet.',
+true
+);
+
 return;
 }
 
@@ -978,40 +1209,86 @@ const socialPlatforms=[
 ];
 
 function loadSocial(){
-const box=document.getElementById('socialBoxes');
+
+const box=
+document.getElementById('socialBoxes');
+
 if(!box)return;
 
-box.innerHTML=socialPlatforms.map(([name,key])=>{
-const saved=localStorage.getItem('cwb_social_'+key)||'';
+box.innerHTML=
+socialPlatforms.map(([name,key])=>{
+
+const saved=
+localStorage.getItem(
+'cwb_social_'+key
+)||'';
 
 return `
 <div class="connection-box">
-<div class="social-title">${name}</div>
+
+<div class="social-title">
+${name}
+</div>
 
 <div class="connection-row">
+
 <div class="input-area">
-<label>${name} Link</label>
-<input id="social_${key}" type="url" placeholder="https://..." value="${esc(saved)}">
+
+<label>
+${name} Link
+</label>
+
+<input
+id="social_${key}"
+type="url"
+placeholder="https://..."
+value="${esc(saved)}">
+
 </div>
 
 <div class="connection-actions">
-<button class="btn" type="button" onclick="saveSocial('${key}')">Save</button>
-<button class="btn secondary" type="button" onclick="openSocial('${key}')">Open</button>
+
+<button
+class="btn"
+type="button"
+onclick="saveSocial('${key}')">
+Save
+</button>
+
+<button
+class="btn secondary"
+type="button"
+onclick="openSocial('${key}')">
+Open
+</button>
+
 </div>
+
 </div>
 
 </div>`;
+
 }).join('');
 }
 
 function saveSocial(key){
-const input=document.getElementById('social_'+key);
+
+const input=
+document.getElementById('social_'+key);
+
 if(!input)return;
 
-let url=input.value.trim();
+let url=
+input.value.trim();
 
 if(!url){
-msg('socialMessage','Please enter the social media link.',true);
+
+msg(
+'socialMessage',
+'Please enter the social media link.',
+true
+);
+
 return;
 }
 
@@ -1019,16 +1296,32 @@ if(!/^https?:\/\//i.test(url)){
 url='https://'+url;
 }
 
-localStorage.setItem('cwb_social_'+key,url);
+localStorage.setItem(
+'cwb_social_'+key,
+url
+);
 
-msg('socialMessage','Social connection saved successfully.');
+msg(
+'socialMessage',
+'Social connection saved successfully.'
+);
 }
 
 function openSocial(key){
-const url=localStorage.getItem('cwb_social_'+key);
+
+const url=
+localStorage.getItem(
+'cwb_social_'+key
+);
 
 if(!url){
-msg('socialMessage','No link saved for this platform.',true);
+
+msg(
+'socialMessage',
+'No link saved for this platform.',
+true
+);
+
 return;
 }
 
@@ -1039,60 +1332,114 @@ window.open(url,'_blank');
 /* SCAN & PAY */
 
 function updatePaymentMethod(){
-const method=document.getElementById('qr_method');
-const bank=document.getElementById('qr_bank_box');
-const label=document.getElementById('qr_account_label');
+
+const method=
+document.getElementById('qr_method');
+
+const bank=
+document.getElementById('qr_bank_box');
+
+const label=
+document.getElementById('qr_account_label');
 
 if(!method||!bank||!label)return;
 
 if(method.value==='Bank'){
+
 bank.style.display='block';
-label.textContent='Bank Account Number';
+
+label.textContent=
+'Bank Account Number';
+
 }else{
+
 bank.style.display='none';
-label.textContent='Payment Account / Number';
+
+label.textContent=
+'Payment Account / Number';
+
 }
 }
 
-document.getElementById('qr_method').addEventListener('change',updatePaymentMethod);
+document
+.getElementById('qr_method')
+.addEventListener(
+'change',
+updatePaymentMethod
+);
 
 function generateQR(){
 
-const customer=document.getElementById('qr_customer').value.trim();
-const invoice=document.getElementById('qr_invoice').value.trim();
-const amount=document.getElementById('qr_amount').value;
-const currency=document.getElementById('qr_currency').value;
-const method=document.getElementById('qr_method').value;
-const account=document.getElementById('qr_account').value.trim();
-const accountName=document.getElementById('qr_account_name').value.trim();
-const note=document.getElementById('qr_note').value.trim();
+const customer=
+document.getElementById('qr_customer').value.trim();
+
+const invoice=
+document.getElementById('qr_invoice').value.trim();
+
+const amount=
+document.getElementById('qr_amount').value;
+
+const currency=
+document.getElementById('qr_currency').value;
+
+const method=
+document.getElementById('qr_method').value;
+
+const account=
+document.getElementById('qr_account').value.trim();
+
+const accountName=
+document.getElementById('qr_account_name').value.trim();
+
+const note=
+document.getElementById('qr_note').value.trim();
 
 if(!customer||!invoice||!amount){
-msg('qrMessage','Please complete Customer Name, Invoice Number and Amount.',true);
+
+msg(
+'qrMessage',
+'Please complete Customer Name, Invoice Number and Amount.',
+true
+);
+
 return;
 }
 
 const paymentText=
 'CWB PAYMENT|Merchant:984868|Number:06691086015|Customer:'+customer+
-'|Invoice:'+invoice+'|Amount:'+amount+' '+currency+
-'|Method:'+method+'|Account:'+account+'|Name:'+accountName+
+'|Invoice:'+invoice+
+'|Amount:'+amount+' '+currency+
+'|Method:'+method+
+'|Account:'+account+
+'|Name:'+accountName+
 '|Note:'+note;
 
-
-
-const area=document.getElementById('qrArea');
+const area=
+document.getElementById('qrArea');
 
 area.innerHTML=`
+
 <div class="cwb-qr-card">
 
 <div class="cwb-qr-header">
-<img class="cwb-qr-logo"
+
+<img
+class="cwb-qr-logo"
 src="./file_000000009d80820694001bdae16e2e4b.png"
 alt="C.W.B Logo">
 
-<div class="cwb-qr-title">C.W.B PAYMENT</div>
-<div class="cwb-qr-company">CAMEL WORK AND BUSINESS COMPANY</div>
-<div class="cwb-qr-slogan">Better Quality is our priority</div>
+<div class="cwb-qr-title">
+C.W.B PAYMENT
+</div>
+
+<div class="cwb-qr-company">
+CAMEL WORK AND BUSINESS COMPANY
+</div>
+
+<div class="cwb-qr-slogan">
+Better Quality is our priority
+</div>
+
 </div>
 
 <div class="cwb-qr-body">
@@ -1126,21 +1473,33 @@ ${esc(method)}
 </div>
 
 <div class="cwb-payment-number">
+
 Payment Number
-<strong>06691086015</strong>
+
+<strong>
+06691086015
+</strong>
+
 </div>
 
 <div class="cwb-bank-box">
+
 <b>Payment Account</b><br>
 ${esc(accountName)}<br>
 ${esc(account)}
+
 </div>
 
 ${note?`
+
 <div class="cwb-payment-note">
+
 <b>Note</b><br>
 ${esc(note)}
-</div>`:''}
+
+</div>
+
+`:''}
 
 <div class="cwb-qr-footer">
 C.W.B System • Master Version 2
@@ -1150,59 +1509,97 @@ C.W.B System • Master Version 2
 </div>
 `;
 
-const qrTarget=document.getElementById('generatedQRCode');
+const qrTarget=
+document.getElementById('generatedQRCode');
 
 if(typeof QRCode==='undefined'){
-  msg('qrMessage','QR generator is not loaded. Please refresh the page.',true);
-  return;
-}
 
-new QRCode(qrTarget,{
-  text:paymentText,
-  width:300,
-  height:300,
-  correctLevel:QRCode.CorrectLevel.L
-});
+msg(
+'qrMessage',
+'QR generator is not loaded. Please refresh the page.',
+true
+);
 
-document.getElementById('qrText').textContent=paymentText;
-
-msg('qrMessage','Professional payment QR generated successfully.');
-}
-
-function clearQR(){
-document.getElementById('qrArea').innerHTML=
-'<div class="small">Your professional payment QR will appear here.</div>';
-
-document.getElementById('qrText').textContent='';
-}
-
-function printQR(){
-const area=document.getElementById('qrArea');
-
-if(!area||!area.querySelector('.cwb-qr-card')){
-msg('qrMessage','Generate the QR first.',true);
 return;
 }
 
-const printWindow=window.open('','_blank');
+new QRCode(qrTarget,{
+text:paymentText,
+width:300,
+height:300,
+correctLevel:QRCode.CorrectLevel.L
+});
+
+document.getElementById('qrText')
+.textContent=paymentText;
+
+msg(
+'qrMessage',
+'Professional payment QR generated successfully.'
+);
+}
+
+function clearQR(){
+
+document.getElementById('qrArea').innerHTML=
+'<div class="small">Your professional payment QR will appear here.</div>';
+
+document.getElementById('qrText')
+.textContent='';
+}
+
+function printQR(){
+
+const area=
+document.getElementById('qrArea');
+
+if(!area||
+!area.querySelector('.cwb-qr-card')){
+
+msg(
+'qrMessage',
+'Generate the QR first.',
+true
+);
+
+return;
+}
+
+const printWindow=
+window.open('','_blank');
 
 if(!printWindow){
-msg('qrMessage','Please allow pop-ups to print the QR.',true);
+
+msg(
+'qrMessage',
+'Please allow pop-ups to print the QR.',
+true
+);
+
 return;
 }
 
 printWindow.document.write(`
+
 <!DOCTYPE html>
+
 <html>
+
 <head>
-<title>C.W.B Payment QR</title>
+
+<title>
+C.W.B Payment QR
+</title>
+
 <style>
+
 body{
 font-family:Arial,sans-serif;
 margin:0;
 padding:20px;
 background:#fff;
 }
+
 .cwb-qr-card{
 max-width:520px;
 margin:auto;
@@ -1210,12 +1607,14 @@ border:2px solid #b91c1c;
 border-radius:18px;
 overflow:hidden;
 }
+
 .cwb-qr-header{
 background:linear-gradient(135deg,#111827,#b91c1c);
 color:#fff;
 text-align:center;
 padding:20px;
 }
+
 .cwb-qr-logo{
 width:76px;
 height:76px;
@@ -1224,30 +1623,36 @@ background:#fff;
 border-radius:15px;
 padding:6px;
 }
+
 .cwb-qr-title{
 font-size:22px;
 font-weight:bold;
 margin-top:8px;
 }
+
 .cwb-qr-company{
 font-size:13px;
 font-weight:bold;
 margin-top:5px;
 }
+
 .cwb-qr-slogan{
 font-size:11px;
 margin-top:5px;
 }
+
 .cwb-qr-body{
 padding:18px;
 text-align:center;
 }
+
 .cwb-qr-code{
 display:inline-block;
 padding:12px;
 border:1px solid #ddd;
 border-radius:14px;
 }
+
 .cwb-payment-details{
 display:grid;
 grid-template-columns:1fr 1fr;
@@ -1255,18 +1660,21 @@ gap:8px;
 margin-top:16px;
 text-align:left;
 }
+
 .cwb-payment-detail{
 background:#f3f4f6;
 border-radius:9px;
 padding:10px;
 font-size:12px;
 }
+
 .cwb-payment-detail b{
 display:block;
 font-size:9px;
 color:#6b7280;
 margin-bottom:4px;
 }
+
 .cwb-payment-number{
 margin-top:12px;
 background:#111827;
@@ -1275,11 +1683,13 @@ border-radius:10px;
 padding:11px;
 text-align:center;
 }
+
 .cwb-payment-number strong{
 display:block;
 font-size:18px;
 margin-top:3px;
 }
+
 .cwb-bank-box{
 background:#f3f4f6;
 border-radius:10px;
@@ -1288,6 +1698,7 @@ margin-top:10px;
 text-align:left;
 font-size:13px;
 }
+
 .cwb-payment-note{
 background:#f9fafb;
 border-radius:9px;
@@ -1297,21 +1708,31 @@ text-align:left;
 font-size:12px;
 white-space:pre-wrap;
 }
+
 .cwb-qr-footer{
 font-size:10px;
 color:#6b7280;
 margin-top:14px;
 }
+
 </style>
+
 </head>
+
 <body>
+
 ${area.innerHTML}
+
 <script>
+
 window.onload=function(){
 window.print();
 };
+
 <\/script>
+
 </body>
+
 </html>
 `);
 
@@ -1324,22 +1745,36 @@ printWindow.document.close();
 function startup(){
 
 updateDashboard();
+
 renderSales();
+
 renderPurchases();
+
 renderExpenses();
+
 renderPartners();
+
 renderPayroll();
+
 loadPlan();
+
 loadWebsite();
+
 loadSocial();
+
 loadInventory();
+
 loadGarage();
+
 updatePaymentMethod();
+
+loadReports();
 
 }
 
 startup();
 
 </script>
+
 </body>
 </html>
