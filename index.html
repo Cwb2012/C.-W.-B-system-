@@ -120,5 +120,240 @@ function printQR(){const area=document.getElementById('qrArea');if(!area?.queryS
 function startup(){updateDashboard();renderSales();renderPurchases();renderExpenses();renderPartners();renderPayroll();loadPlan();loadWebsite();loadSocial();loadInventory();loadGarage();updatePaymentMethod();loadReports();[['sale_date',today()],['purchase_date',today()],['expense_date',today()],['service_date',today()],['pay_month',currentMonth()]].forEach(([id,v])=>{const e=document.getElementById(id);if(e&&!e.value)e.value=v});updatePayPreview()}
 startup();
 </script>
+  <script>
+(function(){
+"use strict";
+
+const MODULES={
+ accounting:"accounting",
+ payroll:"payroll",
+ inventory:"inventory",
+ sales:"sales",
+ purchases:"purchases",
+ partners:"partners",
+ expenses:"expenses",
+ garage:"garage",
+ planner:"planner",
+ reports:"reports",
+ scanpay:"scanpay",
+ website:"website",
+ social:"social"
+};
+
+let currentUser=null;
+let allowed=new Set();
+const originalShowModule=window.showModule;
+
+const style=document.createElement("style");
+style.textContent=`
+#cwbAuthScreen{
+position:fixed;inset:0;z-index:99999;background:#111827;
+display:flex;align-items:center;justify-content:center;padding:20px;
+font-family:Arial,sans-serif
+}
+#cwbAuthCard{
+width:min(420px,100%);background:white;border-radius:18px;
+padding:25px;box-shadow:0 20px 60px rgba(0,0,0,.4)
+}
+#cwbAuthCard h2{text-align:center;margin:0 0 8px;color:#111827}
+#cwbAuthCard p{text-align:center;color:#6b7280}
+#cwbAuthCard input{
+width:100%;padding:13px;margin:7px 0;
+border:1px solid #ccc;border-radius:10px;
+box-sizing:border-box;font-size:16px
+}
+#cwbAuthCard button{
+width:100%;padding:13px;margin-top:10px;border:0;
+border-radius:10px;background:#b91c1c;color:white;
+font-weight:bold;font-size:16px
+}
+#cwbAuthMsg{text-align:center;margin-top:12px;font-size:14px}
+#cwbUserBar{
+position:fixed;right:10px;top:10px;z-index:9000;
+background:#111827;color:white;padding:9px 12px;
+border-radius:10px;font:13px Arial
+}
+#cwbUserBar button{
+margin-left:8px;background:#b91c1c;color:white;
+border:0;border-radius:7px;padding:6px 9px
+}
+`;
+document.head.appendChild(style);
+
+const screen=document.createElement("div");
+screen.id="cwbAuthScreen";
+screen.innerHTML=`
+<div id="cwbAuthCard">
+<h2>C.W.B Secure Login</h2>
+<p>Camel Work and Business company</p>
+<input id="cwbEmail" type="email" placeholder="Email">
+<input id="cwbPassword" type="password" placeholder="Password">
+<button id="cwbLogin">Login</button>
+<div id="cwbAuthMsg"></div>
+</div>`;
+document.body.appendChild(screen);
+
+function message(t,error=false){
+const m=document.getElementById("cwbAuthMsg");
+m.textContent=t;
+m.style.color=error?"#b91c1c":"#166534";
+}
+
+function moduleFromButton(el){
+const onclick=el.getAttribute("onclick")||"";
+const match=onclick.match(/showModule\s*\(\s*['"]([^'"]+)/);
+return match?match[1].toLowerCase():"";
+}
+
+function applyAccess(){
+document.querySelectorAll('[onclick*="showModule"]').forEach(el=>{
+const id=moduleFromButton(el);
+if(id) el.style.display=allowed.has(id)?"":"none";
+});
+}
+
+async function loadAccess(user){
+
+const {data:profile,error:pError}=await supabaseClient
+.from("cwb_profiles")
+.select("id,full_name,active,role_id")
+.eq("id",user.id)
+.maybeSingle();
+
+if(pError) throw pError;
+
+if(!profile){
+message("Account found, but no C.W.B role is assigned.",true);
+return;
+}
+
+if(profile.active===false){
+message("This C.W.B account is inactive.",true);
+await supabaseClient.auth.signOut();
+return;
+}
+
+let roleName="User";
+
+if(profile.role_id){
+
+const {data:role,error:rError}=await supabaseClient
+.from("cwb_roles")
+.select("id,name")
+.eq("id",profile.role_id)
+.maybeSingle();
+
+if(rError) throw rError;
+
+roleName=role?.name||"User";
+
+if(roleName==="CEO"){
+Object.values(MODULES).forEach(x=>allowed.add(x));
+}else{
+
+const {data:rp,error:rpError}=await supabaseClient
+.from("cwb_role_permissions")
+.select("permission_id")
+.eq("role_id",profile.role_id);
+
+if(rpError) throw rpError;
+
+const ids=(rp||[]).map(x=>x.permission_id).filter(Boolean);
+
+if(ids.length){
+
+const {data:perms,error:perr}=await supabaseClient
+.from("cwb_permissions")
+.select("id,module_key")
+.in("id",ids);
+
+if(perr) throw perr;
+
+(perms||[]).forEach(p=>{
+const key=String(p.module_key||"").toLowerCase();
+if(MODULES[key]) allowed.add(key);
+});
+}
+}
+}
+
+currentUser=user;
+
+const bar=document.createElement("div");
+bar.id="cwbUserBar";
+bar.innerHTML=
+"👤 "+(profile.full_name||user.email)+
+" • "+roleName+
+' <button id="cwbLogout">Logout</button>';
+document.body.appendChild(bar);
+
+document.getElementById("cwbLogout").onclick=async()=>{
+await supabaseClient.auth.signOut();
+location.reload();
+};
+
+screen.style.display="none";
+applyAccess();
+
+if(originalShowModule){
+window.showModule=function(id){
+id=String(id||"").toLowerCase();
+
+if(!allowed.has(id)){
+alert("You do not have permission to open this C.W.B module.");
+return;
+}
+
+return originalShowModule.apply(this,arguments);
+};
+}
+}
+
+document.getElementById("cwbLogin").onclick=async()=>{
+
+const email=document.getElementById("cwbEmail").value.trim();
+const password=document.getElementById("cwbPassword").value;
+
+if(!email||!password){
+message("Enter your email and password.",true);
+return;
+}
+
+message("Signing in...");
+
+const {data,error}=await supabaseClient.auth.signInWithPassword({
+email:email,
+password:password
+});
+
+if(error){
+message(error.message,true);
+return;
+}
+
+try{
+await loadAccess(data.user);
+}catch(e){
+message(e.message||"Unable to load permissions.",true);
+}
+};
+
+(async()=>{
+
+const {data}=await supabaseClient.auth.getSession();
+
+if(data.session){
+try{
+await loadAccess(data.session.user);
+}catch(e){
+message(e.message||"Unable to load permissions.",true);
+}
+}else{
+applyAccess();
+}
+
+})();
+})();
+</script>
 </body>
 </html>
