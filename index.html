@@ -186,16 +186,17 @@ msg('qrMessage','QR generator is not loaded. Please refresh the page.',true);
 return;
 }
 
-const paymentText=
-'CWB PAYMENT\n'+
-'Merchant:984868\n'+
-'Payment:'+account+'\n'+
-'Customer:'+customer+'\n'+
-'Invoice:'+invoice+'\n'+
-'Amount:'+amount+' '+currency+'\n'+
-'Method:'+method+'\n'+
-'Name:'+accountName+
-(note?'\nNote:'+note:'');
+const paymentLink =
+'https://cwb2012.github.io/C.-W.-B-system-/?payment=1'+
+'&customer='+encodeURIComponent(customer)+
+'&invoice='+encodeURIComponent(invoice)+
+'&amount='+encodeURIComponent(amount)+
+'&currency='+encodeURIComponent(currency)+
+'&method='+encodeURIComponent(method)+
+'&account='+encodeURIComponent(account)+
+'&name='+encodeURIComponent(accountName);
+
+const paymentText=paymentLink;
 
 const area=document.getElementById('qrArea');
 
