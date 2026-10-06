@@ -115,7 +115,113 @@ function openSocial(key){const url=localStorage.getItem('cwb_social_'+key);if(!u
 function updatePaymentMethod(){const method=document.getElementById('qr_method'),bank=document.getElementById('qr_bank_box'),label=document.getElementById('qr_account_label');if(!method||!bank||!label)return;if(method.value==='Bank'){bank.style.display='block';label.textContent='Bank Account Number'}else{bank.style.display='none';label.textContent='Payment Account / Number'}}
 const qrMethod=document.getElementById('qr_method');if(qrMethod)qrMethod.addEventListener('change',updatePaymentMethod);
 function generateQR(){const customer=document.getElementById('qr_customer').value.trim(),invoice=document.getElementById('qr_invoice').value.trim(),amount=document.getElementById('qr_amount').value,currency=document.getElementById('qr_currency').value,method=document.getElementById('qr_method').value,account=document.getElementById('qr_account').value.trim(),accountName=document.getElementById('qr_account_name').value.trim(),note=document.getElementById('qr_note').value.trim();if(!customer||!invoice||!amount){msg('qrMessage','Please complete Customer Name, Invoice Number and Amount.',true);return}if(typeof QRCode==='undefined'){msg('qrMessage','QR generator is not loaded. Please refresh the page.',true);return}const paymentText='CWB PAYMENT|Merchant:984868|Number:06691086015|Customer:'+customer+'|Invoice:'+invoice+'|Amount:'+amount+' '+currency+'|Method:'+method+'|Account:'+account+'|Name:'+accountName+'|Note:'+note;const area=document.getElementById('qrArea');area.innerHTML=`<div class="cwb-qr-card"><div class="cwb-qr-header"><img class="cwb-qr-logo" src="./file_000000009d80820694001bdae16e2e4b.png" alt="C.W.B Logo"><div class="cwb-qr-title">C.W.B PAYMENT</div><div class="cwb-qr-company">CAMEL WORK AND BUSINESS COMPANY</div><div class="cwb-qr-slogan">Better Quality is our priority</div></div><div class="cwb-qr-body"><div class="cwb-qr-code"><div id="generatedQRCode"></div></div><div class="cwb-payment-details"><div class="cwb-payment-detail"><b>Customer</b>${esc(customer)}</div><div class="cwb-payment-detail"><b>Invoice</b>${esc(invoice)}</div><div class="cwb-payment-detail"><b>Amount</b>${esc(amount)} ${esc(currency)}</div><div class="cwb-payment-detail"><b>Payment Method</b>${esc(method)}</div></div><div class="cwb-payment-number">Payment Number<strong>06691086015</strong></div><div class="cwb-bank-box"><b>Payment Account</b><br>${esc(accountName)}<br>${esc(account)}</div>${note?`<div class="cwb-payment-note"><b>Note</b><br>${esc(note)}</div>`:''}<div class="cwb-qr-footer">C.W.B System • Master Version 2</div></div></div>`;new QRCode(document.getElementById('generatedQRCode'),{text:paymentText,width:300,height:300,correctLevel:QRCode.CorrectLevel.L});document.getElementById('qrText').textContent=paymentText;msg('qrMessage','Professional payment QR generated successfully.')}
-function clearQR(){document.getElementById('qrArea').innerHTML='<div class="small">Your professional payment QR will appear here.</div>';document.getElementById('qrText').textContent=''}
+function generateQR(){
+const customer=document.getElementById('qr_customer').value.trim();
+const invoice=document.getElementById('qr_invoice').value.trim();
+const amount=document.getElementById('qr_amount').value;
+const currency=document.getElementById('qr_currency').value;
+const method=document.getElementById('qr_method').value;
+const account=document.getElementById('qr_account').value.trim();
+const accountName=document.getElementById('qr_account_name').value.trim();
+const note=document.getElementById('qr_note').value.trim();
+
+if(!customer||!invoice||!amount){
+msg('qrMessage','Please complete Customer Name, Invoice Number and Amount.',true);
+return;
+}
+
+if(typeof QRCode==='undefined'){
+msg('qrMessage','QR generator is not loaded. Please refresh the page.',true);
+return;
+}
+
+const paymentText=
+'CWB PAYMENT\n'+
+'Merchant:984868\n'+
+'Payment:'+account+'\n'+
+'Customer:'+customer+'\n'+
+'Invoice:'+invoice+'\n'+
+'Amount:'+amount+' '+currency+'\n'+
+'Method:'+method+'\n'+
+'Name:'+accountName+
+(note?'\nNote:'+note:'');
+
+const area=document.getElementById('qrArea');
+
+area.innerHTML=`
+<div class="cwb-qr-card">
+<div class="cwb-qr-header">
+<img class="cwb-qr-logo"
+src="./file_000000009d80820694001bdae16e2e4b.png"
+alt="C.W.B Logo">
+<div class="cwb-qr-title">C.W.B PAYMENT</div>
+<div class="cwb-qr-company">CAMEL WORK AND BUSINESS COMPANY</div>
+<div class="cwb-qr-slogan">Better Quality is our priority</div>
+</div>
+
+<div class="cwb-qr-body">
+
+<div class="cwb-qr-code">
+<div id="generatedQRCode"></div>
+</div>
+
+<div class="cwb-payment-details">
+<div class="cwb-payment-detail">
+<b>Customer</b>${esc(customer)}
+</div>
+
+<div class="cwb-payment-detail">
+<b>Invoice</b>${esc(invoice)}
+</div>
+
+<div class="cwb-payment-detail">
+<b>Amount</b>${esc(amount)} ${esc(currency)}
+</div>
+
+<div class="cwb-payment-detail">
+<b>Payment Method</b>${esc(method)}
+</div>
+</div>
+
+<div class="cwb-payment-number">
+Payment Number
+<strong>06691086015</strong>
+</div>
+
+<div class="cwb-bank-box">
+<b>Payment Account</b><br>
+${esc(accountName)}<br>
+${esc(account)}
+</div>
+
+${note?`
+<div class="cwb-payment-note">
+<b>Note</b><br>
+${esc(note)}
+</div>`:''}
+
+<div class="cwb-qr-footer">
+C.W.B System • Master Version 2
+</div>
+
+</div>
+</div>
+`;
+
+new QRCode(
+document.getElementById('generatedQRCode'),
+{
+text:paymentText,
+width:320,
+height:320,
+correctLevel:QRCode.CorrectLevel.H
+}
+);
+
+document.getElementById('qrText').textContent=paymentText;
+
+msg('qrMessage','Professional payment QR generated successfully.');
+}
 function printQR(){const area=document.getElementById('qrArea');if(!area?.querySelector('.cwb-qr-card')){msg('qrMessage','Generate the QR first.',true);return}const w=window.open('','_blank');if(!w){msg('qrMessage','Please allow pop-ups to print the QR.',true);return}w.document.write('<html><head><title>C.W.B Payment QR</title><style>body{font-family:Arial;margin:20px}.cwb-qr-card{max-width:520px;margin:auto;border:2px solid #b91c1c;border-radius:18px;overflow:hidden}.cwb-qr-header{background:linear-gradient(135deg,#111827,#b91c1c);color:#fff;text-align:center;padding:20px}.cwb-qr-logo{width:76px;height:76px}.cwb-qr-body{padding:18px;text-align:center}</style></head><body>'+area.innerHTML+'<script>window.onload=function(){window.print()}<\\/script></body></html>');w.document.close()}
 function startup(){updateDashboard();renderSales();renderPurchases();renderExpenses();renderPartners();renderPayroll();loadPlan();loadWebsite();loadSocial();loadInventory();loadGarage();updatePaymentMethod();loadReports();[['sale_date',today()],['purchase_date',today()],['expense_date',today()],['service_date',today()],['pay_month',currentMonth()]].forEach(([id,v])=>{const e=document.getElementById(id);if(e&&!e.value)e.value=v});updatePayPreview()}
 startup();
