@@ -115,6 +115,57 @@ function openSocial(key){const url=localStorage.getItem('cwb_social_'+key);if(!u
 function updatePaymentMethod(){const method=document.getElementById('qr_method'),bank=document.getElementById('qr_bank_box'),label=document.getElementById('qr_account_label');if(!method||!bank||!label)return;if(method.value==='Bank'){bank.style.display='block';label.textContent='Bank Account Number'}else{bank.style.display='none';label.textContent='Payment Account / Number'}}
 const qrMethod=document.getElementById('qr_method');if(qrMethod)qrMethod.addEventListener('change',updatePaymentMethod);
 function generateQR(){const customer=document.getElementById('qr_customer').value.trim(),invoice=document.getElementById('qr_invoice').value.trim(),amount=document.getElementById('qr_amount').value,currency=document.getElementById('qr_currency').value,method=document.getElementById('qr_method').value,account=document.getElementById('qr_account').value.trim(),accountName=document.getElementById('qr_account_name').value.trim(),note=document.getElementById('qr_note').value.trim();if(!customer||!invoice||!amount){msg('qrMessage','Please complete Customer Name, Invoice Number and Amount.',true);return}if(typeof QRCode==='undefined'){msg('qrMessage','QR generator is not loaded. Please refresh the page.',true);return}const paymentText='CWB PAYMENT|Merchant:984868|Number:06691086015|Customer:'+customer+'|Invoice:'+invoice+'|Amount:'+amount+' '+currency+'|Method:'+method+'|Account:'+account+'|Name:'+accountName+'|Note:'+note;const area=document.getElementById('qrArea');area.innerHTML=`<div class="cwb-qr-card"><div class="cwb-qr-header"><img class="cwb-qr-logo" src="./file_000000009d80820694001bdae16e2e4b.png" alt="C.W.B Logo"><div class="cwb-qr-title">C.W.B PAYMENT</div><div class="cwb-qr-company">CAMEL WORK AND BUSINESS COMPANY</div><div class="cwb-qr-slogan">Better Quality is our priority</div></div><div class="cwb-qr-body"><div class="cwb-qr-code"><div id="generatedQRCode"></div></div><div class="cwb-payment-details"><div class="cwb-payment-detail"><b>Customer</b>${esc(customer)}</div><div class="cwb-payment-detail"><b>Invoice</b>${esc(invoice)}</div><div class="cwb-payment-detail"><b>Amount</b>${esc(amount)} ${esc(currency)}</div><div class="cwb-payment-detail"><b>Payment Method</b>${esc(method)}</div></div><div class="cwb-payment-number">Payment Number<strong>06691086015</strong></div><div class="cwb-bank-box"><b>Payment Account</b><br>${esc(accountName)}<br>${esc(account)}</div>${note?`<div class="cwb-payment-note"><b>Note</b><br>${esc(note)}</div>`:''}<div class="cwb-qr-footer">C.W.B System • Master Version 2</div></div></div>`;new QRCode(document.getElementById('generatedQRCode'),{text:paymentText,width:300,height:300,correctLevel:QRCode.CorrectLevel.L});document.getElementById('qrText').textContent=paymentText;msg('qrMessage','Professional payment QR generated successfully.')}
+  function openCWPayment(){
+const params=new URLSearchParams(window.location.search);
+
+if(params.get('payment')!=='1')return;
+
+const customer=params.get('customer')||'Customer';
+const invoice=params.get('invoice')||'';
+const amount=params.get('amount')||'';
+const currency=params.get('currency')||'BIF';
+const method=params.get('method')||'Mobile Money';
+const account=params.get('account')||'06691086015';
+const name=params.get('name')||'CAMEL WORK AND BUSINESS COMPANY';
+
+document.body.innerHTML=`
+<div style="min-height:100vh;background:#111827;padding:25px;box-sizing:border-box;font-family:Arial,sans-serif">
+<div style="max-width:520px;margin:20px auto;background:white;border-radius:20px;overflow:hidden;box-shadow:0 15px 50px rgba(0,0,0,.4)">
+
+<div style="background:linear-gradient(135deg,#111827,#b91c1c);color:white;text-align:center;padding:25px">
+<div style="font-size:25px;font-weight:bold">C.W.B PAYMENT</div>
+<div style="margin-top:8px">CAMEL WORK AND BUSINESS COMPANY</div>
+<div style="margin-top:6px;font-size:13px">Better Quality is our priority</div>
+</div>
+
+<div style="padding:25px">
+
+<h2 style="text-align:center;color:#111827">Payment Details</h2>
+
+<p><b>Customer:</b> ${esc(customer)}</p>
+<p><b>Invoice:</b> ${esc(invoice)}</p>
+<p><b>Amount:</b> ${esc(amount)} ${esc(currency)}</p>
+<p><b>Payment Method:</b> ${esc(method)}</p>
+
+<div style="background:#f3f4f6;border-radius:12px;padding:18px;text-align:center;margin-top:20px">
+<div style="font-size:14px;color:#6b7280">PAYMENT NUMBER</div>
+<div style="font-size:24px;font-weight:bold;color:#b91c1c;margin-top:6px">
+${esc(account)}
+</div>
+<div style="margin-top:8px;font-weight:bold">
+${esc(name)}
+</div>
+</div>
+
+<div style="margin-top:25px;text-align:center;color:#6b7280;font-size:13px">
+C.W.B System • Master Version 2
+</div>
+
+</div>
+</div>
+</div>
+`;
+}
 function generateQR(){
 const customer=document.getElementById('qr_customer').value.trim();
 const invoice=document.getElementById('qr_invoice').value.trim();
