@@ -278,7 +278,11 @@ msg('qrMessage','Professional payment QR generated successfully.');
 }
 function printQR(){const area=document.getElementById('qrArea');if(!area?.querySelector('.cwb-qr-card')){msg('qrMessage','Generate the QR first.',true);return}const w=window.open('','_blank');if(!w){msg('qrMessage','Please allow pop-ups to print the QR.',true);return}w.document.write('<html><head><title>C.W.B Payment QR</title><style>body{font-family:Arial;margin:20px}.cwb-qr-card{max-width:520px;margin:auto;border:2px solid #b91c1c;border-radius:18px;overflow:hidden}.cwb-qr-header{background:linear-gradient(135deg,#111827,#b91c1c);color:#fff;text-align:center;padding:20px}.cwb-qr-logo{width:76px;height:76px}.cwb-qr-body{padding:18px;text-align:center}</style></head><body>'+area.innerHTML+'<script>window.onload=function(){window.print()}<\\/script></body></html>');w.document.close()}
 function startup(){updateDashboard();renderSales();renderPurchases();renderExpenses();renderPartners();renderPayroll();loadPlan();loadWebsite();loadSocial();loadInventory();loadGarage();updatePaymentMethod();loadReports();[['sale_date',today()],['purchase_date',today()],['expense_date',today()],['service_date',today()],['pay_month',currentMonth()]].forEach(([id,v])=>{const e=document.getElementById(id);if(e&&!e.value)e.value=v});updatePayPreview()}
-startup();
+if(new URLSearchParams(window.location.search).get('payment')==='1'){
+  openCWPayment();
+}else{
+  startup();
+}
 </script>
   <script>
 (function(){
@@ -340,6 +344,7 @@ border:0;border-radius:7px;padding:6px 9px
 `;
 document.head.appendChild(style);
 
+if(new URLSearchParams(window.location.search).get("payment")==="1") return;
 const screen=document.createElement("div");
 screen.id="cwbAuthScreen";
 screen.innerHTML=`
