@@ -355,5 +355,299 @@ applyAccess();
 })();
 })();
 </script>
+  <!-- C.W.B CEO — Users & Permissions -->
+<script>
+(function(){
+"use strict";
+
+function cwbUsersStyle(){
+  if(document.getElementById("cwbUsersStyle")) return;
+
+  const s=document.createElement("style");
+  s.id="cwbUsersStyle";
+  s.textContent=`
+  #cwbUsersBtn{
+    position:fixed;right:10px;bottom:15px;z-index:8999;
+    background:#b91c1c;color:white;border:0;border-radius:10px;
+    padding:11px 14px;font-weight:bold;box-shadow:0 4px 15px #0005;
+  }
+  #cwbUsersPanel{
+    position:fixed;inset:0;z-index:9998;background:#111827;
+    overflow:auto;padding:20px;font-family:Arial,sans-serif;
+  }
+  #cwbUsersBox{
+    max-width:650px;margin:30px auto;background:white;
+    border-radius:18px;padding:20px;
+  }
+  #cwbUsersBox h2{margin-top:0;color:#111827}
+  #cwbUsersBox input,#cwbUsersBox select{
+    width:100%;box-sizing:border-box;padding:12px;margin:6px 0;
+    border:1px solid #ccc;border-radius:9px;font-size:15px;
+  }
+  #cwbUsersBox button{
+    padding:11px 14px;border:0;border-radius:9px;
+    background:#b91c1c;color:white;font-weight:bold;margin:5px 3px;
+  }
+  .cwbUserRow{
+    border:1px solid #ddd;border-radius:10px;padding:12px;
+    margin:10px 0;
+  }
+  .cwbUserRow button{background:#374151}
+  #cwbUsersMessage{margin:10px 0;font-weight:bold}
+  `;
+
+  document.head.appendChild(s);
+}
+
+async function getMyProfile(){
+  const {data:{user}}=await supabaseClient.auth.getUser();
+
+  if(!user) return null;
+
+  const {data,error}=await supabaseClient
+    .from("cwb_profiles")
+    .select("id,full_name,active,role_id")
+    .eq("id",user.id)
+    .maybeSingle();
+
+  if(error) return null;
+
+  if(!data || !data.role_id) return null;
+
+  const {data:role}=await supabaseClient
+    .from("cwb_roles")
+    .select("name")
+    .eq("id",data.role_id)
+    .maybeSingle();
+
+  return {
+    user,
+    profile:data,
+    role:role?.name||""
+  };
+}
+
+async function openUsersPanel(){
+
+  const me=await getMyProfile();
+
+  if(!me || me.role!=="CEO"){
+    alert("Only the C.W.B CEO can manage users.");
+    return;
+  }
+
+  let panel=document.getElementById("cwbUsersPanel");
+
+  if(!panel){
+    panel=document.createElement("div");
+    panel.id="cwbUsersPanel";
+
+    panel.innerHTML=`
+      <div id="cwbUsersBox">
+
+        <h2>👥 C.W.B Users & Permissions</h2>
+
+        <p>
+        Create a C.W.B profile for an existing Supabase Auth user
+        and assign their role.
+        </p>
+
+        <input id="cwbWorkerId"
+          placeholder="Worker User ID (UUID)">
+
+        <input id="cwbWorkerName"
+          placeholder="Worker full name">
+
+        <select id="cwbWorkerRole">
+          <option value="">Choose role</option>
+          <option value="CEO">CEO</option>
+          <option value="Sales">Sales</option>
+          <option value="Inventory">Inventory</option>
+          <option value="Garage">Garage</option>
+          <option value="Accountant">Accountant</option>
+          <option value="HR">HR</option>
+          <option value="Website/Social">Website/Social</option>
+        </select>
+
+        <button id="cwbSaveWorker">Save User & Role</button>
+
+        <button id="cwbCloseUsers" style="background:#374151">
+          Close
+        </button>
+
+        <div id="cwbUsersMessage"></div>
+
+        <hr>
+
+        <h3>Current C.W.B Users</h3>
+        <div id="cwbUsersList">Loading...</div>
+
+      </div>
+    `;
+
+    document.body.appendChild(panel);
+
+    document.getElementById("cwbCloseUsers").onclick=()=>{
+      panel.remove();
+    };
+
+    document.getElementById("cwbSaveWorker").onclick=saveWorker;
+  }
+
+  await loadUsers();
+}
+
+async function saveWorker(){
+
+  const id=document.getElementById("cwbWorkerId").value.trim();
+  const name=document.getElementById("cwbWorkerName").value.trim();
+  const roleName=document.getElementById("cwbWorkerRole").value;
+
+  const msg=document.getElementById("cwbUsersMessage");
+
+  if(!id || !name || !roleName){
+    msg.textContent="Please fill User ID, name and role.";
+    msg.style.color="#b91c1c";
+    return;
+  }
+
+  msg.textContent="Saving...";
+  msg.style.color="#374151";
+
+  const {data:role,error:roleError}=await supabaseClient
+    .from("cwb_roles")
+    .select("id")
+    .eq("name",roleName)
+    .single();
+
+  if(roleError){
+    msg.textContent="Role could not be found.";
+    msg.style.color="#b91c1c";
+    return;
+  }
+
+  const {error}=await supabaseClient
+    .from("cwb_profiles")
+    .upsert({
+      id:id,
+      full_name:name,
+      role_id:role.id,
+      active:true
+    });
+
+  if(error){
+    msg.textContent=error.message;
+    msg.style.color="#b91c1c";
+    return;
+  }
+
+  msg.textContent="User and role saved successfully.";
+  msg.style.color="#166534";
+
+  document.getElementById("cwbWorkerId").value="";
+  document.getElementById("cwbWorkerName").value="";
+  document.getElementById("cwbWorkerRole").value="";
+
+  await loadUsers();
+}
+
+async function loadUsers(){
+
+  const list=document.getElementById("cwbUsersList");
+
+  if(!list) return;
+
+  list.textContent="Loading...";
+
+  const {data:profiles,error}=await supabaseClient
+    .from("cwb_profiles")
+    .select("id,full_name,active,role_id")
+    .order("full_name");
+
+  if(error){
+    list.textContent=error.message;
+    return;
+  }
+
+  if(!profiles || !profiles.length){
+    list.textContent="No C.W.B users found.";
+    return;
+  }
+
+  const roleIds=[
+    ...new Set(profiles.map(p=>p.role_id).filter(Boolean))
+  ];
+
+  let roles=[];
+
+  if(roleIds.length){
+    const {data}=await supabaseClient
+      .from("cwb_roles")
+      .select("id,name")
+      .in("id",roleIds);
+
+    roles=data||[];
+  }
+
+  const roleMap={};
+
+  roles.forEach(r=>{
+    roleMap[r.id]=r.name;
+  });
+
+  list.innerHTML=profiles.map(p=>`
+    <div class="cwbUserRow">
+      <strong>${escapeHtml(p.full_name||"Unnamed user")}</strong><br>
+      Role: <strong>${escapeHtml(roleMap[p.role_id]||"No role")}</strong><br>
+      Status: ${p.active===false?"Inactive":"Active"}<br>
+      <small>User ID: ${escapeHtml(p.id)}</small>
+    </div>
+  `).join("");
+}
+
+function escapeHtml(v){
+  return String(v||"").replace(/[&<>"']/g,function(c){
+    return {
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#39;"
+    }[c];
+  });
+}
+
+function createCEOButton(){
+
+  if(document.getElementById("cwbUsersBtn")) return;
+
+  const btn=document.createElement("button");
+  btn.id="cwbUsersBtn";
+  btn.textContent="👥 Users & Permissions";
+
+  btn.onclick=openUsersPanel;
+
+  document.body.appendChild(btn);
+}
+
+async function startUsers(){
+
+  cwbUsersStyle();
+
+  const me=await getMyProfile();
+
+  if(me && me.role==="CEO"){
+    createCEOButton();
+  }
+}
+
+if(document.readyState==="loading"){
+  document.addEventListener("DOMContentLoaded",startUsers);
+}else{
+  startUsers();
+}
+
+})();
+</script>
 </body>
 </html>
