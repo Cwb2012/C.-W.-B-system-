@@ -5,589 +5,452 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#111827">
 
-<meta name="description" content="Camel Work and Business Company (C.W.B), based in Bujumbura, Burundi. Automotive paint, spare parts, vehicle finishing and garage services.">
-
-<meta name="robots" content="index,follow">
-
 <title>C.W.B | Camel Work and Business Company</title>
 
-<link rel="icon" type="image/png"
-href="./file_000000009d80820694001bdae16e2e4b.png">
+<meta name="description" content="C.W.B provides automotive paint, spare parts, vehicle finishing and garage services in Bujumbura, Burundi.">
+
+<link rel="icon" type="image/png" href="./file_000000009d80820694001bdae16e2e4b.png">
 
 <style>
-:root {
-  --navy: #111827;
-  --dark: #1f2937;
-  --red: #b91c1c;
-  --light: #f3f4f6;
-  --white: #ffffff;
-}
-
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
 }
 
 html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 85px;
+    scroll-padding-top: 20px;
 }
 
 body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  background: var(--light);
-  color: var(--navy);
-  line-height: 1.7;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #1f2937;
+    background: #f3f4f6;
+    line-height: 1.7;
 }
 
 header {
-  background: linear-gradient(135deg, #111827, #b91c1c);
-  color: white;
-  text-align: center;
-  padding: 30px 15px;
+    background: #111827;
+    color: white;
+    text-align: center;
+    padding: 30px 15px;
 }
 
 .logo {
-  width: 110px;
-  height: 110px;
-  object-fit: contain;
-  background: white;
-  padding: 7px;
-  border-radius: 20px;
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    border-radius: 50%;
+    background: white;
 }
 
 header h1 {
-  margin: 10px 0 0;
-  font-size: 36px;
-}
-
-.company {
-  margin: 0;
-  font-size: 19px;
+    margin: 12px 0 0;
+    font-size: 28px;
 }
 
 .tagline {
-  color: #fca5a5;
-  font-weight: bold;
-  margin: 5px 0 0;
+    color: #fca5a5;
+    font-weight: bold;
+    margin: 5px 0 0;
 }
 
 nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--red);
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: 8px;
+    background: #b91c1c;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 10px;
 }
 
 nav a {
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-  padding: 9px 12px;
-  border-radius: 7px;
+    color: white;
+    text-decoration: none;
+    padding: 10px 14px;
+    border-radius: 5px;
+    font-weight: bold;
 }
 
 nav a:hover,
 nav a:focus {
-  background: #7f1d1d;
+    background: #7f1d1d;
+}
+
+section {
+    padding: 45px 20px;
+    scroll-margin-top: 10px;
 }
 
 .hero {
-  background: linear-gradient(135deg, #111827, #374151);
-  color: white;
-  text-align: center;
-  padding: 75px 20px;
-  scroll-margin-top: 85px;
+    text-align: center;
+    background: white;
+    padding: 65px 20px;
 }
 
 .hero h2 {
-  font-size: clamp(30px, 5vw, 44px);
-  line-height: 1.2;
-  margin: 0 0 18px;
+    color: #b91c1c;
+    font-size: 32px;
+    margin-top: 0;
 }
 
-.hero p {
-  max-width: 760px;
-  margin: 0 auto 25px;
-  font-size: 18px;
+.container {
+    max-width: 1050px;
+    margin: auto;
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.section-title h2,
+.about h2,
+.contact h2,
+.social h2 {
+    color: #b91c1c;
+    font-size: 28px;
 }
 
 .btn {
-  display: inline-block;
-  background: var(--red);
-  color: white;
-  text-decoration: none;
-  padding: 12px 20px;
-  border-radius: 9px;
-  font-weight: bold;
-  margin: 5px;
+    display: inline-block;
+    background: #b91c1c;
+    color: white;
+    padding: 12px 22px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 15px;
 }
 
-.btn:hover,
-.btn:focus {
-  background: #991b1b;
+.btn:hover {
+    background: #7f1d1d;
 }
 
-section.content {
-  max-width: 1100px;
-  margin: auto;
-  padding: 55px 20px;
-  scroll-margin-top: 85px;
-}
-
-section h2 {
-  text-align: center;
-  font-size: 32px;
-  line-height: 1.3;
-  margin: 0 0 30px;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
+.services {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
 }
 
 .card {
-  background: white;
-  border-radius: 14px;
-  padding: 25px;
-  box-shadow: 0 4px 16px #0000000c;
-  border: 1px solid #e5e7eb;
+    background: white;
+    padding: 22px;
+    border-radius: 10px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
 }
 
 .card h3 {
-  color: var(--red);
-  margin-top: 0;
-  font-size: 21px;
+    color: #b91c1c;
+    margin-top: 0;
+}
+
+.about {
+    background: #111827;
+    color: white;
+}
+
+.about h2 {
+    color: #fca5a5;
 }
 
 .about-box {
-  max-width: 850px;
-  margin: auto;
-  padding: 28px;
-  background: white;
-  border-radius: 14px;
-  box-shadow: 0 4px 16px #0000000c;
-  font-size: 17px;
+    max-width: 850px;
+    margin: auto;
 }
 
-.about-box h3 {
-  color: var(--red);
-  margin-top: 25px;
+.about-box strong {
+    color: #fca5a5;
 }
 
-.about-box ul {
-  padding-left: 25px;
-}
-
-.profile-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
-  margin-top: 20px;
-}
-
-.profile-item {
-  background: var(--light);
-  padding: 15px;
-  border-radius: 10px;
-  overflow-wrap: anywhere;
-}
-
-.profile-item strong {
-  display: block;
-  color: var(--red);
-}
-
-.social-intro {
-  text-align: center;
-  max-width: 700px;
-  margin: 0 auto 25px;
+.social {
+    background: #f9fafb;
+    text-align: center;
 }
 
 .social-links {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
-.social-link {
-  background: var(--dark);
-  color: white;
-  text-decoration: none;
-  padding: 12px 18px;
-  border-radius: 9px;
-  font-weight: bold;
+.social-links a {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 6px;
+    background: #111827;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
 }
 
-.social-link:hover,
-.social-link:focus {
-  background: var(--red);
+.social-links a:hover {
+    background: #b91c1c;
 }
 
 .contact {
-  background: var(--navy);
-  color: white;
-  padding: 55px 20px;
-  text-align: center;
-  scroll-margin-top: 85px;
-}
-
-.contact h2 {
-  margin-top: 0;
+    background: white;
+    text-align: center;
 }
 
 .contact-box {
-  max-width: 650px;
-  margin: auto;
-}
-
-.contact-item {
-  background: var(--dark);
-  padding: 15px;
-  border-radius: 10px;
-  margin: 12px 0;
-  overflow-wrap: anywhere;
+    max-width: 700px;
+    margin: auto;
+    padding: 20px;
 }
 
 footer {
-  background: #0b1120;
-  color: #d1d5db;
-  text-align: center;
-  padding: 25px 15px;
-  font-size: 14px;
-}
-
-footer p {
-  margin: 5px;
+    background: #111827;
+    color: #d1d5db;
+    text-align: center;
+    padding: 22px;
+    font-size: 14px;
 }
 
 @media (max-width: 600px) {
-  header h1 {
-    font-size: 30px;
-  }
+    header h1 {
+        font-size: 23px;
+    }
 
-  .company {
-    font-size: 16px;
-  }
+    .hero h2 {
+        font-size: 27px;
+    }
 
-  .hero {
-    padding: 55px 18px;
-  }
-
-  .hero p {
-    font-size: 16px;
-  }
-
-  nav a {
-    font-size: 14px;
-    padding: 8px;
-  }
-
-  section.content {
-    padding: 42px 16px;
-  }
-
-  .about-box {
-    padding: 20px;
-  }
+    nav a {
+        padding: 9px;
+        font-size: 14px;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<header id="top">
-  <img
-    class="logo"
-    src="./file_000000009d80820694001bdae16e2e4b.png"
-    alt="C.W.B company logo">
+<header id="home">
+    <img
+        class="logo"
+        src="./file_000000009d80820694001bdae16e2e4b.png"
+        alt="C.W.B company logo">
 
-  <h1>C.W.B</h1>
+    <h1>Camel Work and Business Company</h1>
 
-  <p class="company">
-    Camel Work and Business Company
-  </p>
-
-  <p class="tagline">
-    Better Quality is our priority
-  </p>
+    <p class="tagline">Better Quality is our priority</p>
 </header>
 
 <nav aria-label="Main navigation">
-  <a href="#home">Home</a>
-  <a href="#services">Services</a>
-  <a href="#about">About Us</a>
-  <a href="#social">Social Media</a>
-  <a href="#contact">Contact</a>
+    <a href="#home">Home</a>
+    <a href="#services">Services</a>
+    <a href="#about">About Us</a>
+    <a href="#social">Social Media</a>
+    <a href="#contact">Contact</a>
 </nav>
 
 <main>
 
-<section class="hero" id="home">
-  <h2>Quality for Your Vehicle</h2>
+<section class="hero">
+    <div class="container">
+        <h2>Professional Automotive Solutions</h2>
 
-  <p>
-    Welcome to Camel Work and Business Company.
-    We focus on automotive paint, spare parts,
-    vehicle finishing and customer satisfaction
-    in Bujumbura, Burundi.
-  </p>
+        <p>
+            C.W.B provides automotive paint, spare parts,
+            vehicle finishing and garage services with a strong
+            focus on quality, reliability and professional work.
+        </p>
 
-  <a class="btn" href="#services">
-    Explore Our Services
-  </a>
-
-  <a class="btn" href="#contact">
-    Contact C.W.B
-  </a>
+        <a class="btn" href="#services">Discover Our Services</a>
+    </div>
 </section>
 
-<section class="content" id="services">
-  <h2>Our Services</h2>
+<section id="services">
+    <div class="container">
+        <div class="section-title">
+            <h2>Our Services</h2>
+            <p>Quality solutions for vehicles and business needs.</p>
+        </div>
 
-  <div class="grid">
+        <div class="services">
 
-    <article class="card">
-      <h3>🎨 Automotive Paint</h3>
-      <p>
-        Automotive paint products and solutions
-        for vehicle refinishing, repair and
-        professional finishing.
-      </p>
-    </article>
+            <div class="card">
+                <h3>Automotive Paint</h3>
+                <p>
+                    Professional automotive paint products
+                    and finishing solutions.
+                </p>
+            </div>
 
-    <article class="card">
-      <h3>🔧 Spare Parts</h3>
-      <p>
-        Automotive spare parts and products
-        for vehicle maintenance and repair.
-      </p>
-    </article>
+            <div class="card">
+                <h3>Spare Parts</h3>
+                <p>
+                    Vehicle spare parts and automotive products
+                    to support your vehicle needs.
+                </p>
+            </div>
 
-    <article class="card">
-      <h3>🚗 Vehicle Finishing</h3>
-      <p>
-        Vehicle finishing focused on a neat
-        appearance and quality results.
-      </p>
-    </article>
+            <div class="card">
+                <h3>Vehicle Finishing</h3>
+                <p>
+                    Quality vehicle finishing solutions
+                    with attention to detail.
+                </p>
+            </div>
 
-    <article class="card">
-      <h3>🛠️ Garage Services</h3>
-      <p>
-        Garage-related vehicle services
-        with attention to reliability,
-        quality and customer needs.
-      </p>
-    </article>
+            <div class="card">
+                <h3>Garage Services</h3>
+                <p>
+                    Professional garage activities,
+                    vehicle care and related services.
+                </p>
+            </div>
 
-    <article class="card">
-      <h3>📋 Business Planning</h3>
-      <p>
-        Business planning and organization
-        to support better work and service
-        delivery.
-      </p>
-    </article>
+            <div class="card">
+                <h3>Business Planning</h3>
+                <p>
+                    Business planning and organization
+                    to support better business management.
+                </p>
+            </div>
 
-  </div>
+        </div>
+    </div>
 </section>
 
-<section class="content" id="about">
-  <h2>About C.W.B</h2>
+<section id="about" class="about">
+    <div class="about-box">
+        <h2>About C.W.B</h2>
 
-  <div class="about-box">
+        <p>
+            Camel Work and Business Company (C.W.B) is a
+            business focused on automotive paint, spare parts,
+            vehicle finishing and garage services.
+        </p>
 
-    <p>
-      <strong>
-        Camel Work and Business Company (C.W.B)
-      </strong>
-      is based in Bujumbura, Burundi.
-    </p>
+        <p>
+            We aim to provide reliable products and professional
+            services while building trust with our customers
+            through quality work.
+        </p>
 
-    <p>
-      We focus on automotive paint, spare parts,
-      vehicle finishing and garage services.
-      Our aim is to provide dependable products
-      and professional service while building
-      lasting relationships with our customers.
-    </p>
+        <h3>Our Company Profile</h3>
 
-    <h3>Our Mission</h3>
+        <p>
+            <strong>Company:</strong>
+            Camel Work and Business Company (C.W.B)
+        </p>
 
-    <p>
-      We are committed to quality, reliability
-      and customer satisfaction. We aim to
-      provide practical automotive solutions
-      and continuously improve our services.
-    </p>
+        <p>
+            <strong>CEO:</strong>
+            Nshimirimana Ibrahim
+        </p>
 
-    <h3>Our Main Activities</h3>
+        <p>
+            <strong>Location:</strong>
+            Bujumbura, Burundi
+        </p>
 
-    <ul>
-      <li>Automotive paint products</li>
-      <li>Vehicle spare parts</li>
-      <li>Vehicle finishing</li>
-      <li>Garage services</li>
-      <li>Business planning</li>
-    </ul>
+        <p>
+            <strong>Our Activities:</strong>
+            Automotive paint, spare parts, vehicle finishing,
+            garage services and business planning.
+        </p>
 
-    <h3>Company Information</h3>
-
-    <div class="profile-grid">
-
-      <div class="profile-item">
-        <strong>Company Name</strong>
-        Camel Work and Business Company (C.W.B)
-      </div>
-
-      <div class="profile-item">
-        <strong>CEO</strong>
-        Nshimirimana Ibrahim
-      </div>
-
-      <div class="profile-item">
-        <strong>Location</strong>
-        Bujumbura, Burundi
-      </div>
-
-      <div class="profile-item">
-        <strong>Our Commitment</strong>
-        Better Quality is our priority
-      </div>
-
+        <p>
+            <strong>Our Motto:</strong>
+            Better Quality is our priority.
+        </p>
     </div>
-
-  </div>
 </section>
 
-<section class="content" id="social">
-  <h2>Connect With C.W.B</h2>
+<section id="social" class="social">
+    <div class="container">
+        <h2>Connect With C.W.B</h2>
 
-  <p class="social-intro">
-    Follow our official business pages
-    for company updates and information.
-  </p>
+        <p>
+            Follow our company and discover our automotive
+            products and business activities.
+        </p>
 
-  <div class="social-links">
+        <div class="social-links">
+            <a
+                href="https://www.tiktok.com/@cwb.business"
+                target="_blank"
+                rel="noopener noreferrer">
+                TikTok
+            </a>
+        </div>
 
-    <a
-      class="social-link"
-      href="https://www.tiktok.com/@cwb.business"
-      target="_blank"
-      rel="noopener noreferrer">
-      TikTok
-    </a>
-
-    <a class="social-link" href="#contact">
-      Facebook — Coming Soon
-    </a>
-
-    <a class="social-link" href="#contact">
-      Instagram — Coming Soon
-    </a>
-
-    <a class="social-link" href="#contact">
-      WhatsApp — Coming Soon
-    </a>
-
-  </div>
+        <p>
+            More official social media links can be added
+            when they are ready.
+        </p>
+    </div>
 </section>
 
-<section class="contact" id="contact">
-  <div class="contact-box">
+<section id="contact" class="contact">
+    <div class="contact-box">
+        <h2>Contact C.W.B</h2>
 
-    <h2>Contact C.W.B</h2>
+        <p>
+            We welcome customers and business partners
+            interested in our products and services.
+        </p>
 
-    <div class="contact-item">
-      📍 Bujumbura, Burundi
+        <p>
+            <strong>Company:</strong><br>
+            Camel Work and Business Company
+        </p>
+
+        <p>
+            <strong>Location:</strong><br>
+            Bujumbura, Burundi
+        </p>
+
+        <p>
+            <strong>Slogan:</strong><br>
+            Better Quality is our priority
+        </p>
+
+        <p>
+            For contact details, please use our official
+            company communication channels.
+        </p>
     </div>
-
-    <div class="contact-item">
-      📞 Phone / WhatsApp
-      <br>
-      Official business number to be added.
-    </div>
-
-    <div class="contact-item">
-      ✉️ Business Email
-      <br>
-      Official business email to be added.
-    </div>
-
-    <a class="btn" href="#top">
-      Back to Top
-    </a>
-
-  </div>
 </section>
 
 </main>
 
 <footer>
-  <p>
-    <strong>
-      C.W.B — Camel Work and Business Company
-    </strong>
-  </p>
+    <p>
+        &copy; <span id="year"></span>
+        Camel Work and Business Company (C.W.B).
+        All rights reserved.
+    </p>
 
-  <p>Better Quality is our priority</p>
-
-  <p>
-    © <span id="year"></span> C.W.B. All rights reserved.
-  </p>
+    <p>Better Quality is our priority</p>
 </footer>
 
 <script>
 document.getElementById("year").textContent =
-  new Date().getFullYear();
+    new Date().getFullYear();
 
-/* Reliable navigation for the website sections */
+/* Reliable navigation for all sections */
 document.querySelectorAll('a[href^="#"]').forEach(function(link) {
-  link.addEventListener("click", function(event) {
-    const id = this.getAttribute("href").substring(1);
-    const section = document.getElementById(id);
+    link.addEventListener("click", function(event) {
+        var targetId = this.getAttribute("href").substring(1);
+        var target = document.getElementById(targetId);
 
-    if (section) {
-      event.preventDefault();
+        if (target) {
+            event.preventDefault();
 
-      section.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
+            history.replaceState(null, "", "#" + targetId);
 
-      if (window.location.hash !== "#" + id) {
-        history.pushState(null, "", "#" + id);
-      }
-    }
-  });
-});
-
-/* Open the requested section when a page link is loaded */
-function openRequestedSection() {
-  const id = window.location.hash.substring(1);
-
-  if (!id) return;
-
-  const section = document.getElementById(id);
-
-  if (section) {
-    section.scrollIntoView({
-      behavior: "auto",
-      block: "start"
+            target.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
     });
-  }
-}
-
-window.addEventListener("load", openRequestedSection);
-window.addEventListener("hashchange", openRequestedSection);
+});
 </script>
 
 </body>
