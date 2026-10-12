@@ -401,5 +401,27 @@ footer p {
     <strong>
       C.W.B — Camel Work and Business company
     </strong>
-  </p>  <p>Better Quality is our priority</p>  <p>© 2026 C.W.B. All rights reserved.</p></footer></body>
+  </p>  <p>Better Quality is our priority</p>  <p>© 2026 C.W.B. All rights reserved.</p></footer>
+  <script>
+function cwbNavigateToSection() {
+  const id = decodeURIComponent(window.location.hash.slice(1));
+
+  if (!id) return;
+
+  const section = document.getElementById(id);
+
+  if (section) {
+    setTimeout(function () {
+      section.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }, 150);
+  }
+}
+
+window.addEventListener("load", cwbNavigateToSection);
+window.addEventListener("hashchange", cwbNavigateToSection);
+</script>
+ </body>
 </html>
