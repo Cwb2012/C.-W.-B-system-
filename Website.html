@@ -1,432 +1,405 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#111827">
-
-<meta name="description"
-content="Camel Work and Business company — Automotive Paint, Spare Parts and Vehicle Finishing in Bujumbura, Burundi.">
-
-<title>C.W.B — Camel Work and Business company</title>
-
-<style>
-*{
-  box-sizing:border-box;
+<meta name="description" content="Camel Work and Business company (C.W.B), based in Bujumbura, Burundi. Automotive paint, spare parts and vehicle finishing.">
+<meta name="robots" content="index,follow"><title>C.W.B | Camel Work and Business company</title><style>
+:root {
+  --navy: #111827;
+  --dark: #1f2937;
+  --red: #b91c1c;
+  --light: #f3f4f6;
+  --white: #ffffff;
 }
 
-html{
-  scroll-behavior:smooth;
+* {
+  box-sizing: border-box;
 }
 
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#f3f4f6;
-  color:#111827;
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 75px;
 }
 
-/* HEADER */
-header{
-  background:#111827;
-  color:white;
-  text-align:center;
-  padding:25px 15px;
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--light);
+  color: var(--navy);
+  line-height: 1.7;
 }
 
-.logo{
-  width:110px;
-  height:110px;
-  object-fit:contain;
-  border-radius:22px;
-  background:white;
-  padding:8px;
+/* COMPANY HEADER */
+
+header {
+  background: var(--navy);
+  color: white;
+  text-align: center;
+  padding: 30px 15px;
 }
 
-header h1{
-  margin:12px 0 5px;
-  font-size:32px;
+.logo {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  background: white;
+  padding: 7px;
+  border-radius: 20px;
 }
 
-.company{
-  margin:0;
-  font-size:18px;
+header h1 {
+  margin: 10px 0 0;
+  font-size: 36px;
 }
 
-.tagline{
-  margin-top:8px;
-  color:#fca5a5;
-  font-weight:bold;
+.company {
+  margin: 0;
+  font-size: 19px;
+}
+
+.tagline {
+  color: #fca5a5;
+  font-weight: bold;
+  margin: 5px 0 0;
 }
 
 /* NAVIGATION */
-nav{
-  position:sticky;
-  top:0;
-  z-index:20;
-  background:#b91c1c;
-  text-align:center;
-  padding:10px;
+
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--red);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 8px;
 }
 
-nav a{
-  color:white;
-  text-decoration:none;
-  font-weight:bold;
-  margin:3px 7px;
-  display:inline-block;
-  padding:7px;
+nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 9px 12px;
+  border-radius: 7px;
 }
 
-/* HERO */
-.hero{
-  background:linear-gradient(135deg,#111827,#374151);
-  color:white;
-  text-align:center;
-  padding:75px 20px;
+nav a:hover {
+  background: #7f1d1d;
 }
 
-.hero h2{
-  font-size:40px;
-  margin:0 0 15px;
+/* WELCOME SECTION */
+
+.hero {
+  background: linear-gradient(135deg, #111827, #374151);
+  color: white;
+  text-align: center;
+  padding: 75px 20px;
 }
 
-.hero p{
-  max-width:750px;
-  margin:0 auto 25px;
-  font-size:18px;
-  line-height:1.7;
+.hero h2 {
+  font-size: clamp(30px, 5vw, 44px);
+  line-height: 1.2;
+  margin: 0 0 18px;
 }
 
-.btn{
-  display:inline-block;
-  background:#b91c1c;
-  color:white;
-  text-decoration:none;
-  padding:13px 21px;
-  border-radius:10px;
-  font-weight:bold;
-  margin:5px;
+.hero p {
+  max-width: 760px;
+  margin: 0 auto 25px;
+  font-size: 18px;
 }
 
-/* SECTIONS */
-section{
-  max-width:1050px;
-  margin:auto;
-  padding:55px 20px;
+.btn {
+  display: inline-block;
+  background: var(--red);
+  color: white;
+  text-decoration: none;
+  padding: 12px 20px;
+  border-radius: 9px;
+  font-weight: bold;
+  margin: 5px;
 }
 
-section h2{
-  text-align:center;
-  font-size:30px;
-  margin-top:0;
-  margin-bottom:30px;
+.btn:hover {
+  background: #991b1b;
+}
+
+/* GENERAL SECTIONS */
+
+section.content {
+  max-width: 1100px;
+  margin: auto;
+  padding: 55px 20px;
+}
+
+section h2 {
+  text-align: center;
+  font-size: 32px;
+  line-height: 1.3;
+  margin: 0 0 30px;
 }
 
 /* SERVICES */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:20px;
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
 }
 
-.card{
-  background:white;
-  border-radius:15px;
-  padding:25px;
-  box-shadow:0 3px 15px #0001;
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 25px;
+  box-shadow: 0 4px 16px #0000000c;
+  border: 1px solid #e5e7eb;
 }
 
-.card h3{
-  margin-top:0;
-  color:#b91c1c;
-  font-size:21px;
+.card h3 {
+  color: var(--red);
+  margin-top: 0;
+  font-size: 21px;
 }
 
-.card p{
-  line-height:1.6;
+/* COMPANY PROFILE */
+
+.about-box {
+  max-width: 850px;
+  margin: auto;
+  padding: 28px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px #0000000c;
+  text-align: center;
+  font-size: 17px;
 }
 
-/* ABOUT */
-.about{
-  max-width:800px;
-  margin:auto;
-  text-align:center;
-  line-height:1.8;
-  font-size:17px;
+/* SOCIAL MEDIA */
+
+.social-intro {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 25px;
+}
+
+.social-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.social-link {
+  background: var(--dark);
+  color: white;
+  text-decoration: none;
+  padding: 12px 18px;
+  border-radius: 9px;
+  font-weight: bold;
+}
+
+.social-link:hover {
+  background: var(--red);
 }
 
 /* CONTACT */
-.contact{
-  max-width:none;
-  background:#111827;
-  color:white;
-  text-align:center;
+
+.contact {
+  background: var(--navy);
+  color: white;
+  padding: 55px 20px;
+  text-align: center;
 }
 
-.contact h2{
-  color:white;
+.contact h2 {
+  margin-top: 0;
 }
 
-.contact p{
-  font-size:17px;
+.contact-box {
+  max-width: 650px;
+  margin: auto;
 }
 
-.contact-box{
-  max-width:600px;
-  margin:auto;
-}
-
-.contact-item{
-  background:#1f2937;
-  padding:15px;
-  border-radius:10px;
-  margin:10px 0;
+.contact-item {
+  background: var(--dark);
+  padding: 15px;
+  border-radius: 10px;
+  margin: 12px 0;
 }
 
 /* FOOTER */
-footer{
-  background:#0b1120;
-  color:#d1d5db;
-  text-align:center;
-  padding:22px 15px;
-  font-size:14px;
+
+footer {
+  background: #0b1120;
+  color: #d1d5db;
+  text-align: center;
+  padding: 25px 15px;
+  font-size: 14px;
 }
 
-.small{
-  opacity:.8;
+footer p {
+  margin: 5px;
 }
 
 /* MOBILE */
-@media(max-width:600px){
 
-  .hero{
-    padding:60px 18px;
+@media (max-width: 600px) {
+  header h1 {
+    font-size: 30px;
   }
 
-  .hero h2{
-    font-size:30px;
+  .company {
+    font-size: 16px;
   }
 
-  nav a{
-    font-size:14px;
-    margin:2px 4px;
+  .hero {
+    padding: 55px 18px;
   }
 
+  .hero p {
+    font-size: 16px;
+  }
+
+  nav a {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  section.content {
+    padding: 42px 16px;
+  }
 }
-</style>
-</head>
+</style></head><body><!-- COMPANY HEADER --><header>
+  <img
+    class="logo"
+    src="./file_000000009d80820694001bdae16e2e4b.png"
+    alt="C.W.B company logo">  <h1>C.W.B</h1>  <p class="company">
+    Camel Work and Business company
+  </p>  <p class="tagline">
+    Better Quality is our priority
+  </p>
+</header><!-- NAVIGATION --><nav aria-label="Main navigation">
+  <a href="#home">Home</a>
+  <a href="#services">Services</a>
+  <a href="#about">About Us</a>
+  <a href="#social">Social Media</a>
+  <a href="#contact">Contact</a>
+</nav><main><!-- HOME --><section class="hero" id="home">  <h2>Quality for Your Vehicle</h2>  <p>
+    Welcome to Camel Work and Business company.
+    We focus on automotive paint, spare parts,
+    vehicle finishing and customer satisfaction
+    in Bujumbura, Burundi.
+  </p>  <a class="btn" href="#services">
+    Explore Our Services
+  </a>  <a class="btn" href="#contact">
+    Contact C.W.B
+  </a></section><!-- SERVICES --><section class="content" id="services">  <h2>Our Services</h2>  <div class="grid"><article class="card">
+  <h3>🎨 Automotive Paint</h3>
+  <p>
+    Automotive paint products and solutions
+    for vehicle refinishing, repair and
+    professional finishing.
+  </p>
+</article>
 
-<body>
+<article class="card">
+  <h3>🔧 Spare Parts</h3>
+  <p>
+    Automotive spare parts and products
+    for vehicle maintenance and repair.
+  </p>
+</article>
 
-<!-- HEADER -->
-<header>
+<article class="card">
+  <h3>🚗 Vehicle Finishing</h3>
+  <p>
+    Vehicle finishing focused on a neat
+    appearance and quality results.
+  </p>
+</article>
 
-<img
-class="logo"
-src="./file_000000009d80820694001bdae16e2e4b.png"
-alt="C.W.B Logo">
+<article class="card">
+  <h3>📋 Business Services</h3>
+  <p>
+    Business services delivered with
+    attention to quality, reliability
+    and customer needs.
+  </p>
+</article>
 
-<h1>C.W.B</h1>
-
-<p class="company">
-Camel Work and Business company
+  </div></section><!-- ABOUT THE COMPANY --><section class="content" id="about">  <h2>About C.W.B</h2>  <div class="about-box"><p>
+  <strong>
+    Camel Work and Business company (C.W.B)
+  </strong>
+  is based in Bujumbura, Burundi.
 </p>
-
-<p class="tagline">
-Better Quality is our priority
-</p>
-
-</header>
-
-
-<!-- NAVIGATION -->
-<nav>
-
-<a href="#home">Home</a>
-
-<a href="#services">Services</a>
-
-<a href="#about">About</a>
-
-<a href="#contact">Contact</a>
-
-</nav>
-
-
-<!-- HOME -->
-<section class="hero" id="home">
-
-<h2>
-Quality for Your Vehicle
-</h2>
 
 <p>
-Welcome to Camel Work and Business company.
-We provide automotive paint, spare parts and
-professional vehicle finishing services in
-Bujumbura, Burundi.
+  Our business focuses on automotive paint,
+  spare parts and vehicle finishing.
+  We aim to build lasting customer
+  relationships through professional
+  service and a commitment to quality.
 </p>
 
-<a class="btn" href="#services">
-Our Services
+<p>
+  <strong>Better Quality is our priority.</strong>
+</p>
+
+  </div></section><!-- SOCIAL MEDIA --><section class="content" id="social">  <h2>Connect With C.W.B</h2>  <p class="social-intro">
+    Follow our official business pages
+    for company updates and information.
+  </p>  <div class="social-links"><a
+  class="social-link"
+  href="https://www.tiktok.com/@cwb.business"
+  target="_blank"
+  rel="noopener noreferrer">
+  TikTok
 </a>
 
-<a class="btn" href="#contact">
-Contact C.W.B
+<!-- Add the full official Facebook page URL here -->
+<a
+  class="social-link"
+  href="#contact">
+  Facebook — Coming Soon
 </a>
 
-</section>
+<!-- Add the full official Instagram profile URL here -->
+<a
+  class="social-link"
+  href="#contact">
+  Instagram — Coming Soon
+</a>
 
+<!-- Add an official WhatsApp link when ready -->
+<a
+  class="social-link"
+  href="#contact">
+  WhatsApp — Coming Soon
+</a>
 
-<!-- SERVICES -->
-<section id="services">
-
-<h2>
-Our Services
-</h2>
-
-<div class="grid">
-
-<div class="card">
-
-<h3>
-🎨 Automotive Paint
-</h3>
-
-<p>
-Quality automotive paint solutions for
-professional vehicle finishing and repair.
-</p>
-
-</div>
-
-
-<div class="card">
-
-<h3>
-🔧 Spare Parts
-</h3>
-
-<p>
-Automotive spare parts and products for
-vehicle maintenance and repair.
-</p>
-
-</div>
-
-
-<div class="card">
-
-<h3>
-🚗 Vehicle Finishing
-</h3>
-
-<p>
-Professional vehicle finishing designed to
-give vehicles a clean and quality appearance.
-</p>
-
-</div>
-
-
-<div class="card">
-
-<h3>
-🏢 Business Services
-</h3>
-
-<p>
-Reliable business services from a company
-focused on quality and customer satisfaction.
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-
-<!-- ABOUT -->
-<section id="about">
-
-<h2>
-About C.W.B
-</h2>
-
-<p class="about">
-
-Camel Work and Business company is a business
-based in Bujumbura, Burundi.
-
-We focus on automotive paint, spare parts and
-vehicle finishing.
-
-Our commitment is simple:
-
-<strong>
-Better Quality is our priority.
-</strong>
-
-</p>
-
-</section>
-
-
-<!-- CONTACT -->
-<section class="contact" id="contact">
-
-<div class="contact-box">
-
-<h2>
-Contact C.W.B
-</h2>
+  </div></section><!-- CONTACT --><section class="contact" id="contact">  <div class="contact-box"><h2>Contact C.W.B</h2>
 
 <div class="contact-item">
-📍 Bujumbura, Burundi
+  📍 Bujumbura, Burundi
 </div>
 
 <div class="contact-item">
-📞 Phone / WhatsApp
-<br>
-<span class="small">
-Contact number will be added soon.
-</span>
+  📞 Phone / WhatsApp
+  <br>
+  Official business number to be added.
 </div>
 
 <div class="contact-item">
-✉️ C.W.B Business
-<br>
-<span class="small">
-Official contact details coming soon.
-</span>
+  ✉️ Business Email
+  <br>
+  Official business email to be added.
 </div>
 
-</div>
-
-</section>
-
-
-<!-- FOOTER -->
-<footer>
-
-<strong>
-C.W.B — Camel Work and Business company
-</strong>
-
-<br>
-
-Better Quality is our priority
-
-<br><br>
-
-<span class="small">
-© 2026 C.W.B. All rights reserved.
-</span>
-
-</footer>
-
-
-</body>
+  </div></section></main><!-- FOOTER --><footer>  <p>
+    <strong>
+      C.W.B — Camel Work and Business company
+    </strong>
+  </p>  <p>Better Quality is our priority</p>  <p>© 2026 C.W.B. All rights reserved.</p></footer></body>
 </html>
