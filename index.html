@@ -1034,5 +1034,88 @@ if(document.readyState==="loading"){
 
 })();
 </script>
+  <!-- C.W.B SYSTEM LANGUAGE SELECTOR --><div id="cwb-language-box" style="position:fixed;top:10px;right:10px;z-index:99999;background:#ffffff;padding:8px;border:2px solid #b91c1c;border-radius:10px;box-shadow:0 2px 8px #777;">
+  <label for="cwb-language" style="font-weight:bold;color:#111827;">🌐 Language:</label>
+  <select id="cwb-language" onchange="cwbChangeLanguage(this.value)" style="padding:6px;border-radius:6px;max-width:145px;">
+    <option value="en">🇬🇧 English</option>
+    <option value="fr">🇫🇷 Français</option>
+    <option value="sw">🇹🇿 Kiswahili</option>
+  </select>
+</div><script>
+(function () {
+  const translations = {
+    fr: {
+      "Business Dashboard": "Tableau de bord",
+      "Accounting": "Comptabilité",
+      "Payroll": "Paie",
+      "Inventory": "Stock",
+      "Sales & Invoice": "Ventes et factures",
+      "Purchases": "Achats",
+      "Customers & Partners": "Clients et partenaires",
+      "Expenses": "Dépenses",
+      "Garage Activities": "Activités du garage",
+      "Business Planner": "Planificateur d’entreprise",
+      "Reports": "Rapports",
+      "Scan & Pay": "Scanner et payer",
+      "Website": "Site web",
+      "Social Connections": "Réseaux sociaux",
+      "Better Quality is our priority": "La meilleure qualité est notre priorité"
+    },
+    sw: {
+      "Business Dashboard": "Dashibodi ya Biashara",
+      "Accounting": "Uhasibu",
+      "Payroll": "Malipo ya wafanyakazi",
+      "Inventory": "Stoo",
+      "Sales & Invoice": "Mauzo na Ankara",
+      "Purchases": "Manunuzi",
+      "Customers & Partners": "Wateja na Washirika",
+      "Expenses": "Matumizi",
+      "Garage Activities": "Shughuli za Gereji",
+      "Business Planner": "Mpangaji wa Biashara",
+      "Reports": "Ripoti",
+      "Scan & Pay": "Changanua na Lipa",
+      "Website": "Tovuti",
+      "Social Connections": "Mitandao ya Kijamii",
+      "Better Quality is our priority": "Ubora Bora ni Kipaumbele Chetu"
+    }
+  };
+
+  const originalText = new WeakMap();
+
+  function translatePage(language) {
+    document.documentElement.lang = language;
+
+    document.querySelectorAll("button, h1, h2, h3, label, p, option").forEach(function (element) {
+      if (element.closest("#cwb-language-box")) return;
+
+      if (!originalText.has(element)) {
+        originalText.set(element, element.textContent.trim());
+      }
+
+      const original = originalText.get(element);
+      element.textContent = language === "en"
+        ? original
+        : ((translations[language] && translations[language][original]) || original);
+    });
+
+    try {
+      localStorage.setItem("cwb-language", language);
+    } catch (error) {}
+  }
+
+  window.cwbChangeLanguage = translatePage;
+
+  document.addEventListener("DOMContentLoaded", function () {
+    let savedLanguage = "en";
+    try {
+      savedLanguage = localStorage.getItem("cwb-language") || "en";
+    } catch (error) {}
+
+    const selector = document.getElementById("cwb-language");
+    if (selector) selector.value = savedLanguage;
+    translatePage(savedLanguage);
+  });
+})();
+</script>
 </body>
 </html>
