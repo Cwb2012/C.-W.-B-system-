@@ -891,5 +891,121 @@ and encourage sustainable business growth.
     });
   </script>
 
+  <!-- C.W.B PUBLIC GALLERY -->
+<section id="gallery" style="padding:40px 16px;background:#f8fafc;font-family:Arial,sans-serif;">
+  <div style="max-width:1100px;margin:auto;">
+    <h2 style="text-align:center;color:#b91c1c;">C.W.B Gallery</h2>
+    <p style="text-align:center;color:#374151;">
+      Discover our automotive paint, spare parts and vehicle finishing work.
+    </p>
+
+    <div id="cwb-gallery-status" style="text-align:center;padding:20px;">
+      Loading our gallery...
+    </div>
+
+    <div id="cwb-gallery-items"
+         style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;">
+    </div>
+  </div>
+</section>
+
+<style>
+  .cwb-gallery-card {
+    background:white;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 3px 12px rgba(0,0,0,.10);
+  }
+  .cwb-gallery-card img,
+  .cwb-gallery-card video {
+    width:100%;
+    height:220px;
+    object-fit:cover;
+    display:block;
+    background:#111827;
+  }
+  .cwb-gallery-card h3 {
+    padding:0 14px;
+    color:#b91c1c;
+  }
+  .cwb-gallery-card p {
+    padding:0 14px 14px;
+    color:#374151;
+    overflow-wrap:anywhere;
+  }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(async function () {
+  const status = document.getElementById('cwb-gallery-status');
+  const gallery = document.getElementById('cwb-gallery-items');
+
+  try {
+    const db = window.supabase.createClient(
+      'https://wicilnypkcumworxnxqv.supabase.co',
+      'sb_publishable_1FmSQ0jE7mSaeiujYneSSg_9LkRPbzX'
+    );
+
+    const { data, error } = await db
+      .from('gallery_items')
+      .select('id,title,description,media_type,media_url,created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      status.textContent = 'Our gallery is being prepared. Please visit us again soon.';
+      return;
+    }
+
+    data.forEach(function (item) {
+      const card = document.createElement('article');
+      card.className = 'cwb-gallery-card';
+
+      if (item.media_type === 'video_link') {
+        const link = document.createElement('a');
+        link.href = item.media_url || '#';
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = '▶ Watch video';
+        link.style.cssText = 'display:block;padding:35px 14px;color:#b91c1c;font-weight:bold;';
+        card.appendChild(link);
+      } else if (item.media_type === 'video') {
+        const video = document.createElement('video');
+        video.src = item.media_url;
+        video.controls = true;
+        video.preload = 'metadata';
+        card.appendChild(video);
+      } else if (item.media_url) {
+        const img = document.createElement('img');
+        img.src = item.media_url;
+        img.alt = item.title || 'C.W.B work';
+        img.loading = 'lazy';
+        card.appendChild(img);
+      }
+
+      const title = document.createElement('h3');
+      title.textContent = item.title || 'C.W.B Work';
+      card.appendChild(title);
+
+      if (item.description) {
+        const description = document.createElement('p');
+        description.textContent = item.description;
+        card.appendChild(description);
+      }
+
+      gallery.appendChild(card);
+    });
+
+    status.textContent = '';
+  } catch (error) {
+    console.error('C.W.B Gallery error:', error);
+    status.textContent =
+      'Our gallery could not load right now. Please visit us again later.';
+  }
+})();
+</script>
+<!-- END C.W.B PUBLIC GALLERY -->
 </body>
 </html>
