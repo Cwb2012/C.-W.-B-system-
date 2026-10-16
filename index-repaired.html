@@ -77,7 +77,93 @@ async function loadInventory(){const b=document.getElementById('inventoryTableBo
 const garageForm=document.getElementById('garageForm');
 if(garageForm)garageForm.addEventListener('submit',async e=>{e.preventDefault();const invoiceNumber=document.getElementById('invoice_number').value.trim()||('CWB-G-'+new Date().toISOString().replace(/\D/g,'').slice(0,14));document.getElementById('invoice_number').value=invoiceNumber;const job={job_number:document.getElementById('job_number').value.trim()||null,customer_name:document.getElementById('customer_name').value.trim(),customer_phone:document.getElementById('customer_phone').value.trim()||null,customer_address:document.getElementById('customer_address').value.trim()||null,vehicle_name:document.getElementById('vehicle_name').value.trim()||null,vehicle_model:document.getElementById('vehicle_model').value.trim()||null,vehicle_color:document.getElementById('vehicle_color').value.trim()||null,mechanic_name:document.getElementById('mechanic_name').value.trim()||null,job_status:document.getElementById('job_status').value,payment_status:document.getElementById('payment_status').value,payment_method:document.getElementById('payment_method').value,invoice_number:invoiceNumber,job_cost:num(document.getElementById('job_cost').value),parts_cost:num(document.getElementById('parts_cost').value),service_date:document.getElementById('service_date').value||null,estimated_completion_date:document.getElementById('estimated_completion_date').value||null,completion_date:document.getElementById('completion_date').value||null,pickup_status:document.getElementById('pickup_status').value,warranty:document.getElementById('warranty').value,repair_description:document.getElementById('repair_description').value.trim()||null,notes:document.getElementById('garage_notes').value.trim()||null};msg('garageMessage','Saving...');let saveJob={...job};for(let attempt=0;attempt<12;attempt++){const {error}=await supabaseClient.from('Garage_jobs').insert([saveJob]);if(!error){e.target.reset();document.getElementById('service_date').value=today();msg('garageMessage','Garage activity saved successfully in Supabase.');renderGarageInvoice({...job});loadGarage();return}const m=error.message.match(/Could not find the '([^']+)' column/);if(!m){msg('garageMessage','Error saving garage activity: '+error.message,true);return}const col=m[1];if(!(col in saveJob)){msg('garageMessage','Garage database column problem: '+col,true);return}delete saveJob[col]}msg('garageMessage','Garage activity could not be saved.',true)});
 function renderGarageInvoice(job){const area=document.getElementById('garageInvoiceArea');if(!area)return;const total=num(job.job_cost)+num(job.parts_cost);area.classList.remove('hidden');area.innerHTML=`<div id="cwbGarageInvoice" style="border:1px solid #ddd;border-radius:12px;padding:15px;margin-top:15px"><div style="display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap"><div><img src="./file_000000009d80820694001bdae16e2e4b.png" style="width:65px;height:65px;object-fit:contain"><h2>C.W.B SYSTEM</h2><b>Camel Work and Business company</b><div>Better Quality is our priority</div></div><div><h2>GARAGE INVOICE</h2><div><b>Invoice:</b> ${esc(job.invoice_number||'')}</div><div><b>Date:</b> ${esc(job.service_date||today())}</div></div></div><hr><div class="form-grid"><div><b>Customer</b><p>${esc(job.customer_name||'-')}<br>${esc(job.customer_phone||'')}<br>${esc(job.customer_address||'')}</p></div><div><b>Vehicle</b><p>${esc(job.vehicle_name||'-')} ${esc(job.vehicle_model||'')}<br>Color: ${esc(job.vehicle_color||'-')}</p></div><div><b>Service</b><p>Mechanic: ${esc(job.mechanic_name||'-')}<br>Status: ${esc(job.job_status||'-')}</p></div></div><p><b>Repair:</b> ${esc(job.repair_description||'-')}</p><table style="min-width:0"><tr><th>Description</th><th>Amount</th></tr><tr><td>Service Cost</td><td>${money(job.job_cost)}</td></tr><tr><td>Parts Cost</td><td>${money(job.parts_cost)}</td></tr><tr><td><b>Total</b></td><td><b>${money(total)}</b></td></tr></table><p><b>Payment:</b> ${esc(job.payment_status||'-')} &nbsp; <b>Method:</b> ${esc(job.payment_method||'-')}</p><p><b>Notes:</b> ${esc(job.notes||'')}</p><div style="text-align:center;margin-top:20px">C.W.B System • Master Version 2</div></div><button class="btn" type="button" onclick="printGarageInvoice()">🖨 Print Invoice</button>`}
-function printGarageInvoice(){const invoice=document.getElementById('cwbGarageInvoice');if(!invoice)return;const w=window.open('','_blank','width=900,height=700');if(!w){msg('garageMessage','Please allow pop-ups to print the invoice.',true);return}w.document.write('<html><head><title>C.W.B Garage Invoice</title><style>body{font-family:Arial;margin:30px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:10px;text-align:left}</style></head><body>'+invoice.outerHTML+'<script>window.onload=function(){window.print()}<\\/script></body></html>');w.document.close()}
+function printGarageInvoice(){
+  const invoice=document.getElementById('cwbGarageInvoice');
+  if(!invoice)return;
+
+  const w=window.open('','_blank','width=900,height=700');
+  if(!w){
+    msg('garageMessage','Please allow pop-ups to print the invoice.',true);
+    return;
+  }
+
+  const customer=invoice.innerText.match(/Customer\s*\n([^\n]+)/i);
+  const invoiceNo=invoice.innerText.match(/Invoice:\s*([^\n]+)/i);
+  const totalRow=Array.from(invoice.querySelectorAll('tr'))
+    .find(row=>row.innerText.includes('Total'));
+  const totalText=totalRow?totalRow.cells[1].innerText.trim():'0 BIF';
+  const amount=totalText.replace(/[^\d.,-]/g,'').replace(/,/g,'');
+  const customerName=customer?customer[1].trim():'Customer';
+  const invoiceNumber=invoiceNo?invoiceNo[1].trim():'';
+  
+  const paymentText=
+    'CWB PAYMENT|Merchant:984868|Number:06691086015' +
+    '|Customer:'+customerName+
+    '|Invoice:'+invoiceNumber+
+    '|Amount:'+amount+' BIF' +
+    '|Method:Mobile Money' +
+    '|Name:CAMEL WORK AND BUSINESS COMPANY';
+
+  const qrBox=document.createElement('div');
+  qrBox.style.cssText='position:absolute;left:-9999px;top:0';
+  document.body.appendChild(qrBox);
+
+  if(typeof QRCode==='undefined'){
+    qrBox.remove();
+    w.close();
+    msg('garageMessage','QR generator is unavailable. Please reload the page and try again.',true);
+    return;
+  }
+
+  new QRCode(qrBox,{
+    text:paymentText,
+    width:180,
+    height:180,
+    correctLevel:QRCode.CorrectLevel.L
+  });
+
+  setTimeout(()=>{
+    let qrImage='';
+    const canvas=qrBox.querySelector('canvas');
+    const img=qrBox.querySelector('img');
+
+    if(canvas)qrImage=canvas.toDataURL('image/png');
+    else if(img)qrImage=img.src;
+
+    qrBox.remove();
+
+    const qrSection=qrImage
+      ? '<div class="payment"><h3>C.W.B SCAN &amp; PAY</h3>'+
+        '<img class="qr" src="'+qrImage+'" alt="C.W.B Payment QR Code">'+
+        '<p><b>Merchant Code:</b> 984868</p>'+
+        '<p><b>Mobile Money:</b> 06691086015</p>'+
+        '<p><b>Account Name:</b> CAMEL WORK AND BUSINESS COMPANY</p>'+
+        '<p><b>Invoice:</b> '+invoiceNumber+'</p>'+
+        '<p><b>Amount:</b> '+totalText+'</p>'+
+        '<small>Scan to view C.W.B payment details. Confirm payment using your payment provider.</small></div>'
+      : '<p><b>Payment QR could not be generated.</b></p>';
+
+    w.document.write(
+      '<!DOCTYPE html><html><head><meta charset="UTF-8">'+
+      '<title>C.W.B Garage Invoice</title>'+
+      '<style>'+
+      'body{font-family:Arial,sans-serif;margin:25px;color:#111}'+
+      'table{width:100%;border-collapse:collapse}'+
+      'th,td{border:1px solid #ddd;padding:9px;text-align:left}'+
+      'img{max-width:100%}.payment{text-align:center;margin:25px auto 0;padding:15px;border:1px solid #ccc;border-radius:10px;max-width:420px;page-break-inside:avoid}'+
+      '.qr{display:block;width:180px;height:180px;margin:10px auto}'+
+      '.payment p{margin:7px}'+
+      '@media print{body{margin:10mm}.payment{break-inside:avoid}}'+
+      '</style></head><body>'+
+      invoice.outerHTML+qrSection+
+      '<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script>'+
+      '</body></html>'
+    );
+
+    w.document.close();
+  },300);
+}
+  
 async function loadGarage(){const b=document.getElementById('garageTableBody');if(!b)return;b.innerHTML='<tr><td colspan="6">Loading...</td></tr>';const {data,error}=await supabaseClient.from('Garage_jobs').select('*').order('created_at',{ascending:false});if(error){b.innerHTML='<tr><td colspan="6">Error loading garage activities</td></tr>';return}if(!data?.length){b.innerHTML='<tr><td colspan="6">No garage activities yet.</td></tr>';return}b.innerHTML=data.map(x=>`<tr><td>${esc(x.customer_name||'')}</td><td>${esc((x.vehicle_name||'')+' '+(x.vehicle_model||''))}</td><td>${esc(x.mechanic_name||'')}</td><td>${esc(x.job_status||'')}</td><td>${money(x.job_cost)}</td><td>${esc(x.payment_status||'')}</td></tr>`).join('')}
 
 // SALES
