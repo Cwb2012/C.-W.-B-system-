@@ -1421,7 +1421,8 @@ if(new URLSearchParams(window.location.search).get('payment')==='1'){
 const supabaseClient=window.cwbSupabaseClient;
 if(!supabaseClient){
   console.error("C.W.B Supabase client failed to initialize.");
-  return;
+  
+}
 }
 const MODULES={
  accounting:"accounting",
