@@ -1316,7 +1316,7 @@ if(typeof QRCode==='undefined'){
 msg('qrMessage','QR generator is not loaded. Please refresh the page.',true);
 return;
 }
-
+Bu
 const paymentLink =
 'https://cwb2012.github.io/C.-W.-B-system-/?payment=1'+
 '&customer='+encodeURIComponent(customer)+
@@ -1606,7 +1606,7 @@ return originalShowModule.apply(this,arguments);
 }
 
 document.getElementById("cwbLogin").onclick=async()=>{
-
+const button=document.getElementById("cwbLogin");
 const email=document.getElementById("cwbEmail").value.trim();
 const password=document.getElementById("cwbPassword").value;
 
@@ -1615,6 +1615,46 @@ message("Enter your email and password.",true);
 return;
 }
 
+button.disabled=true;
+button.textContent="Please wait...";
+
+const withTimeout=(promise,ms,stage)=>Promise.race([
+promise,
+new Promise((_,reject)=>setTimeout(
+()=>reject(new Error(stage+" is taking too long. Check your internet connection and try again.")),
+ms
+))
+]);
+
+try{
+message("Step 1/2: Connecting to secure sign-in...");
+
+const {data,error}=await withTimeout(
+supabaseClient.auth.signInWithPassword({email,password}),
+20000,
+"Secure sign-in"
+);
+
+if(error) throw error;
+if(!data||!data.user){
+throw new Error("Sign-in returned no user. Please check your email and password.");
+}
+
+message("Step 2/2: Checking your C.W.B role...");
+
+await withTimeout(
+loadAccess(data.user),
+20000,
+"C.W.B role check"
+);
+
+}catch(e){
+message(e?.message||"Unable to complete sign-in. Please refresh and try again.",true);
+}finally{
+button.disabled=false;
+button.textContent="Login";
+}
+};
 message("Signing in...");
 
 const {data,error}=await supabaseClient.auth.signInWithPassword({
