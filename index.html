@@ -53,7 +53,7 @@
 <script>
 const SUPABASE_URL='https://wicilnypkcumworxnxqv.supabase.co';
 const SUPABASE_KEY='sb_publishable_1FmSQ0jE7mSaeiujYneSSg_9LkRPbzX';
-const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const supabaseClient=window.cwbSupabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const KEY={sales:'cwb_sales_v2',purchases:'cwb_purchases_v2',expenses:'cwb_expenses_v2',partners:'cwb_partners_v2',payroll:'cwb_payroll_v2'};
 function arr(k){try{return JSON.parse(localStorage.getItem(k))||[]}catch(e){return[]}}
 function setArr(k,v){localStorage.setItem(k,JSON.stringify(v))}
@@ -1418,7 +1418,11 @@ if(new URLSearchParams(window.location.search).get('payment')==='1'){
   <script>
 (function(){
 "use strict";
-
+const supabaseClient=window.cwbSupabaseClient;
+if(!supabaseClient){
+  console.error("C.W.B Supabase client failed to initialize.");
+  return;
+}
 const MODULES={
  accounting:"accounting",
  payroll:"payroll",
