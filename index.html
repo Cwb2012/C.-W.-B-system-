@@ -1655,24 +1655,7 @@ button.disabled=false;
 button.textContent="Login";
 }
 };
-message("Signing in...");
 
-const {data,error}=await supabaseClient.auth.signInWithPassword({
-email:email,
-password:password
-});
-
-if(error){
-message(error.message,true);
-return;
-}
-
-try{
-await loadAccess(data.user);
-}catch(e){
-message(e.message||"Unable to load permissions.",true);
-}
-};
 
 (async()=>{
 
