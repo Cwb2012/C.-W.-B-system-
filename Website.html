@@ -1007,5 +1007,84 @@ and encourage sustainable business growth.
 })();
 </script>
 <!-- END C.W.B PUBLIC GALLERY -->
+  <!-- C.W.B CUSTOMER WEBSITE QR CODE -->
+<section id="cwb-customer-qr" style="
+  padding:40px 20px;
+  text-align:center;
+  background:#111827;
+  color:white;
+">
+  <div style="
+    max-width:420px;
+    margin:auto;
+    padding:28px 20px;
+    background:white;
+    color:#111827;
+    border-radius:18px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.25);
+  ">
+    <h2 style="color:#b91c1c;margin-top:0;">
+      C.W.B CUSTOMER QR
+    </h2>
+
+    <h3>Camel Work and Business Company</h3>
+
+    <p style="color:#555;">
+      Better Quality is our priority
+    </p>
+
+    <p>
+      Scan this QR code to visit our official website
+      and discover our automotive paint, spare parts,
+      vehicle finishing and garage services.
+    </p>
+
+    <div id="cwbCustomerQR" style="
+      display:flex;
+      justify-content:center;
+      margin:25px auto;
+      min-height:200px;
+    "></div>
+
+    <p style="font-size:13px;color:#555;">
+      Scan with your phone camera
+    </p>
+
+    <a
+      href="https://cwb2012.github.io/C.-W.-B-system-/website.html"
+      style="
+        display:inline-block;
+        padding:12px 22px;
+        background:#b91c1c;
+        color:white;
+        text-decoration:none;
+        border-radius:8px;
+        font-weight:bold;
+      "
+    >
+      Visit Our Website
+    </a>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+(function () {
+  var qrBox = document.getElementById("cwbCustomerQR");
+
+  if (qrBox && typeof QRCode !== "undefined") {
+    new QRCode(qrBox, {
+      text: "https://cwb2012.github.io/C.-W.-B-system-/website.html",
+      width: 200,
+      height: 200,
+      colorDark: "#111827",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  }
+})();
+</script>
+<!-- END C.W.B CUSTOMER WEBSITE QR CODE -->
 </body>
 </html>
