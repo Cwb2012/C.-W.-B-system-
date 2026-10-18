@@ -1975,7 +1975,7 @@ try {
     supabaseClient
       .from("cwb_profiles")
       .select("id,full_name,active,role_id")
-      .order("full_name"),
+      .limit(1),
     new Promise(resolve =>
       setTimeout(() => resolve({
         data: null,
