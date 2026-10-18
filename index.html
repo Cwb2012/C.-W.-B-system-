@@ -676,47 +676,63 @@ function escapeInvoiceText(value) {
   });
 }
 
-
 // LOAD GARAGE ACTIVITIES FROM SUPABASE
-
 async function loadGarage() {
   const body = document.getElementById('garageTableBody');
-
   if (!body) return;
 
-  body.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+  body.innerHTML =
+    '<tr><td colspan="6">Loading...</td></tr>';
 
-  const { data, error } = await supabaseClient
-    .from('Garage_jobs')
-    .select('*')
-    .order('created_at', { ascending: false });
+  try {
+    const { data, error } = await supabaseClient
+      .from('Garage_jobs')
+      .select('*')
+      .order('Created_at', { ascending: false });
 
-  if (error) {
+    if (error) {
+      console.error('Garage loading error:', error);
+      body.innerHTML =
+        '<tr><td colspan="6">Error loading garage activities: ' +
+        esc(error.message) +
+        '</td></tr>';
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      body.innerHTML =
+        '<tr><td colspan="6">No garage activities yet.</td></tr>';
+      return;
+    }
+
+    body.innerHTML = data.map(job => `
+      <tr>
+        <td>${esc(job.customer_name || '')}</td>
+        <td>${esc(
+          (job.Vehicle_name || job.vehicle_name || '') + ' ' +
+          (job.Vehicle_model || job.vehicle_model || '')
+        )}</td>
+        <td>${esc(
+          job.mechanic_name || job.machanic_name || ''
+        )}</td>
+        <td>${esc(
+          job.Job_status || job.job_status || job.status || ''
+        )}</td>
+        <td>${money(
+          job.Job_cost ?? job.job_cost ?? job.cost ?? 0
+        )}</td>
+        <td>${esc(
+          job.Payment_status || job.payment_status || ''
+        )}</td>
+      </tr>
+    `).join('');
+
+  } catch (error) {
+    console.error('Garage loading error:', error);
     body.innerHTML =
-      '<tr><td colspan="6">Error loading garage activities</td></tr>';
-    return;
+      '<tr><td colspan="6">Error loading garage activities.</td></tr>';
   }
-
-  if (!data || !data.length) {
-    body.innerHTML =
-      '<tr><td colspan="6">No garage activities yet.</td></tr>';
-    return;
-  }
-
-  body.innerHTML = data.map(job => `
-    <tr>
-      <td>${esc(job.customer_name || '')}</td>
-      <td>${esc((job.vehicle_name || '') + ' ' + (job.vehicle_model || ''))}</td>
-      <td>${esc(job.mechanic_name || '')}</td>
-      <td>${esc(job.job_status || '')}</td>
-      <td>${money(job.job_cost)}</td>
-      <td>${esc(job.payment_status || '')}</td>
-    </tr>
-  `).join('');
 }
-
-
- 
 
 // SALES - COMPLETE CORRECTED SECTION
 
