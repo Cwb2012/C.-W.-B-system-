@@ -1961,71 +1961,148 @@ async function saveWorker(){
 
   await loadUsers();
 }
-
 async function loadUsers(){
 
-  const list=document.getElementById("cwbUsersList");
+const list=document.getElementById("cwbUsersList");
 
-  if(!list) return;
+if(!list) return;
 
-  list.textContent="Loading...";
+list.textContent="Loading...";
 
-  const {data:profiles,error}=await supabaseClient
-    .from("cwb_profiles")
-    .select("id,full_name,active,role_id")
-    .order("full_name");
+const {data:profiles,error}=await supabaseClient
+.from("cwb_profiles")
+.select("id,full_name,active,role_id")
+.order("full_name");
 
-  if(error){
-    list.textContent=error.message;
-    return;
-  }
-
-  if(!profiles || !profiles.length){
-    list.textContent="No C.W.B users found.";
-    return;
-  }
-
-  const roleIds=[
-    ...new Set(profiles.map(p=>p.role_id).filter(Boolean))
-  ];
-
-  let roles=[];
-
-  if(roleIds.length){
-    const {data}=await supabaseClient
-      .from("cwb_roles")
-      .select("id,name")
-      .in("id",roleIds);
-
-    roles=data||[];
-  }
-
-  const roleMap={};
-
-  roles.forEach(r=>{
-    roleMap[r.id]=r.name;
-  });
-
-  list.innerHTML=profiles.map(p=>`
-    <div class="cwbUserRow">
-      <strong>${escapeHtml(p.full_name||"Unnamed user")}</strong><br>
-      Role: <strong>${escapeHtml(roleMap[p.role_id]||"No role")}</strong><br>
-      Status: ${p.active===false?"Inactive":"Active"}<br>
-      <small>User ID: ${escapeHtml(p.id)}</small>
-    </div>
-  `).join("");
+if(error){
+list.textContent=error.message;
+return;
 }
 
-function escapeHtml(v){
-  return String(v||"").replace(/[&<>"']/g,function(c){
-    return {
-      "&":"&amp;",
-      "<":"&lt;",
-      ">":"&gt;",
-      '"':"&quot;",
-      "'":"&#39;"
-    }[c];
+if(!profiles || !profiles.length){
+list.textContent="No C.W.B users found.";
+return;
+}
+
+const roleIds=[
+...new Set(profiles.map(p=>p.role_id).filter(Boolean))
+];
+
+let roles=[];
+
+if(roleIds.length){
+const {data,error:roleError}=await supabaseClient
+.from("cwb_roles")
+.select("id,name")
+.in("id",roleIds);
+
+if(roleError){
+  list.textContent=roleError.message;
+  return;
+}
+
+roles=data||[];
+
+}
+
+const roleMap={};
+
+roles.forEach(r=>{
+roleMap[r.id]=r.name;
+});
+
+list.innerHTML=profiles.map(p=>`
+<div class="cwbUserRow" style="padding:12px;margin:10px 0;border:1px solid #ddd;border-radius:10px;">
+
+  <strong>${escapeHtml(p.full_name||"Unnamed user")}</strong><br>
+
+  Role: <strong>${escapeHtml(roleMap[p.role_id]||"No role")}</strong><br>
+
+  Status: ${p.active===false?"Inactive":"Active"}<br>
+
+  <small>User ID: ${escapeHtml(p.id)}</small><br><br>
+
+  ${p.active===false
+    ? '<span>Activate this worker before using their QR code.</span>'
+    : `<button type="button" class="cwbWorkerQRButton" data-user-id="${escapeHtml(p.id)}" style="background:#b91c1c;color:white;padding:10px;border:0;border-radius:8px;">Generate Worker QR</button>
+       <div id="cwbWorkerQR-${escapeHtml(p.id)}" style="display:none;margin-top:12px;padding:12px;background:white;border:1px solid #ddd;border-radius:8px;"></div>`
+  }
+
+</div>
+
+`).join("");
+
+list.querySelectorAll(".cwbWorkerQRButton").forEach(btn=>{
+
+btn.addEventListener("click",()=>{
+
+  const id=btn.dataset.userId;
+  const box=document.getElementById("cwbWorkerQR-"+id);
+
+  if(!box) return;
+
+  if(typeof QRCode==="undefined"){
+    box.style.display="block";
+    box.textContent="QR library unavailable. Check your internet connection.";
+    return;
+  }
+
+  box.innerHTML="";
+  box.style.display="block";
+
+  const target=new URL(window.location.href);
+
+  target.searchParams.set("worker",id);
+
+  new QRCode(box,{
+    text:target.toString(),
+    width:200,
+    height:200,
+    correctLevel:QRCode.CorrectLevel.M
   });
+
+  const note=document.createElement("p");
+
+  note.textContent="Scan this QR to open C.W.B System. The worker must still sign in using their own email and password.";
+
+  note.style.maxWidth="240px";
+  note.style.fontSize="13px";
+
+  box.appendChild(note);
+
+  const printBtn=document.createElement("button");
+
+  printBtn.type="button";
+  printBtn.textContent="Print Worker QR";
+  printBtn.style.cssText="background:#111827;color:white;padding:8px 12px;border:0;border-radius:6px;margin-top:8px;";
+
+  printBtn.onclick=()=>{
+    const w=window.open("","_blank");
+
+    if(!w){
+      alert("Allow pop-ups to print this QR code.");
+      return;
+    }
+
+    w.document.write("<html><head><title>C.W.B Worker QR</title></head><body style='font-family:Arial;text-align:center;padding:30px;'>");
+    w.document.write("<h2>C.W.B System</h2>");
+    w.document.write("<h3>"+escapeHtml(btn.closest(".cwbUserRow").querySelector("strong").textContent)+"</h3>");
+    w.document.write(box.querySelector("canvas") ? box.querySelector("canvas").outerHTML : box.querySelector("img").outerHTML);
+    w.document.write("<p>Scan to open C.W.B System. Sign in with your own email and password.</p>");
+    w.document.write("<p>Better Quality is our priority</p>");
+    w.document.write("</body></html>");
+
+    w.document.close();
+    w.focus();
+    w.print();
+  };
+
+  box.appendChild(printBtn);
+
+});
+
+});
+
 }
 
 function createCEOButton(){
