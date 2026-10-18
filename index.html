@@ -1966,17 +1966,33 @@ async function loadUsers(){
 const list=document.getElementById("cwbUsersList");
 
 if(!list) return;
+list.textContent="Loading worker profiles from Supabase...";
 
-list.textContent="Loading...";
-setTimeout(()=>{if(list.textContent==="Loading...")list.textContent="Loading timed out. Please check your internet connection and reload."},15000);
-const {data:profiles,error}=await supabaseClient
-.from("cwb_profiles")
-.select("id,full_name,active,role_id")
-.order("full_name");
+let result;
 
-if(error){
-list.textContent=error.message;
-return;
+try {
+  result = await Promise.race([
+    supabaseClient
+      .from("cwb_profiles")
+      .select("id,full_name,active,role_id")
+      .order("full_name"),
+    new Promise(resolve =>
+      setTimeout(() => resolve({
+        data: null,
+        error: { message: "Supabase did not respond within 12 seconds. Please check the connection or permissions." }
+      }), 12000)
+    )
+  ]);
+} catch (e) {
+  list.textContent = "Error: " + (e.message || String(e));
+  return;
+}
+
+const {data:profiles,error} = result;
+
+if (error) {
+  list.textContent = "Profile loading error: " + error.message;
+  return;
 }
 
 if(!profiles || !profiles.length){
