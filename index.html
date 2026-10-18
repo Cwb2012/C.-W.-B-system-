@@ -1972,10 +1972,7 @@ let result;
 
 try {
   result = await Promise.race([
-    supabaseClient
-      .from("cwb_profiles")
-      .select("id,full_name,active,role_id")
-      .limit(1),
+    supabaseClient.rpc("cwb_list_profiles"),
     new Promise(resolve =>
       setTimeout(() => resolve({
         data: null,
