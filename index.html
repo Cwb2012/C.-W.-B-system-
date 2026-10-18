@@ -1968,7 +1968,7 @@ const list=document.getElementById("cwbUsersList");
 if(!list) return;
 
 list.textContent="Loading...";
-
+setTimeout(()=>{if(list.textContent==="Loading...")list.textContent="Loading timed out. Please check your internet connection and reload."},15000);
 const {data:profiles,error}=await supabaseClient
 .from("cwb_profiles")
 .select("id,full_name,active,role_id")
