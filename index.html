@@ -1731,9 +1731,13 @@ if(error) throw error;
 if(!data||!data.user){
 throw new Error("Sign-in returned no user. Please check your email and password.");
 }
+const expectedWorkerId = new URLSearchParams(window.location.search).get("worker");
 
+if(expectedWorkerId && data.user.id !== expectedWorkerId){
+await supabaseClient.auth.signOut();
+throw new Error("This QR code belongs to another worker. Please sign in with the account assigned to this QR code.");
+}
 message("Step 2/2: Checking your C.W.B role...");
-
 await withTimeout(
 loadAccess(data.user),
 20000,
