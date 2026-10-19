@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+Bjr<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2047,7 +2047,11 @@ if (!profiles.length) {
   list.textContent = "No C.W.B users found.";
   return;
 }
-  
+  const roleIds = [...new Set(
+  profiles.map(p => p.role_id)
+    .filter(id => id !== null && id !== undefined && id !== "")
+)];
+let roles = [];
 if(roleIds.length){
   try {
     const roleResult = await Promise.race([
