@@ -1,4 +1,4 @@
-Bjr<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1975,7 +1975,15 @@ list.textContent="Loading worker profiles from Supabase...";
 let profiles = null;
 
 try {
-  const sessionResult = await supabaseClient.auth.getSession();
+const sessionResult = await Promise.race([
+supabaseClient.auth.getSession(),
+new Promise(resolve =>
+setTimeout(() => resolve({
+data: { session: null },
+error: { message: "Login session timed out. Please refresh and sign in again." }
+}), 10000)
+)
+]);
 
   if (sessionResult.error) {
     list.textContent = "Session error: " + sessionResult.error.message;
