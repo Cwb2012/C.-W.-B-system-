@@ -2008,20 +2008,34 @@ const roleIds=[
 let roles=[];
 
 if(roleIds.length){
-const {data,error:roleError}=await supabaseClient
-.from("cwb_roles")
-.select("id,name")
-.in("id",roleIds);
+  try {
+    const roleResult = await Promise.race([
+      supabaseClient
+        .from("cwb_roles")
+        .select("id,name")
+        .in("id",roleIds),
+      new Promise(resolve =>
+        setTimeout(() => resolve({
+          data: null,
+          error: { message: "Loading roles timed out. Please try again." }
+        }), 12000)
+      )
+    ]);
 
-if(roleError){
-  list.textContent=roleError.message;
-  return;
+    const {data,error:roleError} = roleResult;
+
+    if(roleError){
+      list.textContent = "Role loading error: " + roleError.message;
+      return;
+    }
+
+    roles = data || [];
+
+  } catch(e) {
+    list.textContent = "Role loading error: " + (e.message || String(e));
+    return;
+  }
 }
-
-roles=data||[];
-
-}
-
 const roleMap={};
 
 roles.forEach(r=>{
