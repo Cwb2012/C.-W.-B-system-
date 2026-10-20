@@ -1,0 +1,2223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#111827">
+<title>C.W.B System — Camel Work and Business company</title>
+<link rel="icon" type="image/png" href="./file_000000009d80820694001bdae16e2e4b.png">
+<link rel="apple-touch-icon" href="./file_000000009d80820694001bdae16e2e4b.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}header{background:linear-gradient(135deg,#111827,#b91c1c);color:#fff;padding:22px 16px;text-align:center}header h1{margin:0;font-size:26px}header p{margin:7px 0 0}.container{max-width:1150px;margin:auto;padding:16px}.card{background:#fff;border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 3px 12px rgba(0,0,0,.08)}h2{margin-top:0;color:#b91c1c}.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px}.module,.btn{border:0;border-radius:9px;padding:13px;background:#111827;color:#fff;font-weight:bold;cursor:pointer}.module{min-height:58px}.btn{background:#b91c1c;margin:6px 4px 0 0}.btn.secondary{background:#111827}.btn.light{background:#6b7280}.stat{background:#f9fafb;border-radius:10px;padding:14px;text-align:center}.stat strong{display:block;font-size:20px;margin-top:5px}.hidden{display:none}.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}label{display:block;font-size:13px;font-weight:bold;margin-bottom:5px}input,select,textarea{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:8px;font-size:14px}textarea{min-height:80px;resize:vertical}.full{grid-column:1/-1}.table-wrap{overflow:auto;margin-top:16px}table{width:100%;border-collapse:collapse;min-width:750px}th,td{border:1px solid #e5e7eb;padding:9px;font-size:12px;text-align:left}th{background:#111827;color:#fff}.message{margin-top:10px;padding:10px;border-radius:7px;background:#ecfdf5;color:#065f46;display:none}.message.error{background:#fef2f2;color:#991b1b}.small{font-size:12px;color:#6b7280}.footer{text-align:center;color:#6b7280;font-size:12px;padding:20px}.connection-box{border:1px solid #e5e7eb;border-radius:12px;padding:15px;margin-top:12px;background:#fafafa}.connection-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;margin-bottom:12px}.connection-row .input-area{min-width:0}.connection-actions{display:flex;gap:6px;flex-wrap:wrap}.connection-actions .btn{margin:0}.link-status{margin-top:5px;font-size:12px;color:#6b7280}.social-title{font-weight:bold;font-size:15px;margin-bottom:4px}#qrArea canvas,#qrArea img{margin:auto;display:block}.cwb-qr-card{width:100%;max-width:520px;margin:0 auto;border-radius:18px;overflow:hidden;background:#fff;border:2px solid #b91c1c;box-shadow:0 5px 20px rgba(0,0,0,.14)}.cwb-qr-header{background:linear-gradient(135deg,#111827,#b91c1c);color:#fff;text-align:center;padding:20px 15px}.cwb-qr-logo{width:76px;height:76px;object-fit:contain;background:#fff;border-radius:15px;padding:6px;display:block;margin:0 auto 10px}.cwb-qr-title{font-size:22px;font-weight:bold}.cwb-qr-company{font-size:13px;font-weight:bold;margin-top:5px}.cwb-qr-slogan{font-size:11px;margin-top:5px;opacity:.9}.cwb-qr-body{padding:18px;text-align:center}.cwb-qr-code{background:#fff;border-radius:14px;padding:5px;display:inline-block;    box-shadow:0 2px 10px rgba(0,0,0,.10);border:1px solid #e5e7eb}.cwb-qr-code canvas,.cwb-qr-code img{display:block;margin:auto}.cwb-payment-details{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:16px;text-align:left}.cwb-payment-detail{background:#f3f4f6;border-radius:9px;padding:10px;font-size:12px;overflow-wrap:anywhere}.cwb-payment-detail b{display:block;font-size:9px;color:#6b7280;text-transform:uppercase;margin-bottom:4px}.cwb-payment-number{margin-top:12px;background:#111827;color:#fff;border-radius:10px;padding:11px;font-size:13px}.cwb-payment-number strong{display:block;font-size:18px;margin-top:3px;letter-spacing:1px}.cwb-bank-box{background:#f3f4f6;border-radius:10px;padding:12px;margin-top:10px;text-align:left;font-size:13px;line-height:1.6}.cwb-payment-note{background:#f9fafb;border-radius:9px;padding:10px;margin-top:10px;font-size:12px;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere}.cwb-qr-footer{font-size:10px;color:#6b7280;margin-top:14px}@media(max-width:600px){.connection-row{grid-template-columns:1fr}.connection-actions{width:100%}.connection-actions .btn{flex:1}.cwb-payment-details{grid-template-columns:1fr}.cwb-qr-title{font-size:19px}}
+</style>
+</head>
+<body>
+<header><h1>C.W.B System</h1><p>Camel Work and Business company</p><p><b>Better Quality is our priority</b></p></header>
+<div class="container">
+<div class="card"><h2>Business Dashboard</h2><div class="dashboard">
+<button class="module" onclick="showModule('accounting')">Accounting</button><button class="module" onclick="showModule('payroll')">Payroll</button><button class="module" onclick="showModule('inventory')">Inventory</button><button class="module" onclick="showModule('sales')">Sales & Invoice</button><button class="module" onclick="showModule('purchases')">Purchases</button><button class="module" onclick="showModule('partners')">Customers & Partners</button><button class="module" onclick="showModule('expenses')">Expenses</button><button class="module" onclick="showModule('garage')">Garage Activities</button><button class="module" onclick="showModule('planner')">Business Planner</button><button class="module" onclick="showModule('reports')">Reports</button><button class="module" onclick="showModule('scanpay')">Scan & Pay</button><button class="module" onclick="showModule('website')">Website</button><button class="module" onclick="showModule('social')">Social Connections</button>
+</div></div>
+<div class="card"><div class="dashboard"><div class="stat">Total Sales<strong id="totalSales">0</strong></div><div class="stat">Total Purchases<strong id="totalPurchases">0</strong></div><div class="stat">Expenses<strong id="totalExpenses">0</strong></div><div class="stat">Balance<strong id="balance">0</strong></div><div class="stat">Final Balance<strong id="finalBalance">0</strong></div></div></div>
+
+<div id="inventory" class="card hidden"><h2>Inventory</h2><p>Products and stock management.</p><form id="inventoryForm"><div class="form-grid"><div><label>Product Name</label><input id="inv_name" required></div><div><label>Category</label><input id="inv_category"></div><div><label>Quantity</label><input id="inv_quantity" type="number" min="0" value="0" required></div><div><label>Buying Price</label><input id="inv_buying_price" type="number" min="0" step="0.01" value="0"></div><div><label>Selling Price</label><input id="inv_selling_price" type="number" min="0" step="0.01" value="0"></div></div><button class="btn" type="submit">Save Product</button><button class="btn secondary" type="button" onclick="loadInventory()">Refresh Inventory</button></form><div id="inventoryMessage" class="message"></div><div class="table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Quantity</th><th>Buying Price</th><th>Selling Price</th><th>Stock Value</th></tr></thead><tbody id="inventoryTableBody"></tbody></table></div></div>
+
+<div id="garage" class="card hidden"><h2>Garage Activities</h2><form id="garageForm"><div class="form-grid"><div><label>Job Number</label><input id="job_number"></div><div><label>Customer Name</label><input id="customer_name" required></div><div><label>Customer Phone</label><input id="customer_phone"></div><div><label>Customer Address</label><input id="customer_address"></div><div><label>Vehicle Name</label><input id="vehicle_name"></div><div><label>Vehicle Model</label><input id="vehicle_model"></div><div><label>Vehicle Color</label><input id="vehicle_color"></div><div><label>Mechanic Name</label><input id="mechanic_name"></div><div><label>Job Status</label><select id="job_status"><option>Pending</option><option>In Progress</option><option>Completed</option><option>Cancelled</option></select></div><div><label>Payment Status</label><select id="payment_status"><option>Unpaid</option><option>Partially Paid</option><option>Paid</option></select></div><div><label>Payment Method</label><select id="payment_method"><option>Cash</option><option>Bank</option><option>Mobile Money</option><option>Card</option><option>Other</option></select></div><div><label>Invoice Number</label><input id="invoice_number"></div><div><label>Job Cost</label><input id="job_cost" type="number" step="0.01"></div><div><label>Parts Cost</label><input id="parts_cost" type="number" step="0.01"></div><div><label>Service Date</label><input id="service_date" type="date"></div><div><label>Estimated Completion</label><input id="estimated_completion_date" type="date"></div><div><label>Completion Date</label><input id="completion_date" type="date"></div><div><label>Pick Up Status</label><select id="pickup_status"><option>Pending</option><option>Ready</option><option>Picked Up</option></select></div><div><label>Warranty</label><select id="warranty"><option>No</option><option>Yes</option></select></div><div class="full"><label>Repair Description</label><textarea id="repair_description"></textarea></div><div class="full"><label>Notes</label><textarea id="garage_notes"></textarea></div></div><button class="btn" type="submit">Save Garage Activity</button><button class="btn secondary" type="button" onclick="loadGarage()">Refresh Garage</button></form><div id="garageMessage" class="message"></div><div id="garageInvoiceArea" class="hidden"></div>
+<section id="cwbDevisPanel" class="connection-box" style="margin-top:18px;border:2px solid #b91c1c;background:#fff">
+  <h2 style="margin-bottom:5px">🧾 Devis de Réparation</h2>
+  <p class="small">Préparez un devis avant de commencer les réparations. Le devis reste séparé des activités du garage et des factures.</p>
+  <form id="devisForm">
+    <div class="form-grid">
+      <div><label>Numéro du devis</label><input id="devis_number" readonly></div>
+      <div><label>Date du devis</label><input id="devis_date" type="date" required></div>
+      <div><label>Nom du client</label><input id="devis_customer" required></div>
+      <div><label>Téléphone du client</label><input id="devis_phone" inputmode="tel"></div>
+      <div><label>Adresse du client</label><input id="devis_address"></div>
+      <div><label>Marque du véhicule</label><input id="devis_vehicle" required></div>
+      <div><label>Modèle</label><input id="devis_model"></div>
+      <div><label>Immatriculation</label><input id="devis_plate"></div>
+      <div><label>Couleur</label><input id="devis_color"></div>
+      <div><label>Validité du devis</label><select id="devis_validity"><option>7 jours</option><option>15 jours</option><option>30 jours</option></select></div>
+      <div class="full"><label>Description des réparations</label><textarea id="devis_description" placeholder="Décrivez les travaux à effectuer..."></textarea></div>
+    </div>
+    <h3 style="margin-bottom:6px">Pièces de rechange et services</h3>
+    <div class="table-wrap"><table style="min-width:650px"><thead><tr><th>Désignation</th><th>Qté</th><th>Prix unitaire (BIF)</th><th>Total (BIF)</th><th></th></tr></thead><tbody id="devisLines"></tbody></table></div>
+    <button class="btn secondary" type="button" onclick="addDevisLine()">+ Ajouter une ligne</button>
+    <div class="form-grid" style="margin-top:14px">
+      <div><label>Main-d'œuvre (BIF)</label><input id="devis_labour" type="number" min="0" step="1" value="0" oninput="calcDevis()"></div>
+      <div><label>Remise (BIF)</label><input id="devis_discount" type="number" min="0" step="1" value="0" oninput="calcDevis()"></div>
+      <div><label>Statut du devis</label><select id="devis_status"><option>En attente</option><option>Approuvé</option><option>Refusé</option></select></div>
+      <div><label>Total des pièces (BIF)</label><input id="devis_parts_total" readonly value="0"></div>
+      <div><label>Sous-total avant remise (BIF)</label><input id="devis_subtotal" readonly value="0"></div>
+      <div><label>Base imposable après remise (BIF)</label><input id="devis_taxable" readonly value="0"></div>
+      <div><label>TVA (18 %) (BIF)</label><input id="devis_tax" readonly value="0"></div>
+      <div><label>TOTAL DU DEVIS TTC (BIF)</label><input id="devis_total" readonly value="0" style="font-weight:bold;color:#b91c1c;font-size:18px"></div>
+      <div class="full"><label>Conditions / remarques</label><textarea id="devis_notes" placeholder="Ex. Les travaux commenceront après approbation du devis."></textarea></div>
+    </div>
+    <button class="btn" type="submit">Enregistrer le devis sur ce téléphone</button>
+    <button class="btn secondary" type="button" onclick="printDevis()">🖨 Imprimer / Enregistrer en PDF</button>
+    <button class="btn light" type="button" onclick="newDevis()">Nouveau devis</button>
+  </form>
+  <input type="hidden" id="devis_editing_index" value="">
+  <div id="devisMessage" class="message"></div>
+  <div class="form-grid" style="margin-top:18px">
+    <div class="full"><label for="devisSearch">Rechercher un devis enregistré (numéro, client, véhicule)</label><input id="devisSearch" type="search" placeholder="Ex. CWB-DV, nom du client ou véhicule" oninput="renderSaved()"></div>
+  </div>
+  <div id="devisSavedList" style="margin-top:15px"></div>
+</section><div class="table-wrap"><table><thead><tr><th>Customer</th><th>Vehicle</th><th>Mechanic</th><th>Status</th><th>Job Cost</th><th>Payment</th></tr></thead><tbody id="garageTableBody"></tbody></table></div></div>
+
+<div id="sales" class="card hidden"><h2>Sales & Invoice</h2><p class="small">Sales are kept in the system and used in dashboard totals.</p><form id="salesForm"><div class="form-grid"><div><label>Customer</label><input id="sale_customer"></div><div><label>Product / Service</label><input id="sale_product" required></div><div><label>Invoice Number</label><input id="sale_invoice"></div><div><label>Amount</label><input id="sale_amount" type="number" min="0" step="0.01" required></div><div><label>Payment Status</label><select id="sale_payment"><option>Paid</option><option>Partially Paid</option><option>Unpaid</option></select></div><div><label>Date</label><input id="sale_date" type="date"></div></div><button class="btn" type="submit">Save Sale</button></form><div id="salesMessage" class="message"></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Invoice</th><th>Customer</th><th>Product / Service</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody id="salesTableBody"></tbody></table></div></div>
+
+<div id="purchases" class="card hidden"><h2>Purchases & Suppliers</h2><form id="purchaseForm"><div class="form-grid"><div><label>Supplier</label><input id="purchase_supplier"></div><div><label>Product</label><input id="purchase_product" required></div><div><label>Amount</label><input id="purchase_amount" type="number" min="0" step="0.01" required></div><div><label>Payment Status</label><select id="purchase_payment"><option>Paid</option><option>Partially Paid</option><option>Unpaid</option></select></div><div><label>Date</label><input id="purchase_date" type="date"></div></div><button class="btn" type="submit">Save Purchase</button></form><div id="purchaseMessage" class="message"></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Supplier</th><th>Product</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody id="purchaseTableBody"></tbody></table></div></div>
+
+<div id="expenses" class="card hidden"><h2>Expenses</h2><form id="expenseForm"><div class="form-grid"><div><label>Expense</label><input id="expense_name" required></div><div><label>Category</label><input id="expense_category"></div><div><label>Amount</label><input id="expense_amount" type="number" min="0" step="0.01" required></div><div><label>Date</label><input id="expense_date" type="date"></div><div class="full"><label>Notes</label><textarea id="expense_notes"></textarea></div></div><button class="btn" type="submit">Save Expense</button></form><div id="expenseMessage" class="message"></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Expense</th><th>Category</th><th>Amount</th><th>Notes</th><th>Action</th></tr></thead><tbody id="expenseTableBody"></tbody></table></div></div>
+
+<div id="partners" class="card hidden"><h2>Customers & Partners</h2><form id="partnerForm"><div class="form-grid"><div><label>Name</label><input id="partner_name" required></div><div><label>Phone</label><input id="partner_phone"></div><div><label>Email</label><input id="partner_email"></div><div><label>Type</label><select id="partner_type"><option>Customer</option><option>Supplier</option><option>Partner</option></select></div><div class="full"><label>Address</label><input id="partner_address"></div></div><button class="btn" type="submit">Save Contact</button></form><div id="partnerMessage" class="message"></div><div class="table-wrap"><table><thead><tr><th>Name</th><th>Type</th><th>Phone</th><th>Email</th><th>Address</th><th>Action</th></tr></thead><tbody id="partnerTableBody"></tbody></table></div></div>
+
+<div id="payroll" class="card hidden"><h2>Payroll</h2><form id="payrollForm"><div class="form-grid"><div><label>Worker</label><input id="pay_worker" required></div><div><label>Position</label><input id="pay_position"></div><div><label>Month</label><input id="pay_month" type="month"></div><div><label>Base Salary</label><input id="pay_base" type="number" min="0" step="0.01"></div><div><label>Allowance</label><input id="pay_allowance" type="number" min="0" step="0.01"></div><div><label>Deductions</label><input id="pay_deduction" type="number" min="0" step="0.01"></div><div><label>Status</label><select id="pay_status"><option>Unpaid</option><option>Partially Paid</option><option>Paid</option></select></div><div class="stat full">Net Salary Preview<strong id="pay_net_preview">0</strong></div></div><button class="btn" type="submit">Save Salary Record</button></form><div id="payMessage" class="message"></div><div class="table-wrap"><table><thead><tr><th>Month</th><th>Worker</th><th>Position</th><th>Base</th><th>Allowance</th><th>Deductions</th><th>Net</th><th>Status</th><th>Action</th></tr></thead><tbody id="payTableBody"></tbody></table></div></div>
+
+<div id="accounting" class="card hidden"><h2>Accounting</h2><div class="dashboard"><div class="stat">Sales<strong id="accSales">0</strong></div><div class="stat">Purchases<strong id="accPurchases">0</strong></div><div class="stat">Expenses<strong id="accExpenses">0</strong></div><div class="stat">Payroll<strong id="accPayroll">0</strong></div><div class="stat">Operating Balance<strong id="accBalance">0</strong></div><div class="stat">Final Balance<strong id="accFinalBalance">0</strong></div></div><p class="small">Operating Balance = Sales − Purchases − Expenses.<br>Final Balance = Operating Balance − Payroll.</p></div>
+
+<div id="planner" class="card hidden"><h2>Business Planner</h2><textarea id="planText" rows="10" placeholder="Write your business goals, plans, projects and priorities..."></textarea><button class="btn" onclick="savePlan()">Save Plan</button><button class="btn secondary" onclick="loadPlan()">Load Plan</button><div id="planMessage" class="message"></div></div>
+
+<div id="scanpay" class="card hidden"><h2>💳 C.W.B Scan & Pay</h2><p class="small">Create a professional C.W.B payment QR code for your customer.</p><div class="connection-box"><div style="background:linear-gradient(135deg,#111827,#b91c1c);color:#fff;border-radius:12px;padding:14px;text-align:center;margin-bottom:15px"><img src="./file_000000009d80820694001bdae16e2e4b.png" alt="C.W.B Logo" style="width:65px;height:65px;object-fit:contain;background:#fff;border-radius:12px;padding:5px"><div style="font-size:19px;font-weight:bold;margin-top:8px">C.W.B PAYMENT</div><div style="font-size:13px;margin-top:4px">CAMEL WORK AND BUSINESS COMPANY</div><div style="font-size:11px;margin-top:4px">Better Quality is our priority</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px"><div style="background:#111827;color:#fff;border-radius:9px;padding:10px;text-align:center"><div style="font-size:9px;opacity:.75">MERCHANT CODE</div><strong style="font-size:17px">984868</strong></div><div style="background:#111827;color:#fff;border-radius:9px;padding:10px;text-align:center"><div style="font-size:9px;opacity:.75">PAYMENT NUMBER</div><strong style="font-size:16px">06691086015</strong></div></div><form id="scanPayForm" onsubmit="event.preventDefault();generateQR()"><div class="form-grid"><div><label>Customer Name</label><input id="qr_customer" required></div><div><label>Invoice Number</label><input id="qr_invoice" required></div><div><label>Amount</label><input id="qr_amount" type="number" min="0" step="0.01" required></div><div><label>Currency</label><select id="qr_currency"><option>BIF</option><option>USD</option><option>EUR</option></select></div><div><label>Payment Method</label><select id="qr_method"><option>Mobile Money</option><option>Bank</option><option>Cash</option><option>Card</option><option>Other</option></select></div><div><label id="qr_account_label">Payment Account / Number</label><input id="qr_account" value="06691086015"></div><div><label>Payment Name / Account Name</label><input id="qr_account_name" value="CAMEL WORK AND BUSINESS COMPANY"></div><div id="qr_bank_box" class="full" style="display:none;background:#f3f4f6;border-radius:10px;padding:12px"><strong>KCB Bank Burundi</strong><br><span class="small">Company Bank Account: 06691086015</span><br><span class="small">Account Name: CAMEL WORK AND BUSINESS COMPANY</span></div><div class="full"><label>Note</label><textarea id="qr_note"></textarea></div></div><button class="btn" type="submit">Generate Professional QR</button><button class="btn secondary" type="button" onclick="clearQR()">Clear QR</button><button class="btn" type="button" onclick="printQR()">Share / Print QR</button></form><div id="qrMessage" class="message"></div><div id="qrArea" style="border:1px dashed #b91c1c;border-radius:14px;padding:15px;margin-top:15px;background:#fafafa;text-align:center;min-height:80px"><div class="small">Your professional payment QR will appear here.</div></div><div id="qrText" class="small" style="white-space:pre-wrap;margin-top:10px"></div></div></div>
+
+<div id="reports" class="card hidden"><h2>📊 C.W.B Financial Reports</h2><p class="small">Business financial summary from your C.W.B System records.</p><div class="dashboard"><div class="stat">Sales<strong id="reportSales">0</strong></div><div class="stat">Purchases<strong id="reportPurchases">0</strong></div><div class="stat">Expenses<strong id="reportExpenses">0</strong></div><div class="stat">Payroll<strong id="reportPayroll">0</strong></div></div><div class="card" style="margin-top:15px;background:#f9fafb"><h2 style="font-size:18px">Financial Summary</h2><p><b>Total Sales:</b> <span id="reportTotalSales">0</span></p><p><b>Total Purchases:</b> <span id="reportTotalPurchases">0</span></p><p><b>Total Expenses:</b> <span id="reportTotalExpenses">0</span></p><p><b>Total Payroll:</b> <span id="reportTotalPayroll">0</span></p><hr><p style="font-size:17px"><b>Operating Balance:</b> <strong id="reportOperatingBalance">0</strong></p><p style="font-size:18px"><b>Final Balance:</b> <strong id="reportFinalBalance">0</strong></p><div id="reportResult" style="margin-top:12px;padding:12px;border-radius:9px;font-weight:bold">Financial result</div></div><div class="card" style="margin-top:15px;background:#fafafa"><h2 style="font-size:18px">Record Summary</h2><div class="dashboard"><div class="stat">Sales Records<strong id="reportSalesRecords">0</strong></div><div class="stat">Purchase Records<strong id="reportPurchaseRecords">0</strong></div><div class="stat">Expense Records<strong id="reportExpenseRecords">0</strong></div><div class="stat">Payroll Records<strong id="reportPayrollRecords">0</strong></div></div></div><button class="btn" onclick="loadReports()">🔄 Refresh Reports</button></div>
+
+<div id="website" class="card hidden"><h2>🌐 C.W.B Official Website</h2><p>Connect the official C.W.B company website here.</p><div class="connection-box"><div class="social-title">Official Website</div><p class="small">Enter the complete website address.</p><div class="connection-row"><div class="input-area"><label>Website Address</label><input id="website_url" type="url" placeholder="https://example.com"></div><div class="connection-actions"><button class="btn" type="button" onclick="saveWebsite()">Save</button><button class="btn secondary" type="button" onclick="openSavedWebsite()">Open</button></div></div><div id="websiteMessage" class="message"></div><div id="websiteStatus" class="link-status">No website saved yet.</div></div></div>
+
+<div id="social" class="card hidden"><h2>📱 Social Connections</h2><p>Connect C.W.B with its official social media platforms.</p><p class="small">Add the official business links below. They are saved on this device.</p><div id="socialBoxes"></div><div id="socialMessage" class="message"></div></div>
+
+<div class="footer">C.W.B — Camel Work and Business company<br>Better Quality is our priority</div><div class="small" style="text-align:center;margin:18px 0 6px">C.W.B System • Master Version 2</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2'"></script>
+<script>
+const SUPABASE_URL='https://wicilnypkcumworxnxqv.supabase.co';
+const SUPABASE_KEY='sb_publishable_1FmSQ0jE7mSaeiujYneSSg_9LkRPbzX';
+const supabaseClient=window.cwbSupabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const KEY={sales:'cwb_sales_v2',purchases:'cwb_purchases_v2',expenses:'cwb_expenses_v2',partners:'cwb_partners_v2',payroll:'cwb_payroll_v2'};
+function arr(k){try{return JSON.parse(localStorage.getItem(k))||[]}catch(e){return[]}}
+function setArr(k,v){localStorage.setItem(k,JSON.stringify(v))}
+let sales=arr(KEY.sales),purchases=arr(KEY.purchases),expenses=arr(KEY.expenses),partners=arr(KEY.partners),payroll=arr(KEY.payroll);
+function num(v){const n=Number(v);return Number.isFinite(n)?n:0}
+function money(v){return num(v).toLocaleString('en-US')}
+function today(){return new Date().toISOString().slice(0,10)}
+function currentMonth(){return new Date().toISOString().slice(0,7)}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function totals(){const salesTotal=sales.reduce((a,x)=>a+num(x.amount),0),purchaseTotal=purchases.reduce((a,x)=>a+num(x.amount),0),expenseTotal=expenses.reduce((a,x)=>a+num(x.amount),0),payrollTotal=payroll.reduce((a,x)=>a+num(x.net),0),operatingBalance=salesTotal-purchaseTotal-expenseTotal;return{sales:salesTotal,purchases:purchaseTotal,expenses:expenseTotal,payroll:payrollTotal,operating:operatingBalance,final:operatingBalance-payrollTotal}}
+function msg(id,t,error=false){const e=document.getElementById(id);if(!e)return;e.textContent=t;e.classList.toggle('error',error);e.style.display='block';setTimeout(()=>e.style.display='none',4000)}
+function showModule(id){document.querySelectorAll('.card[id]').forEach(e=>e.classList.add('hidden'));const e=document.getElementById(id);if(!e)return;e.classList.remove('hidden');if(id==='inventory')loadInventory();if(id==='garage')loadGarage();if(id==='sales')renderSales();if(id==='purchases')renderPurchases();if(id==='expenses')renderExpenses();if(id==='partners')renderPartners();if(id==='payroll'){renderPayroll();updatePayPreview()}if(id==='accounting')updateDashboard();if(id==='reports')loadReports();if(id==='website')loadWebsite();if(id==='social')loadSocial();if(id==='scanpay')updatePaymentMethod();window.scrollTo({top:e.offsetTop-10,behavior:'smooth'})}
+function updateDashboard(){const t=totals();[['totalSales',t.sales],['totalPurchases',t.purchases],['totalExpenses',t.expenses],['balance',t.operating],['finalBalance',t.final],['accSales',t.sales],['accPurchases',t.purchases],['accExpenses',t.expenses],['accPayroll',t.payroll],['accBalance',t.operating],['accFinalBalance',t.final]].forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.textContent=money(v)})}
+
+// INVENTORY
+const inventoryForm=document.getElementById('inventoryForm');
+if(inventoryForm)inventoryForm.addEventListener('submit',async e=>{e.preventDefault();const product={name:document.getElementById('inv_name').value.trim(),category:document.getElementById('inv_category').value.trim()||null,quantity:num(document.getElementById('inv_quantity').value),buying_price:num(document.getElementById('inv_buying_price').value),selling_price:num(document.getElementById('inv_selling_price').value)};msg('inventoryMessage','Saving...');const {error}=await supabaseClient.from('products').insert([product]);if(error){msg('inventoryMessage','Error saving product: '+error.message,true);return}e.target.reset();document.getElementById('inv_quantity').value=0;document.getElementById('inv_buying_price').value=0;document.getElementById('inv_selling_price').value=0;msg('inventoryMessage','Product saved successfully to Supabase.');loadInventory()});
+async function loadInventory(){const b=document.getElementById('inventoryTableBody');if(!b)return;b.innerHTML='<tr><td colspan="6">Loading...</td></tr>';const {data,error}=await supabaseClient.from('products').select('*').order('created_at',{ascending:false});if(error){b.innerHTML='<tr><td colspan="6">Error loading inventory</td></tr>';return}if(!data?.length){b.innerHTML='<tr><td colspan="6">No products yet.</td></tr>';return}b.innerHTML=data.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.category||'')}</td><td>${money(x.quantity)}</td><td>${money(x.buying_price)}</td><td>${money(x.selling_price)}</td><td>${money(num(x.quantity)*num(x.buying_price))}</td></tr>`).join('')}
+// GARAGE - JavaScript is safely kept inside the script section.
+
+const garageForm = document.getElementById('garageForm');
+
+if (garageForm) {
+  garageForm.addEventListener('submit', async e => {
+    e.preventDefault();
+
+    const invoiceNumber =
+      document.getElementById('invoice_number').value.trim() ||
+      ('CWB-G-' + new Date().toISOString().replace(/\D/g, '').slice(0, 14));
+
+    document.getElementById('invoice_number').value = invoiceNumber;
+
+    const job = {
+      job_number: document.getElementById('job_number').value.trim() || null,
+      customer_name: document.getElementById('customer_name').value.trim(),
+      customer_phone: document.getElementById('customer_phone').value.trim() || null,
+      customer_address: document.getElementById('customer_address').value.trim() || null,
+      vehicle_name: document.getElementById('vehicle_name').value.trim() || null,
+      vehicle_model: document.getElementById('vehicle_model').value.trim() || null,
+      vehicle_color: document.getElementById('vehicle_color').value.trim() || null,
+      mechanic_name: document.getElementById('mechanic_name').value.trim() || null,
+      job_status: document.getElementById('job_status').value,
+      payment_status: document.getElementById('payment_status').value,
+      payment_method: document.getElementById('payment_method').value,
+      invoice_number: invoiceNumber,
+      job_cost: num(document.getElementById('job_cost').value),
+      parts_cost: num(document.getElementById('parts_cost').value),
+      service_date: document.getElementById('service_date').value || null,
+      estimated_completion_date:
+        document.getElementById('estimated_completion_date').value || null,
+      completion_date: document.getElementById('completion_date').value || null,
+      pickup_status: document.getElementById('pickup_status').value,
+      warranty: document.getElementById('warranty').value,
+      repair_description:
+        document.getElementById('repair_description').value.trim() || null,
+      notes: document.getElementById('garage_notes').value.trim() || null
+    };
+
+    msg('garageMessage', 'Saving...');
+
+    let saveJob = { ...job };
+
+    for (let attempt = 0; attempt < 12; attempt++) {
+      const { error } = await supabaseClient
+        .from('Garage_jobs')
+        .insert([saveJob]);
+
+      if (!error) {
+        e.target.reset();
+        document.getElementById('service_date').value = today();
+
+        msg(
+          'garageMessage',
+          'Garage activity saved successfully in Supabase.'
+        );
+
+        renderGarageInvoice({ ...job });
+        loadGarage();
+        return;
+      }
+
+      const match = error.message.match(
+        /Could not find the '([^']+)' column/
+      );
+
+      if (!match) {
+        msg(
+          'garageMessage',
+          'Error saving garage activity: ' + error.message,
+          true
+        );
+        return;
+      }
+
+      const column = match[1];
+
+      if (!(column in saveJob)) {
+        msg(
+          'garageMessage',
+          'Garage database column problem: ' + column,
+          true
+        );
+        return;
+      }
+
+      delete saveJob[column];
+    }
+
+    msg('garageMessage', 'Garage activity could not be saved.', true);
+  });
+}
+
+
+
+// C.W.B DEVIS DE RÉPARATION — independent quotation, separate from garage jobs/invoices.
+(function(){
+  const q = id => document.getElementById(id);
+  const fmt = value => Math.round((Number(value)||0)).toLocaleString('fr-FR');
+  const todayISO = () => { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+  const safe = value => String(value ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function quoteNumber(){ return 'CWB-DV-'+todayISO().replace(/-/g,'')+'-'+String(Date.now()).slice(-4); }
+  function lineHTML(name='',qty=1,price=0){ return `<tr><td><input class="devis-line-name" aria-label="Désignation" value="${safe(name)}" placeholder="Pièce ou service" oninput="calcDevis()"></td><td><input class="devis-line-qty" aria-label="Quantité" type="number" min="0" step="1" value="${qty}" oninput="calcDevis()" style="min-width:70px"></td><td><input class="devis-line-price" aria-label="Prix unitaire" type="number" min="0" step="1" value="${price}" oninput="calcDevis()" style="min-width:120px"></td><td class="devis-line-total">0</td><td><button type="button" class="btn light" onclick="this.closest('tr').remove();calcDevis()">×</button></td></tr>`; }
+  window.addDevisLine=function(name='',qty=1,price=0){ q('devisLines').insertAdjacentHTML('beforeend',lineHTML(name,qty,price)); calcDevis(); };
+  window.calcDevis=function(){ let parts=0; document.querySelectorAll('#devisLines tr').forEach(tr=>{const total=Math.max(0,Number(tr.querySelector('.devis-line-qty').value)||0)*Math.max(0,Number(tr.querySelector('.devis-line-price').value)||0);tr.querySelector('.devis-line-total').textContent=fmt(total);parts+=total;}); const labour=Math.max(0,Number(q('devis_labour').value)||0), discount=Math.max(0,Number(q('devis_discount').value)||0), subtotal=parts+labour, taxable=Math.max(0,subtotal-discount), tax=Math.round(taxable*0.18), total=taxable+tax;q('devis_parts_total').value=fmt(parts);q('devis_subtotal').value=fmt(subtotal);q('devis_taxable').value=fmt(taxable);q('devis_tax').value=fmt(tax);q('devis_total').value=fmt(total); return {parts,labour,discount,subtotal,taxable,tax,taxRate:18,total}; };
+  function collectDevis(){ const totals=calcDevis(); return {number:q('devis_number').value,date:q('devis_date').value,customer:q('devis_customer').value.trim(),phone:q('devis_phone').value.trim(),address:q('devis_address').value.trim(),vehicle:q('devis_vehicle').value.trim(),model:q('devis_model').value.trim(),plate:q('devis_plate').value.trim(),color:q('devis_color').value.trim(),validity:q('devis_validity').value,description:q('devis_description').value.trim(),lines:[...document.querySelectorAll('#devisLines tr')].map(tr=>({name:tr.querySelector('.devis-line-name').value.trim(),qty:Number(tr.querySelector('.devis-line-qty').value)||0,price:Number(tr.querySelector('.devis-line-price').value)||0,total:(Number(tr.querySelector('.devis-line-qty').value)||0)*(Number(tr.querySelector('.devis-line-price').value)||0)})).filter(x=>x.name),notes:q('devis_notes').value.trim(),status:q('devis_status').value,...totals}; }
+  function getSaved(){try{return JSON.parse(localStorage.getItem('cwb_repair_quotes')||'[]')}catch(e){return []}}
+  window.renderSaved=function(){
+    const list=q('devisSavedList'); if(!list)return;
+    const arr=getSaved();
+    const term=(q('devisSearch')?.value||'').trim().toLocaleLowerCase('fr');
+    const filtered=arr.map((x,i)=>({...x,_index:i})).filter(x=>!term||[x.number,x.customer,x.vehicle,x.model,x.plate,x.date,x.status].some(v=>String(v||'').toLocaleLowerCase('fr').includes(term)));
+    if(!arr.length){list.innerHTML='<h3>Devis enregistrés</h3><p class="small">Aucun devis enregistré pour le moment.</p>';return;}
+    if(!filtered.length){list.innerHTML='<h3>Devis enregistrés</h3><p class="small">Aucun devis ne correspond à votre recherche.</p>';return;}
+    list.innerHTML='<h3>Devis enregistrés ('+filtered.length+')</h3><div class="table-wrap"><table style="min-width:900px"><thead><tr><th>Numéro</th><th>Client</th><th>Véhicule</th><th>Date</th><th>Total TTC (BIF)</th><th>Statut</th><th>Actions</th></tr></thead><tbody>'+filtered.map(x=>{
+      const i=x._index;
+      const statusActions=x.status==='En attente'
+        ? `<button type="button" class="btn" onclick="setDevisStatus(${i},'Approuvé')">✅ Approuver</button> <button type="button" class="btn light" onclick="setDevisStatus(${i},'Refusé')">❌ Refuser</button>`
+        : `<button type="button" class="btn secondary" onclick="setDevisStatus(${i},'En attente')">Remettre en attente</button>`;
+      const prepare=x.status==='Approuvé'?`<button type="button" class="btn" onclick="prepareGarageFromDevis(${i})">Préparer activité garage</button>`:'';
+      return `<tr><td>${safe(x.number)}</td><td>${safe(x.customer)}</td><td>${safe([x.vehicle,x.model,x.plate].filter(Boolean).join(' / '))}</td><td>${safe(x.date)}</td><td>${fmt(x.total)}</td><td><b>${safe(x.status)}</b></td><td><button type="button" class="btn secondary" onclick="loadSavedDevis(${i})">Voir / modifier</button> <button type="button" class="btn secondary" onclick="printSavedDevis(${i})">Imprimer</button> ${statusActions} ${prepare}</td></tr>`;
+    }).join('')+'</tbody></table></div><p class="small">Les devis sont conservés dans le stockage local de ce navigateur/téléphone, pas dans Supabase. Ils restent séparés des activités et factures. Après approbation, « Préparer activité garage » remplit le formulaire du garage, mais vous devez vérifier puis enregistrer manuellement l’activité. Aucune facture n’est créée automatiquement.</p>';
+  };
+  window.setDevisStatus=function(index,status){
+    const allowed=['En attente','Approuvé','Refusé']; if(!allowed.includes(status))return;
+    const arr=getSaved(); if(!arr[index])return;
+    arr[index].status=status;
+    try{localStorage.setItem('cwb_repair_quotes',JSON.stringify(arr));renderSaved();if(typeof msg==='function')msg('devisMessage','Statut du devis '+arr[index].number+' mis à jour : '+status+'.');}
+    catch(e){if(typeof msg==='function')msg('devisMessage','Impossible de sauvegarder le nouveau statut sur ce téléphone.',true);}
+  };
+  window.loadSavedDevis=function(index){
+    const arr=getSaved(),d=arr[index];if(!d)return;
+    const set=(id,value)=>{const el=q(id);if(el)el.value=value??'';};
+    set('devis_editing_index',String(index));
+    set('devis_number',d.number);set('devis_date',d.date);set('devis_customer',d.customer);set('devis_phone',d.phone);set('devis_address',d.address);set('devis_vehicle',d.vehicle);set('devis_model',d.model);set('devis_plate',d.plate);set('devis_color',d.color);set('devis_validity',d.validity);set('devis_description',d.description);set('devis_labour',d.labour);set('devis_discount',d.discount);set('devis_status',d.status);set('devis_notes',d.notes);
+    q('devisLines').innerHTML='';(d.lines||[]).forEach(x=>addDevisLine(x.name,x.qty,x.price));if(!(d.lines||[]).length)addDevisLine();calcDevis();
+    if(typeof msg==='function')msg('devisMessage','Devis '+d.number+' chargé. Vous pouvez le consulter, l’imprimer ou enregistrer vos modifications.');
+    q('cwbDevisPanel')?.scrollIntoView({behavior:'smooth',block:'start'});
+  };
+  window.printSavedDevis=function(index){loadSavedDevis(index);printDevis();};
+  window.prepareGarageFromDevis=function(index){const arr=getSaved();const d=arr[index];if(!d||d.status!=='Approuvé'){if(typeof msg==='function')msg('devisMessage','Le devis doit être enregistré avec le statut « Approuvé » avant de préparer l’activité du garage.',true);return;}const set=(id,value)=>{const el=document.getElementById(id);if(el)el.value=value??'';};set('job_number','GAR-'+todayISO().replace(/-/g,'')+'-'+String(Date.now()).slice(-4));set('customer_name',d.customer);set('customer_phone',d.phone);set('customer_address',d.address);set('vehicle_name',d.vehicle);set('vehicle_model',d.model);set('vehicle_color',d.color);set('mechanic_name','');set('job_status','Pending');set('payment_status','Unpaid');set('payment_method','Cash');set('invoice_number','');set('job_cost',d.labour||0);set('parts_cost',d.parts||0);set('service_date',todayISO());set('estimated_completion_date','');set('completion_date','');set('pickup_status','Pending');set('warranty','No');set('repair_description',d.description||d.lines.map(x=>x.name).filter(Boolean).join(', '));set('garage_notes','Préparé à partir du devis approuvé '+d.number+'. Total du devis TTC : '+fmt(d.total)+' BIF (TVA 18 % : '+fmt(d.tax)+' BIF). Vérifier les montants avant d’enregistrer l’activité.');const garage=document.getElementById('garage');if(garage){garage.classList.remove('hidden');garage.scrollIntoView({behavior:'smooth',block:'start'});}if(typeof msg==='function')msg('garageMessage','Formulaire préparé à partir du devis approuvé '+d.number+'. Vérifiez les informations puis cliquez sur « Save Garage Activity ». Aucune activité ni facture n’a encore été créée.');};
+  window.newDevis=function(){q('devisForm').reset();q('devis_editing_index').value='';q('devis_number').value=quoteNumber();q('devis_date').value=todayISO();q('devis_labour').value=0;q('devis_discount').value=0;q('devisLines').innerHTML='';addDevisLine();q('devisMessage').style.display='none';};
+  q('devisForm')?.addEventListener('submit',e=>{e.preventDefault();const data=collectDevis();if(!data.customer||!data.vehicle){if(typeof msg==='function')msg('devisMessage','Veuillez indiquer le nom du client et le véhicule.',true);return;}try{const arr=getSaved();const edit=q('devis_editing_index').value;if(edit!==''&&arr[Number(edit)]){const oldStatus=arr[Number(edit)].status;data.status=data.status||oldStatus;arr[Number(edit)]=data;}else{arr.unshift(data);}localStorage.setItem('cwb_repair_quotes',JSON.stringify(arr.slice(0,100)));q('devis_editing_index').value='';if(typeof msg==='function')msg('devisMessage',edit!==''?'Devis mis à jour sur ce téléphone.':'Devis enregistré sur ce téléphone. Il reste séparé des factures et des activités du garage.');renderSaved();}catch(err){if(typeof msg==='function')msg('devisMessage','Impossible d’enregistrer localement : espace de stockage indisponible.',true);}});
+  window.printDevis=function(){const d=collectDevis();if(!d.customer||!d.vehicle){if(typeof msg==='function')msg('devisMessage','Veuillez indiquer le nom du client et le véhicule avant impression.',true);return;}const rows=d.lines.map(x=>`<tr><td>${safe(x.name)}</td><td>${x.qty}</td><td>${fmt(x.price)}</td><td>${fmt(x.total)}</td></tr>`).join('');const html=`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>${safe(d.number)} - Devis C.W.B</title><style>body{font-family:Arial,sans-serif;color:#111827;margin:28px}header{display:flex;gap:18px;align-items:center;border-bottom:3px solid #b91c1c;padding-bottom:14px}header img{width:85px;height:85px;object-fit:contain}h1{color:#b91c1c;margin:0}small{color:#555}.meta,.totals{margin-top:20px;line-height:1.7}.cols{display:grid;grid-template-columns:1fr 1fr;gap:20px}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{border:1px solid #ccc;padding:9px;text-align:left}th{background:#111827;color:white}.totals{margin-left:auto;width:300px}.totals div{display:flex;justify-content:space-between;padding:5px}.grand{font-size:20px;font-weight:bold;border-top:2px solid #b91c1c;padding-top:10px!important}.note{white-space:pre-wrap;margin-top:18px}.sign{display:flex;justify-content:space-between;margin-top:55px}.foot{margin-top:35px;border-top:1px solid #ddd;padding-top:10px;text-align:center;font-size:12px;color:#555}@media print{button{display:none}body{margin:12mm}}</style></head><body><header><img src="./file_000000009d80820694001bdae16e2e4b.png" alt="C.W.B"><div><h1>C.W.B — DEVIS DE RÉPARATION</h1><b>CAMEL WORK AND BUSINESS COMPANY</b><br><small>Better Quality is our priority</small><br><small>Bujumbura, Chaussée du Peuple Murundi No. 54 | Tél. 67481564 / 62180032</small><br><small>NIF: 4002652933 | RC: 0056983/24</small></div></header><div class="meta cols"><div><b>Numéro du devis :</b> ${safe(d.number)}<br><b>Date :</b> ${safe(d.date)}<br><b>Validité :</b> ${safe(d.validity)}<br><b>Statut :</b> ${safe(d.status)}</div><div><b>Client :</b> ${safe(d.customer)}<br><b>Téléphone :</b> ${safe(d.phone||'—')}<br><b>Adresse :</b> ${safe(d.address||'—')}</div></div><div class="meta"><b>Véhicule :</b> ${safe(d.vehicle)} ${safe(d.model)}<br><b>Immatriculation :</b> ${safe(d.plate||'—')} &nbsp; <b>Couleur :</b> ${safe(d.color||'—')}<br><b>Description des réparations :</b><br>${safe(d.description||'—')}</div><table><thead><tr><th>Désignation</th><th>Qté</th><th>Prix unitaire (BIF)</th><th>Total (BIF)</th></tr></thead><tbody>${rows||'<tr><td colspan="4">Aucune pièce/service ajouté</td></tr>'}</tbody></table><div class="totals"><div><span>Total pièces</span><b>${fmt(d.parts)} BIF</b></div><div><span>Main-d'œuvre</span><b>${fmt(d.labour)} BIF</b></div><div><span>Sous-total</span><b>${fmt(d.subtotal)} BIF</b></div><div><span>Remise</span><b>− ${fmt(d.discount)} BIF</b></div><div><span>Base imposable</span><b>${fmt(d.taxable)} BIF</b></div><div><span>TVA (18 %)</span><b>${fmt(d.tax)} BIF</b></div><div class="grand"><span>TOTAL TTC</span><b>${fmt(d.total)} BIF</b></div></div><div class="note"><b>Conditions / remarques :</b><br>${safe(d.notes||'Les travaux commenceront après approbation du devis.')}</div><div class="sign"><div>Signature du client : __________________</div><div>Pour C.W.B : __________________</div></div><div class="foot">C.W.B System • Devis de réparation • Merci de votre confiance.</div><scr${'ipt'}>window.onload=()=>window.print()</scr${'ipt'}></body></html>`;const w=window.open('','_blank');if(!w){if(typeof msg==='function')msg('devisMessage','Autorisez les fenêtres pop-up pour imprimer le devis.',true);return;}w.document.open();w.document.write(html);w.document.close();};
+  document.addEventListener('DOMContentLoaded',()=>{newDevis();renderSaved();});
+})();
+
+// CREATE GARAGE INVOICE
+
+function renderGarageInvoice(job) {
+  const area = document.getElementById('garageInvoiceArea');
+  if (!area) return;
+
+  const total = num(job.job_cost) + num(job.parts_cost);
+
+  area.classList.remove('hidden');
+
+  area.innerHTML = `
+    <div id="cwbGarageInvoice"
+      style="border:1px solid #ddd;border-radius:12px;padding:18px;margin-top:15px;background:#fff;color:#111">
+
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:15px;flex-wrap:wrap">
+
+        <div style="flex:1;min-width:220px">
+          <img
+            src="./file_000000009d80820694001bdae16e2e4b.png"
+            alt="C.W.B Logo"
+            style="width:85px;height:85px;object-fit:contain">
+
+          <h2 style="margin:5px 0">C.W.B SYSTEM</h2>
+
+          <strong>Camel Work and Business company</strong>
+
+          <p style="margin:5px 0">
+            Better Quality is our priority
+          </p>
+
+          <p style="margin:5px 0">
+            Bujumbura, Chaussée du Peuple Murundi No. 54
+          </p>
+
+          <p style="margin:5px 0">
+            <b>Phone:</b> 67481564 / 62180032
+          </p>
+
+          <p style="margin:5px 0">
+            <b>NIF:</b> 4002652933
+          </p>
+
+          <p style="margin:5px 0">
+            <b>RC:</b> 0056983/24
+          </p>
+        </div>
+
+        <div style="min-width:180px">
+          <h2 style="margin-top:0">GARAGE INVOICE</h2>
+
+          <p><b>Invoice:</b> ${esc(job.invoice_number || '')}</p>
+
+          <p><b>Date:</b> ${esc(job.service_date || today())}</p>
+
+          <p><b>Currency:</b> BIF</p>
+        </div>
+
+      </div>
+
+      <hr>
+
+      <div class="form-grid">
+
+        <div>
+          <b>Customer Information</b>
+          <p>
+            ${esc(job.customer_name || '-')}<br>
+            Phone: ${esc(job.customer_phone || '-')}<br>
+            Address: ${esc(job.customer_address || '-')}
+          </p>
+        </div>
+
+        <div>
+          <b>Vehicle Information</b>
+          <p>
+            Vehicle: ${esc(job.vehicle_name || '-')}<br>
+            Model: ${esc(job.vehicle_model || '-')}<br>
+            Color: ${esc(job.vehicle_color || '-')}
+          </p>
+        </div>
+
+        <div>
+          <b>Garage Service</b>
+          <p>
+            Mechanic: ${esc(job.mechanic_name || '-')}<br>
+            Job Status: ${esc(job.job_status || '-')}<br>
+            Payment Status: ${esc(job.payment_status || '-')}
+          </p>
+        </div>
+
+      </div>
+
+      <p>
+        <b>Repair Description:</b><br>
+        ${esc(job.repair_description || '-')}
+      </p>
+
+      <table style="width:100%;min-width:0;border-collapse:collapse">
+        <thead>
+          <tr>
+            <th style="border:1px solid #ddd;padding:10px;text-align:left">
+              Description
+            </th>
+            <th style="border:1px solid #ddd;padding:10px;text-align:right">
+              Amount (BIF)
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td style="border:1px solid #ddd;padding:10px">Service Cost</td>
+            <td style="border:1px solid #ddd;padding:10px;text-align:right">
+              ${money(job.job_cost)}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="border:1px solid #ddd;padding:10px">Parts Cost</td>
+            <td style="border:1px solid #ddd;padding:10px;text-align:right">
+              ${money(job.parts_cost)}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="border:1px solid #ddd;padding:10px">
+              <b>TOTAL</b>
+            </td>
+            <td style="border:1px solid #ddd;padding:10px;text-align:right">
+              <b>${money(total)}</b>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        <b>Payment Method:</b> ${esc(job.payment_method || '-')}
+      </p>
+
+      <p>
+        <b>Notes:</b> ${esc(job.notes || '-')}
+      </p>
+
+      <div style="text-align:center;margin-top:25px;border-top:1px solid #ddd;padding-top:15px">
+        <strong>Thank you for choosing C.W.B!</strong>
+        <p>Better Quality is our priority</p>
+        <small>C.W.B System • Garage Invoice</small>
+      </div>
+
+    </div>
+
+    <button class="btn" type="button" onclick="printGarageInvoice()">
+      🖨 Print Garage Invoice
+    </button>
+  `;
+
+  // Keep the invoice data safely available for the payment QR.
+  const invoice = document.getElementById('cwbGarageInvoice');
+
+  if (invoice) {
+    invoice.dataset.customer = job.customer_name || 'Customer';
+    invoice.dataset.invoice = job.invoice_number || '';
+    invoice.dataset.amount = String(total);
+    invoice.dataset.amountdisplay = money(total);
+    invoice.dataset.paymentmethod = job.payment_method || 'Mobile Money';
+  }
+}
+
+
+// PRINT GARAGE INVOICE WITH C.W.B PAYMENT QR CODE
+
+function printGarageInvoice() {
+  const invoice = document.getElementById('cwbGarageInvoice');
+
+  if (!invoice) return;
+
+  const w = window.open('', '_blank', 'width=900,height=800');
+
+  if (!w) {
+    msg(
+      'garageMessage',
+      'Please allow pop-ups to print the invoice.',
+      true
+    );
+    return;
+  }
+
+  const customerName = invoice.dataset.customer || 'Customer';
+  const invoiceNumber = invoice.dataset.invoice || '';
+  const amount = invoice.dataset.amount || '0';
+  const amountDisplay = invoice.dataset.amountdisplay || amount + ' BIF';
+  const paymentMethod = invoice.dataset.paymentmethod || 'Mobile Money';
+
+  const paymentText =
+    'CWB PAYMENT' +
+    '|Company:CAMEL WORK AND BUSINESS COMPANY' +
+    '|Merchant Code:984868' +
+    '|Mobile Money:06691086015' +
+    '|Customer:' + customerName +
+    '|Invoice:' + invoiceNumber +
+    '|Amount:' + amount + ' BIF' +
+    '|Payment Method:' + paymentMethod;
+
+  if (typeof QRCode === 'undefined') {
+    w.close();
+
+    msg(
+      'garageMessage',
+      'QR generator is unavailable. Please reload the page and try again.',
+      true
+    );
+    return;
+  }
+
+  const qrBox = document.createElement('div');
+
+  qrBox.style.cssText =
+    'position:absolute;left:-9999px;top:0;width:200px;height:200px';
+
+  document.body.appendChild(qrBox);
+
+  try {
+    new QRCode(qrBox, {
+      text: paymentText,
+      width: 180,
+      height: 180,
+      correctLevel: QRCode.CorrectLevel.L
+    });
+  } catch (error) {
+    qrBox.remove();
+    w.close();
+
+    msg(
+      'garageMessage',
+      'Could not generate payment QR: ' + error.message,
+      true
+    );
+    return;
+  }
+
+  setTimeout(() => {
+    let qrImage = '';
+
+    const canvas = qrBox.querySelector('canvas');
+    const image = qrBox.querySelector('img');
+
+    if (canvas) {
+      try {
+        qrImage = canvas.toDataURL('image/png');
+      } catch (error) {
+        qrImage = '';
+      }
+    } else if (image) {
+      qrImage = image.src;
+    }
+
+    qrBox.remove();
+
+    const qrSection = qrImage
+      ? `
+        <div class="payment">
+          <h2>C.W.B SCAN &amp; PAY</h2>
+
+          <p>CAMEL WORK AND BUSINESS COMPANY</p>
+
+          <img
+            class="qr"
+            src="${qrImage}"
+            alt="C.W.B Payment QR Code">
+
+          <p><b>Merchant Code:</b> 984868</p>
+
+          <p><b>Mobile Money:</b> 06691086015</p>
+
+          <p><b>Account Name:</b> CAMEL WORK AND BUSINESS COMPANY</p>
+
+          <p><b>Invoice:</b> ${escapeInvoiceText(invoiceNumber)}</p>
+
+          <p><b>Amount:</b> ${escapeInvoiceText(amountDisplay)}</p>
+
+          <p><b>Currency:</b> BIF</p>
+
+          <small>
+            Scan to view C.W.B payment details. Confirm and complete
+            payment through your payment provider.
+          </small>
+        </div>
+      `
+      : `
+        <div class="payment">
+          <h3>C.W.B SCAN &amp; PAY</h3>
+          <p>Payment QR could not be generated.</p>
+          <p><b>Merchant Code:</b> 984868</p>
+          <p><b>Mobile Money:</b> 06691086015</p>
+          <p><b>Account Name:</b> CAMEL WORK AND BUSINESS COMPANY</p>
+          <p><b>Amount:</b> ${escapeInvoiceText(amountDisplay)}</p>
+        </div>
+      `;
+
+    const invoiceHTML = invoice.outerHTML;
+
+    w.document.open();
+
+    w.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>C.W.B Garage Invoice</title>
+
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            color: #111;
+            background: #fff;
+          }
+
+          h2, h3 {
+            color: #111;
+          }
+
+          table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+
+          th, td {
+            border: 1px solid #ddd;
+            padding: 9px;
+            text-align: left;
+          }
+
+          img {
+            max-width: 100%;
+          }
+
+          .payment {
+            text-align: center;
+            margin: 25px auto;
+            padding: 18px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            max-width: 430px;
+            page-break-inside: avoid;
+          }
+
+          .qr {
+            display: block;
+            width: 180px;
+            height: 180px;
+            margin: 15px auto;
+          }
+
+          .payment p {
+            margin: 8px 0;
+            overflow-wrap: anywhere;
+          }
+
+          @page {
+            size: A4;
+            margin: 12mm;
+          }
+
+          @media print {
+            body {
+              margin: 0;
+            }
+
+            .payment {
+              break-inside: avoid;
+            }
+          }
+        </style>
+      </head>
+
+      <body>
+        ${invoiceHTML}
+        ${qrSection}
+
+        <script>
+          window.onload = function() {
+            setTimeout(function() {
+              window.print();
+            }, 500);
+          };
+        <\/script>
+      </body>
+      </html>
+    `);
+
+    w.document.close();
+
+  }, 500);
+}
+
+
+// SAFELY DISPLAY TEXT IN THE PRINTED INVOICE
+
+function escapeInvoiceText(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, character => {
+    const replacements = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    };
+
+    return replacements[character];
+  });
+}
+
+// LOAD GARAGE ACTIVITIES FROM SUPABASE
+async function loadGarage() {
+  const body = document.getElementById('garageTableBody');
+  if (!body) return;
+
+  body.innerHTML =
+    '<tr><td colspan="6">Loading...</td></tr>';
+
+  try {
+    const { data, error } = await supabaseClient
+      .from('Garage_jobs')
+      .select('*')
+      .order('Created_at', { ascending: false });
+
+    if (error) {
+      console.error('Garage loading error:', error);
+      body.innerHTML =
+        '<tr><td colspan="6">Error loading garage activities: ' +
+        esc(error.message) +
+        '</td></tr>';
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      body.innerHTML =
+        '<tr><td colspan="6">No garage activities yet.</td></tr>';
+      return;
+    }
+
+    body.innerHTML = data.map(job => `
+      <tr>
+        <td>${esc(job.customer_name || '')}</td>
+        <td>${esc(
+          (job.Vehicle_name || job.vehicle_name || '') + ' ' +
+          (job.Vehicle_model || job.vehicle_model || '')
+        )}</td>
+        <td>${esc(
+          job.mechanic_name || job.machanic_name || ''
+        )}</td>
+        <td>${esc(
+          job.Job_status || job.job_status || job.status || ''
+        )}</td>
+        <td>${money(
+          job.Job_cost ?? job.job_cost ?? job.cost ?? 0
+        )}</td>
+        <td>${esc(
+          job.Payment_status || job.payment_status || ''
+        )}</td>
+      </tr>
+    `).join('');
+
+  } catch (error) {
+    console.error('Garage loading error:', error);
+    body.innerHTML =
+      '<tr><td colspan="6">Error loading garage activities.</td></tr>';
+  }
+}
+
+// SALES - COMPLETE CORRECTED SECTION
+
+// SAVE SALES AND DISPLAY THEM
+
+const salesForm = document.getElementById('salesForm');
+
+if (salesForm) {
+  salesForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    try {
+      const customer = document.getElementById('sale_customer').value.trim();
+      const product = document.getElementById('sale_product').value.trim();
+      const enteredInvoice = document.getElementById('sale_invoice').value.trim();
+      const amount = num(document.getElementById('sale_amount').value);
+      const payment = document.getElementById('sale_payment').value;
+      const date = document.getElementById('sale_date').value || today();
+
+      if (!product) {
+        msg('salesMessage', 'Please enter the product or service.', true);
+        return;
+      }
+
+      if (!Number.isFinite(amount) || amount < 0) {
+        msg('salesMessage', 'Please enter a valid sale amount.', true);
+        return;
+      }
+
+      const invoice =
+        enteredInvoice ||
+        ('CWB-S-' + new Date().toISOString().replace(/\D/g, '').slice(0, 14));
+
+      // Prevent accidental reuse of an invoice number.
+      if (sales.some(s => String(s.invoice) === invoice)) {
+        msg(
+          'salesMessage',
+          'This invoice number already exists. Please use a different number.',
+          true
+        );
+        return;
+      }
+
+      const sale = {
+        date: date,
+        invoice: invoice,
+        customer: customer || 'Walk-in Customer',
+        product: product,
+        amount: amount,
+        payment: payment
+      };
+
+      // Save using the existing C.W.B storage system.
+      sales.push(sale);
+      setArr(KEY.sales, sales);
+
+      // Update the form and dashboard.
+      salesForm.reset();
+      document.getElementById('sale_date').value = today();
+
+      renderSales();
+
+      if (typeof updateDashboard === 'function') {
+        updateDashboard();
+      }
+
+      if (typeof loadReports === 'function') {
+        loadReports();
+      }
+
+      msg(
+        'salesMessage',
+        'Sale saved successfully! Invoice: ' + invoice
+      );
+
+    } catch (error) {
+      msg(
+        'salesMessage',
+        'Could not save the sale: ' + error.message,
+        true
+      );
+    }
+  });
+}
+
+
+// DISPLAY SAVED SALES
+
+function renderSales() {
+  const body = document.getElementById('salesTableBody');
+
+  if (!body) return;
+
+  if (!sales.length) {
+    body.innerHTML =
+      '<tr><td colspan="7">No sales yet.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = sales.map((sale, index) => `
+    <tr>
+      <td>${esc(sale.date || '')}</td>
+      <td>${esc(sale.invoice || '')}</td>
+      <td>${esc(sale.customer || '')}</td>
+      <td>${esc(sale.product || '')}</td>
+      <td>${money(sale.amount)}</td>
+      <td>${esc(sale.payment || '')}</td>
+      <td>
+        <button
+          class="btn"
+          style="padding:6px 9px;margin:0 4px 0 0"
+          onclick="viewSalesInvoice(${index})">
+          🧾 Invoice
+        </button>
+
+        <button
+          class="btn light"
+          style="padding:6px 9px;margin:0"
+          onclick="deleteRecord('sales',${index})">
+          Delete
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+
+// OPEN AND GENERATE A PROFESSIONAL SALES INVOICE
+
+function viewSalesInvoice(index) {
+  const sale = sales[index];
+
+  if (!sale) {
+    msg('salesMessage', 'Sale not found. Please refresh the Sales table.', true);
+    return;
+  }
+
+  const baseAmount = num(sale.amount);
+  const vat = baseAmount * 0.18;
+  const total = baseAmount + vat;
+
+  const w = window.open('', '_blank', 'width=900,height=850');
+
+  if (!w) {
+    msg(
+      'salesMessage',
+      'Please allow pop-ups to open the sales invoice.',
+      true
+    );
+    return;
+  }
+
+  const customer = sale.customer || 'Walk-in Customer';
+  const invoiceNumber = sale.invoice || '';
+  const saleDate = sale.date || today();
+  const paymentStatus = sale.payment || 'Unpaid';
+  const product = sale.product || '';
+
+  const logoURL =
+    'https://cwb2012.github.io/C.-W.-B-system-/file_000000009d80820694001bdae16e2e4b.png';
+
+  // QR contains payment information, not a direct payment transaction.
+  const paymentText =
+    'CWB PAYMENT' +
+    '|Company:CAMEL WORK AND BUSINESS COMPANY' +
+    '|Merchant Code:984868' +
+    '|Mobile Money:06691086015' +
+    '|Account Name:CAMEL WORK AND BUSINESS COMPANY' +
+    '|Customer:' + customer +
+    '|Invoice:' + invoiceNumber +
+    '|Amount:' + total + ' BIF' +
+    '|Payment Status:' + paymentStatus;
+
+  // Create QR code using the QR library already included in index.html.
+  const qrBox = document.createElement('div');
+
+  qrBox.style.cssText =
+    'position:fixed;left:-10000px;top:0;width:200px;height:200px';
+
+  document.body.appendChild(qrBox);
+
+  let qrAvailable = false;
+
+  if (typeof QRCode !== 'undefined') {
+    try {
+      new QRCode(qrBox, {
+        text: paymentText,
+        width: 180,
+        height: 180,
+        correctLevel: QRCode.CorrectLevel.L
+      });
+
+      qrAvailable = true;
+
+    } catch (error) {
+      qrAvailable = false;
+    }
+  }
+
+  setTimeout(function () {
+    let qrImage = '';
+
+    if (qrAvailable) {
+      const canvas = qrBox.querySelector('canvas');
+      const image = qrBox.querySelector('img');
+
+      if (canvas) {
+        try {
+          qrImage = canvas.toDataURL('image/png');
+        } catch (error) {
+          qrImage = '';
+        }
+      } else if (image) {
+        qrImage = image.src;
+      }
+    }
+
+    qrBox.remove();
+
+    const qrSection = qrImage
+      ? `
+        <section class="payment">
+          <h2>C.W.B SCAN &amp; PAY</h2>
+
+          <p><strong>CAMEL WORK AND BUSINESS COMPANY</strong></p>
+
+          <img
+            class="qr"
+            src="${qrImage}"
+            alt="C.W.B Payment QR Code">
+
+          <p><strong>Merchant Code:</strong> 984868</p>
+
+          <p><strong>Mobile Money:</strong> 06691086015</p>
+
+          <p><strong>Account Name:</strong>
+            CAMEL WORK AND BUSINESS COMPANY
+          </p>
+
+          <p><strong>Invoice:</strong> ${esc(invoiceNumber)}</p>
+
+          <p><strong>Amount Due:</strong> ${money(total)} BIF</p>
+
+          <p><strong>Payment Status:</strong> ${esc(paymentStatus)}</p>
+
+          <small>
+            Scan to view C.W.B payment details. Complete and confirm
+            payment through your payment provider.
+          </small>
+        </section>
+      `
+      : `
+        <section class="payment">
+          <h2>C.W.B SCAN &amp; PAY</h2>
+          <p>QR code is unavailable. Please check your internet connection
+          and reload the C.W.B System.</p>
+          <p><strong>Merchant Code:</strong> 984868</p>
+          <p><strong>Mobile Money:</strong> 06691086015</p>
+          <p><strong>Amount Due:</strong> ${money(total)} BIF</p>
+        </section>
+      `;
+
+    w.document.open();
+
+    w.document.write(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>C.W.B Sales Invoice - ${esc(invoiceNumber)}</title>
+
+        <style>
+          * {
+            box-sizing: border-box;
+          }
+
+          body {
+            font-family: Arial, sans-serif;
+            margin: 25px;
+            color: #111827;
+            background: #fff;
+          }
+
+          .invoice {
+            max-width: 800px;
+            margin: auto;
+            border: 2px solid #b91c1c;
+            border-radius: 14px;
+            padding: 24px;
+          }
+
+          .header {
+            text-align: center;
+            border-bottom: 2px solid #b91c1c;
+            padding-bottom: 18px;
+          }
+
+          .logo {
+            width: 85px;
+            height: 85px;
+            object-fit: contain;
+          }
+
+          .title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #b91c1c;
+            margin-top: 8px;
+          }
+
+          .company {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 7px;
+          }
+
+          .slogan {
+            font-size: 13px;
+            margin-top: 5px;
+          }
+
+          .company-details {
+            font-size: 12px;
+            line-height: 1.7;
+            margin-top: 12px;
+          }
+
+          .details {
+            margin-top: 22px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+          }
+
+          .box {
+            background: #f3f4f6;
+            padding: 12px;
+            border-radius: 8px;
+            overflow-wrap: anywhere;
+          }
+
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 24px;
+          }
+
+          th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+          }
+
+          th {
+            background: #111827;
+            color: #fff;
+          }
+
+          .amount {
+            text-align: right;
+            white-space: nowrap;
+          }
+
+          .total {
+            text-align: right;
+            font-size: 20px;
+            font-weight: bold;
+            color: #b91c1c;
+            margin-top: 12px;
+          }
+
+          .payment {
+            text-align: center;
+            margin: 25px auto 0;
+            padding: 18px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            max-width: 430px;
+            page-break-inside: avoid;
+          }
+
+          .qr {
+            display: block;
+            width: 180px;
+            height: 180px;
+            margin: 15px auto;
+          }
+
+          .payment p {
+            margin: 8px 0;
+            overflow-wrap: anywhere;
+          }
+
+          .footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #555;
+          }
+
+          .print {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 22px;
+            background: #b91c1c;
+            color: white;
+            border: 0;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+          }
+
+          @media(max-width:600px) {
+            body {
+              margin: 8px;
+            }
+
+            .invoice {
+              padding: 12px;
+            }
+
+            .details {
+              grid-template-columns: 1fr;
+            }
+
+            th, td {
+              padding: 7px;
+              font-size: 12px;
+            }
+          }
+
+          @page {
+            size: A4;
+            margin: 12mm;
+          }
+
+          @media print {
+            body {
+              margin: 0;
+            }
+
+            .invoice {
+              border: 1px solid #b91c1c;
+            }
+
+            .print {
+              display: none;
+            }
+
+            .payment {
+              break-inside: avoid;
+            }
+          }
+        </style>
+      </head>
+
+      <body>
+
+        <div class="invoice">
+
+          <div class="header">
+            <img
+              class="logo"
+              src="${logoURL}"
+              alt="C.W.B Logo">
+
+            <div class="title">C.W.B SALES INVOICE</div>
+
+            <div class="company">
+              Camel Work and Business company
+            </div>
+
+            <div class="slogan">
+              Better Quality is our priority
+            </div>
+
+            <div class="company-details">
+              Bujumbura, Chaussée du Peuple Murundi No. 54<br>
+              <strong>Phone:</strong> 67481564 / 62180032<br>
+              <strong>NIF:</strong> 4002652933<br>
+              <strong>RC:</strong> 0056983/24
+            </div>
+          </div>
+
+          <div class="details">
+
+            <div class="box">
+              <strong>Customer</strong><br>
+              ${esc(customer)}
+            </div>
+
+            <div class="box">
+              <strong>Invoice Number</strong><br>
+              ${esc(invoiceNumber)}
+            </div>
+
+            <div class="box">
+              <strong>Date</strong><br>
+              ${esc(saleDate)}
+            </div>
+
+            <div class="box">
+              <strong>Payment Status</strong><br>
+              ${esc(paymentStatus)}
+            </div>
+
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Product / Service</th>
+                <th class="amount">Amount (BIF)</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>${esc(product)}</td>
+                <td class="amount">${money(baseAmount)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="margin-top:20px;text-align:right;line-height:2">
+            <div>
+              Price before VAT:
+              <strong>${money(baseAmount)} BIF</strong>
+            </div>
+
+            <div>
+              VAT 18%:
+              <strong>${money(vat)} BIF</strong>
+            </div>
+
+            <div class="total">
+              TOTAL CUSTOMER PRICE: ${money(total)} BIF
+            </div>
+          </div>
+
+          ${qrSection}
+
+          <div class="footer">
+            <strong>Thank you for doing business with C.W.B.</strong><br>
+            Better Quality is our priority<br>
+            C.W.B System • Sales Invoice
+          </div>
+
+        </div>
+
+        <button class="print" onclick="window.print()">
+          🖨 Print Invoice
+        </button>
+
+      </body>
+      </html>
+    `);
+
+    w.document.close();
+
+  }, 400);
+}
+
+
+// PURCHASES
+
+// PURCHASES
+const purchaseForm=document.getElementById('purchaseForm');if(purchaseForm)purchaseForm.addEventListener('submit',e=>{e.preventDefault();purchases.push({supplier:document.getElementById('purchase_supplier').value.trim(),product:document.getElementById('purchase_product').value.trim(),amount:num(document.getElementById('purchase_amount').value),payment:document.getElementById('purchase_payment').value,date:document.getElementById('purchase_date').value||today()});setArr(KEY.purchases,purchases);e.target.reset();document.getElementById('purchase_date').value=today();msg('purchaseMessage','Purchase saved successfully.');renderPurchases();updateDashboard();loadReports()});
+function renderPurchases(){const b=document.getElementById('purchaseTableBody');if(!b)return;if(!purchases.length){b.innerHTML='<tr><td colspan="6">No purchases yet.</td></tr>';return}b.innerHTML=purchases.map((x,i)=>`<tr><td>${esc(x.date)}</td><td>${esc(x.supplier)}</td><td>${esc(x.product)}</td><td>${money(x.amount)}</td><td>${esc(x.payment)}</td><td><button class="btn light" style="padding:6px 9px;margin:0" onclick="deleteRecord('purchases',${i})">Delete</button></td></tr>`).join('')}
+// EXPENSES
+const expenseForm=document.getElementById('expenseForm');if(expenseForm)expenseForm.addEventListener('submit',e=>{e.preventDefault();expenses.push({name:document.getElementById('expense_name').value.trim(),category:document.getElementById('expense_category').value.trim(),amount:num(document.getElementById('expense_amount').value),date:document.getElementById('expense_date').value||today(),notes:document.getElementById('expense_notes').value.trim()});setArr(KEY.expenses,expenses);e.target.reset();document.getElementById('expense_date').value=today();msg('expenseMessage','Expense saved successfully.');renderExpenses();updateDashboard();loadReports()});
+function renderExpenses(){const b=document.getElementById('expenseTableBody');if(!b)return;if(!expenses.length){b.innerHTML='<tr><td colspan="6">No expenses yet.</td></tr>';return}b.innerHTML=expenses.map((x,i)=>`<tr><td>${esc(x.date)}</td><td>${esc(x.name)}</td><td>${esc(x.category)}</td><td>${money(x.amount)}</td><td>${esc(x.notes)}</td><td><button class="btn light" style="padding:6px 9px;margin:0" onclick="deleteRecord('expenses',${i})">Delete</button></td></tr>`).join('')}
+// PARTNERS
+const partnerForm=document.getElementById('partnerForm');if(partnerForm)partnerForm.addEventListener('submit',e=>{e.preventDefault();partners.push({name:document.getElementById('partner_name').value.trim(),phone:document.getElementById('partner_phone').value.trim(),email:document.getElementById('partner_email').value.trim(),type:document.getElementById('partner_type').value,address:document.getElementById('partner_address').value.trim()});setArr(KEY.partners,partners);e.target.reset();msg('partnerMessage','Contact saved successfully.');renderPartners()});
+function renderPartners(){const b=document.getElementById('partnerTableBody');if(!b)return;if(!partners.length){b.innerHTML='<tr><td colspan="6">No contacts yet.</td></tr>';return}b.innerHTML=partners.map((x,i)=>`<tr><td>${esc(x.name)}</td><td>${esc(x.type)}</td><td>${esc(x.phone)}</td><td>${esc(x.email)}</td><td>${esc(x.address)}</td><td><button class="btn light" style="padding:6px 9px;margin:0" onclick="deleteRecord('partners',${i})">Delete</button></td></tr>`).join('')}
+// PAYROLL
+function updatePayPreview(){const base=num(document.getElementById('pay_base')?.value),allowance=num(document.getElementById('pay_allowance')?.value),deduction=num(document.getElementById('pay_deduction')?.value),preview=document.getElementById('pay_net_preview');if(preview)preview.textContent=money(base+allowance-deduction)}['pay_base','pay_allowance','pay_deduction'].forEach(id=>{const input=document.getElementById(id);if(input)input.addEventListener('input',updatePayPreview)});
+const payrollForm=document.getElementById('payrollForm');if(payrollForm)payrollForm.addEventListener('submit',e=>{e.preventDefault();const base=num(document.getElementById('pay_base').value),allowance=num(document.getElementById('pay_allowance').value),deduction=num(document.getElementById('pay_deduction').value),gross=base+allowance;if(deduction>gross){msg('payMessage','Deductions cannot be greater than Base Salary + Allowance.',true);return}payroll.push({worker:document.getElementById('pay_worker').value.trim(),position:document.getElementById('pay_position').value.trim(),month:document.getElementById('pay_month').value||currentMonth(),base,allowance,deduction,net:gross-deduction,status:document.getElementById('pay_status').value});setArr(KEY.payroll,payroll);e.target.reset();document.getElementById('pay_month').value=currentMonth();msg('payMessage','Salary record saved successfully.');renderPayroll();updatePayPreview();updateDashboard();loadReports()});
+function renderPayroll(){const b=document.getElementById('payTableBody');if(!b)return;if(!payroll.length){b.innerHTML='<tr><td colspan="9">No payroll records yet.</td></tr>';return}b.innerHTML=payroll.map((x,i)=>`<tr><td>${esc(x.month)}</td><td>${esc(x.worker)}</td><td>${esc(x.position)}</td><td>${money(x.base)}</td><td>${money(x.allowance)}</td><td>${money(x.deduction)}</td><td>${money(x.net)}</td><td>${esc(x.status)}</td><td><button class="btn light" style="padding:6px 9px;margin:0" onclick="deleteRecord('payroll',${i})">Delete</button></td></tr>`).join('')}
+function deleteRecord(type,index){if(!confirm('Are you sure you want to delete this record?'))return;if(type==='sales'){sales.splice(index,1);setArr(KEY.sales,sales);renderSales()}else if(type==='purchases'){purchases.splice(index,1);setArr(KEY.purchases,purchases);renderPurchases()}else if(type==='expenses'){expenses.splice(index,1);setArr(KEY.expenses,expenses);renderExpenses()}else if(type==='partners'){partners.splice(index,1);setArr(KEY.partners,partners);renderPartners()}else if(type==='payroll'){payroll.splice(index,1);setArr(KEY.payroll,payroll);renderPayroll()}updateDashboard();loadReports()}
+// PLANNER
+function savePlan(){localStorage.setItem('cwb_plan',document.getElementById('planText').value);msg('planMessage','Business plan saved successfully.')}
+function loadPlan(){document.getElementById('planText').value=localStorage.getItem('cwb_plan')||''}
+// REPORTS
+function loadReports(){const t=totals();const ids={reportSales:t.sales,reportPurchases:t.purchases,reportExpenses:t.expenses,reportPayroll:t.payroll,reportTotalSales:t.sales,reportTotalPurchases:t.purchases,reportTotalExpenses:t.expenses,reportTotalPayroll:t.payroll,reportOperatingBalance:t.operating,reportFinalBalance:t.final,reportSalesRecords:sales.length,reportPurchaseRecords:purchases.length,reportExpenseRecords:expenses.length,reportPayrollRecords:payroll.length};Object.keys(ids).forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=id.includes('Records')?ids[id]:money(ids[id])});const result=document.getElementById('reportResult');if(!result)return;if(t.final>0){result.textContent='✅ PROFIT — Your final balance is positive.';result.style.background='#ecfdf5';result.style.color='#065f46'}else if(t.final<0){result.textContent='⚠️ LOSS — Your final balance is negative after Payroll.';result.style.background='#fef2f2';result.style.color='#991b1b'}else{result.textContent='ℹ️ BREAK-EVEN — Your final balance is zero.';result.style.background='#f3f4f6';result.style.color='#374151'}}
+// WEBSITE
+function saveWebsite(){let url=document.getElementById('website_url').value.trim();if(!url){msg('websiteMessage','Please enter a website address.',true);return}if(!/^https?:\/\//i.test(url))url='https://'+url;localStorage.setItem('cwb_website',url);msg('websiteMessage','Website saved successfully.');loadWebsite()}
+function loadWebsite(){const input=document.getElementById('website_url'),status=document.getElementById('websiteStatus');if(!input||!status)return;const url=localStorage.getItem('cwb_website')||'';if(url){input.value=url;status.innerHTML='Saved website: <b>'+esc(url)+'</b>'}else{status.textContent='No website saved yet.'}}
+function openSavedWebsite(){const url=localStorage.getItem('cwb_website');if(!url){msg('websiteMessage','No website saved yet.',true);return}window.open(url,'_blank','noopener,noreferrer')}
+// SOCIAL
+const socialPlatforms=[['Facebook','facebook'],['Instagram','instagram'],['WhatsApp','whatsapp'],['TikTok','tiktok'],['YouTube','youtube']];
+function loadSocial(){const box=document.getElementById('socialBoxes');if(!box)return;box.innerHTML=socialPlatforms.map(([name,key])=>{const saved=localStorage.getItem('cwb_social_'+key)||'';return `<div class="connection-box"><div class="social-title">${name}</div><div class="connection-row"><div class="input-area"><label>${name} Link</label><input id="social_${key}" type="url" placeholder="https://..." value="${esc(saved)}"></div><div class="connection-actions"><button class="btn" type="button" onclick="saveSocial('${key}')">Save</button><button class="btn secondary" type="button" onclick="openSocial('${key}')">Open</button></div></div></div>`}).join('')}
+function saveSocial(key){const input=document.getElementById('social_'+key);if(!input)return;let url=input.value.trim();if(!url){msg('socialMessage','Please enter the social media link.',true);return}if(!/^https?:\/\//i.test(url))url='https://'+url;localStorage.setItem('cwb_social_'+key,url);msg('socialMessage','Social connection saved successfully.');loadSocial()}
+function openSocial(key){const url=localStorage.getItem('cwb_social_'+key);if(!url){msg('socialMessage','No link saved for this platform.',true);return}window.open(url,'_blank','noopener,noreferrer')}
+// SCAN & PAY
+function updatePaymentMethod(){const method=document.getElementById('qr_method'),bank=document.getElementById('qr_bank_box'),label=document.getElementById('qr_account_label');if(!method||!bank||!label)return;if(method.value==='Bank'){bank.style.display='block';label.textContent='Bank Account Number'}else{bank.style.display='none';label.textContent='Payment Account / Number'}}
+const qrMethod=document.getElementById('qr_method');if(qrMethod)qrMethod.addEventListener('change',updatePaymentMethod);
+function generateQR(){const customer=document.getElementById('qr_customer').value.trim(),invoice=document.getElementById('qr_invoice').value.trim(),amount=document.getElementById('qr_amount').value,currency=document.getElementById('qr_currency').value,method=document.getElementById('qr_method').value,account=document.getElementById('qr_account').value.trim(),accountName=document.getElementById('qr_account_name').value.trim(),note=document.getElementById('qr_note').value.trim();if(!customer||!invoice||!amount){msg('qrMessage','Please complete Customer Name, Invoice Number and Amount.',true);return}if(typeof QRCode==='undefined'){msg('qrMessage','QR generator is not loaded. Please refresh the page.',true);return}const paymentText='CWB PAYMENT|Merchant:984868|Number:06691086015|Customer:'+customer+'|Invoice:'+invoice+'|Amount:'+amount+' '+currency+'|Method:'+method+'|Account:'+account+'|Name:'+accountName+'|Note:'+note;const area=document.getElementById('qrArea');area.innerHTML=`<div class="cwb-qr-card"><div class="cwb-qr-header"><img class="cwb-qr-logo" src="./file_000000009d80820694001bdae16e2e4b.png" alt="C.W.B Logo"><div class="cwb-qr-title">C.W.B PAYMENT</div><div class="cwb-qr-company">CAMEL WORK AND BUSINESS COMPANY</div><div class="cwb-qr-slogan">Better Quality is our priority</div></div><div class="cwb-qr-body"><div class="cwb-qr-code"><div id="generatedQRCode"></div></div><div class="cwb-payment-details"><div class="cwb-payment-detail"><b>Customer</b>${esc(customer)}</div><div class="cwb-payment-detail"><b>Invoice</b>${esc(invoice)}</div><div class="cwb-payment-detail"><b>Amount</b>${esc(amount)} ${esc(currency)}</div><div class="cwb-payment-detail"><b>Payment Method</b>${esc(method)}</div></div><div class="cwb-payment-number">Payment Number<strong>06691086015</strong></div><div class="cwb-bank-box"><b>Payment Account</b><br>${esc(accountName)}<br>${esc(account)}</div>${note?`<div class="cwb-payment-note"><b>Note</b><br>${esc(note)}</div>`:''}<div class="cwb-qr-footer">C.W.B System • Master Version 2</div></div></div>`;new QRCode(document.getElementById('generatedQRCode'),{text:paymentText,width:260,height:260,correctLevel:QRCode.CorrectLevel.L});document.getElementById('qrText').textContent=paymentText;msg('qrMessage','Professional payment QR generated successfully.')}
+  function openCWPayment(){
+const params=new URLSearchParams(window.location.search);
+
+if(params.get('payment')!=='1')return;
+
+const customer=params.get('customer')||'Customer';
+const invoice=params.get('invoice')||'';
+const amount=params.get('amount')||'';
+const currency=params.get('currency')||'BIF';
+const method=params.get('method')||'Mobile Money';
+const account=params.get('account')||'06691086015';
+const name=params.get('name')||'CAMEL WORK AND BUSINESS COMPANY';
+
+document.body.innerHTML=`
+<div style="min-height:100vh;background:#111827;padding:25px;box-sizing:border-box;font-family:Arial,sans-serif">
+<div style="max-width:520px;margin:20px auto;background:white;border-radius:20px;overflow:hidden;box-shadow:0 15px 50px rgba(0,0,0,.4)">
+
+<div style="background:linear-gradient(135deg,#111827,#b91c1c);color:white;text-align:center;padding:25px">
+<div style="font-size:25px;font-weight:bold">C.W.B PAYMENT</div>
+<div style="margin-top:8px">CAMEL WORK AND BUSINESS COMPANY</div>
+<div style="margin-top:6px;font-size:13px">Better Quality is our priority</div>
+</div>
+
+<div style="padding:25px">
+
+<h2 style="text-align:center;color:#111827">Payment Details</h2>
+
+<p><b>Customer:</b> ${esc(customer)}</p>
+<p><b>Invoice:</b> ${esc(invoice)}</p>
+<p><b>Amount:</b> ${esc(amount)} ${esc(currency)}</p>
+<p><b>Payment Method:</b> ${esc(method)}</p>
+
+<div style="background:#f3f4f6;border-radius:12px;padding:18px;text-align:center;margin-top:20px">
+<div style="font-size:14px;color:#6b7280">PAYMENT NUMBER</div>
+<div style="font-size:24px;font-weight:bold;color:#b91c1c;margin-top:6px">
+${esc(account)}
+</div>
+<div style="margin-top:8px;font-weight:bold">
+${esc(name)}
+</div>
+</div>
+
+<div style="margin-top:25px;text-align:center;color:#6b7280;font-size:13px">
+C.W.B System • Master Version 2
+</div>
+
+</div>
+</div>
+</div>
+`;
+}
+function generateQR(){
+const customer=document.getElementById('qr_customer').value.trim();
+const invoice=document.getElementById('qr_invoice').value.trim();
+const amount=document.getElementById('qr_amount').value;
+const currency=document.getElementById('qr_currency').value;
+const method=document.getElementById('qr_method').value;
+const account=document.getElementById('qr_account').value.trim();
+const accountName=document.getElementById('qr_account_name').value.trim();
+const note=document.getElementById('qr_note').value.trim();
+
+if(!customer||!invoice||!amount){
+msg('qrMessage','Please complete Customer Name, Invoice Number and Amount.',true);
+return;
+}
+
+if(typeof QRCode==='undefined'){
+msg('qrMessage','QR generator is not loaded. Please refresh the page.',true);
+return;
+}
+const paymentLink =
+'https://cwb2012.github.io/C.-W.-B-system-/?payment=1'+
+'&customer='+encodeURIComponent(customer)+
+'&invoice='+encodeURIComponent(invoice)+
+'&amount='+encodeURIComponent(amount)+
+'&currency='+encodeURIComponent(currency)+
+'&method='+encodeURIComponent(method)+
+'&account='+encodeURIComponent(account)+
+'&name='+encodeURIComponent(accountName);
+
+const paymentText=paymentLink;
+
+const area=document.getElementById('qrArea');
+
+area.innerHTML=`
+<div class="cwb-qr-card">
+<div class="cwb-qr-header">
+<img class="cwb-qr-logo"
+src="./file_000000009d80820694001bdae16e2e4b.png"
+alt="C.W.B Logo">
+<div class="cwb-qr-title">C.W.B PAYMENT</div>
+<div class="cwb-qr-company">CAMEL WORK AND BUSINESS COMPANY</div>
+<div class="cwb-qr-slogan">Better Quality is our priority</div>
+</div>
+
+<div class="cwb-qr-body">
+
+<div class="cwb-qr-code">
+<div id="generatedQRCode"></div>
+</div>
+
+<div class="cwb-payment-details">
+<div class="cwb-payment-detail">
+<b>Customer</b>${esc(customer)}
+</div>
+
+<div class="cwb-payment-detail">
+<b>Invoice</b>${esc(invoice)}
+</div>
+
+<div class="cwb-payment-detail">
+<b>Amount</b>${esc(amount)} ${esc(currency)}
+</div>
+
+<div class="cwb-payment-detail">
+<b>Payment Method</b>${esc(method)}
+</div>
+</div>
+
+<div class="cwb-payment-number">
+Payment Number
+<strong>06691086015</strong>
+</div>
+
+<div class="cwb-bank-box">
+<b>Payment Account</b><br>
+${esc(accountName)}<br>
+${esc(account)}
+</div>
+
+${note?`
+<div class="cwb-payment-note">
+<b>Note</b><br>
+${esc(note)}
+</div>`:''}
+
+<div class="cwb-qr-footer">
+C.W.B System • Master Version 2
+</div>
+
+</div>
+</div>
+`;
+
+new QRCode(
+document.getElementById('generatedQRCode'),
+{
+text:paymentText,
+width:260,
+height:260,
+correctLevel:QRCode.CorrectLevel.M,
+colorDark:"#000000",
+colorLight:"#ffffff"
+}
+);
+
+document.getElementById('qrText').textContent=paymentText;
+
+msg('qrMessage','Professional payment QR generated successfully.');
+}
+function printQR(){const area=document.getElementById('qrArea');if(!area?.querySelector('.cwb-qr-card')){msg('qrMessage','Generate the QR first.',true);return}const w=window.open('','_blank');if(!w){msg('qrMessage','Please allow pop-ups to print the QR.',true);return}w.document.write('<html><head><title>C.W.B Payment QR</title><style>body{font-family:Arial;margin:20px}.cwb-qr-card{max-width:520px;margin:auto;border:2px solid #b91c1c;border-radius:18px;overflow:hidden}.cwb-qr-header{background:linear-gradient(135deg,#111827,#b91c1c);color:#fff;text-align:center;padding:20px}.cwb-qr-logo{width:76px;height:76px}.cwb-qr-body{padding:18px;text-align:center}</style></head><body>'+area.innerHTML+'<script>window.onload=function(){window.print()}<\\/script></body></html>');w.document.close()}
+function startup(){updateDashboard();renderSales();renderPurchases();renderExpenses();renderPartners();renderPayroll();loadPlan();loadWebsite();loadSocial();loadInventory();loadGarage();updatePaymentMethod();loadReports();[['sale_date',today()],['purchase_date',today()],['expense_date',today()],['service_date',today()],['pay_month',currentMonth()]].forEach(([id,v])=>{const e=document.getElementById(id);if(e&&!e.value)e.value=v});updatePayPreview()}
+if(new URLSearchParams(window.location.search).get('payment')==='1'){
+  openCWPayment();
+}else{
+  startup();
+}
+</script>
+  <script>
+(function(){
+"use strict";
+  const supabaseClient=window.cwbSupabaseClient;
+if(!supabaseClient){
+  console.error("C.W.B Supabase client failed to initialize.");
+  return;
+}
+const MODULES={
+ accounting:"accounting",
+ payroll:"payroll",
+ inventory:"inventory",
+ sales:"sales",
+ purchases:"purchases",
+ partners:"partners",
+ expenses:"expenses",
+ garage:"garage",
+ planner:"planner",
+ reports:"reports",
+ scanpay:"scanpay",
+ website:"website",
+ social:"social"
+};
+
+let currentUser=null;
+let allowed=new Set();
+const originalShowModule=window.showModule;
+
+const style=document.createElement("style");
+style.textContent=`
+#cwbAuthScreen{
+position:fixed;inset:0;z-index:99999;background:#111827;
+display:flex;align-items:center;justify-content:center;padding:20px;
+font-family:Arial,sans-serif
+}
+#cwbAuthCard{
+width:min(420px,100%);background:white;border-radius:18px;
+padding:25px;box-shadow:0 20px 60px rgba(0,0,0,.4)
+}
+#cwbAuthCard h2{text-align:center;margin:0 0 8px;color:#111827}
+#cwbAuthCard p{text-align:center;color:#6b7280}
+#cwbAuthCard input{
+width:100%;padding:13px;margin:7px 0;
+border:1px solid #ccc;border-radius:10px;
+box-sizing:border-box;font-size:16px
+}
+#cwbAuthCard button{
+width:100%;padding:13px;margin-top:10px;border:0;
+border-radius:10px;background:#b91c1c;color:white;
+font-weight:bold;font-size:16px
+}
+#cwbAuthMsg{text-align:center;margin-top:12px;font-size:14px}
+#cwbUserBar{
+position:fixed;right:10px;top:10px;z-index:9000;
+background:#111827;color:white;padding:9px 12px;
+border-radius:10px;font:13px Arial
+}
+#cwbUserBar button{
+margin-left:8px;background:#b91c1c;color:white;
+border:0;border-radius:7px;padding:6px 9px
+}
+`;
+document.head.appendChild(style);
+
+if(new URLSearchParams(window.location.search).get("payment")==="1") return;
+const screen=document.createElement("div");
+screen.id="cwbAuthScreen";
+screen.innerHTML=`
+<div id="cwbAuthCard">
+<h2>C.W.B Secure Login</h2>
+<p>Camel Work and Business company</p>
+<input id="cwbEmail" type="email" placeholder="Email">
+<input id="cwbPassword" type="password" placeholder="Password">
+<button id="cwbLogin">Login</button>
+<div id="cwbAuthMsg"></div>
+</div>`;
+document.body.appendChild(screen);
+
+function message(t,error=false){
+const m=document.getElementById("cwbAuthMsg");
+m.textContent=t;
+m.style.color=error?"#b91c1c":"#166534";
+}
+
+function moduleFromButton(el){
+const onclick=el.getAttribute("onclick")||"";
+const match=onclick.match(/showModule\s*\(\s*['"]([^'"]+)/);
+return match?match[1].toLowerCase():"";
+}
+
+function applyAccess(){
+document.querySelectorAll('[onclick*="showModule"]').forEach(el=>{
+const id=moduleFromButton(el);
+if(id) el.style.display=allowed.has(id)?"":"none";
+});
+}
+
+async function loadAccess(user){
+
+const {data:profile,error:pError}=await supabaseClient
+.from("cwb_profiles")
+.select("id,full_name,active,role_id")
+.eq("id",user.id)
+.maybeSingle();
+
+if(pError) throw pError;
+
+if(!profile){
+message("Account found, but no C.W.B role is assigned.",true);
+return;
+}
+
+if(profile.active===false){
+message("This C.W.B account is inactive.",true);
+await supabaseClient.auth.signOut();
+return;
+}
+
+let roleName="User";
+
+if(profile.role_id){
+
+const {data:role,error:rError}=await supabaseClient
+.from("cwb_roles")
+.select("id,name")
+.eq("id",profile.role_id)
+.maybeSingle();
+
+if(rError) throw rError;
+
+roleName=role?.name||"User";
+
+if(roleName==="CEO"){
+Object.values(MODULES).forEach(x=>allowed.add(x));
+}else{
+
+const {data:rp,error:rpError}=await supabaseClient
+.from("cwb_role_permissions")
+.select("permission_id")
+.eq("role_id",profile.role_id);
+
+if(rpError) throw rpError;
+
+const ids=(rp||[]).map(x=>x.permission_id).filter(Boolean);
+
+if(ids.length){
+
+const {data:perms,error:perr}=await supabaseClient
+.from("cwb_permissions")
+.select("id,module_key")
+.in("id",ids);
+
+if(perr) throw perr;
+
+(perms||[]).forEach(p=>{
+const key=String(p.module_key||"").toLowerCase();
+if(MODULES[key]) allowed.add(key);
+});
+}
+}
+}
+
+currentUser=user;
+
+const bar=document.createElement("div");
+bar.id="cwbUserBar";
+bar.innerHTML=
+"👤 "+(profile.full_name||user.email)+
+" • "+roleName+
+' <button id="cwbLogout">Logout</button>';
+document.body.appendChild(bar);
+
+document.getElementById("cwbLogout").onclick=async()=>{
+await supabaseClient.auth.signOut();
+location.reload();
+};
+
+screen.style.display="none";
+applyAccess();
+
+if(originalShowModule){
+window.showModule=function(id){
+id=String(id||"").toLowerCase();
+
+if(!allowed.has(id)){
+alert("You do not have permission to open this C.W.B module.");
+return;
+}
+
+return originalShowModule.apply(this,arguments);
+};
+}
+}
+
+document.getElementById("cwbLogin").onclick=async()=>{
+const button=document.getElementById("cwbLogin");
+const email=document.getElementById("cwbEmail").value.trim();
+const password=document.getElementById("cwbPassword").value;
+
+if(!email||!password){
+message("Enter your email and password.",true);
+return;
+}
+
+button.disabled=true;
+button.textContent="Please wait...";
+
+const withTimeout=(promise,ms,stage)=>Promise.race([
+promise,
+new Promise((_,reject)=>setTimeout(
+()=>reject(new Error(stage+" is taking too long. Check your internet connection and try again.")),
+ms
+))
+]);
+
+try{
+message("Step 1/2: Connecting to secure sign-in...");
+
+const {data,error}=await withTimeout(
+supabaseClient.auth.signInWithPassword({email,password}),
+20000,
+"Secure sign-in"
+);
+
+if(error) throw error;
+if(!data||!data.user){
+throw new Error("Sign-in returned no user. Please check your email and password.");
+}
+const expectedWorkerId = new URLSearchParams(window.location.search).get("worker");
+
+if(expectedWorkerId && data.user.id !== expectedWorkerId){
+await supabaseClient.auth.signOut();
+throw new Error("This QR code belongs to another worker. Please sign in with the account assigned to this QR code.");
+}
+message("Step 2/2: Checking your C.W.B role...");
+await withTimeout(
+loadAccess(data.user),
+20000,
+"C.W.B role check"
+);
+
+}catch(e){
+message(e?.message||"Unable to complete sign-in. Please refresh and try again.",true);
+}finally{
+button.disabled=false;
+button.textContent="Login";
+}
+};
+
+
+(async()=>{
+
+const {data}=await supabaseClient.auth.getSession();
+
+if(data.session){
+try{
+await loadAccess(data.session.user);
+}catch(e){
+message(e.message||"Unable to load permissions.",true);
+}
+}else{
+applyAccess();
+}
+
+})();
+})();
+</script>
+  <!-- C.W.B CEO — Users & Permissions -->
+<script>
+(function(){
+"use strict";
+
+function cwbUsersStyle(){
+  if(document.getElementById("cwbUsersStyle")) return;
+
+  const s=document.createElement("style");
+  s.id="cwbUsersStyle";
+  s.textContent=`
+  #cwbUsersBtn{
+    position:fixed;right:10px;bottom:15px;z-index:8999;
+    background:#b91c1c;color:white;border:0;border-radius:10px;
+    padding:11px 14px;font-weight:bold;box-shadow:0 4px 15px #0005;
+  }
+  #cwbUsersPanel{
+    position:fixed;inset:0;z-index:9998;background:#111827;
+    overflow:auto;padding:20px;font-family:Arial,sans-serif;
+  }
+  #cwbUsersBox{
+    max-width:650px;margin:30px auto;background:white;
+    border-radius:18px;padding:20px;
+  }
+  #cwbUsersBox h2{margin-top:0;color:#111827}
+  #cwbUsersBox input,#cwbUsersBox select{
+    width:100%;box-sizing:border-box;padding:12px;margin:6px 0;
+    border:1px solid #ccc;border-radius:9px;font-size:15px;
+  }
+  #cwbUsersBox button{
+    padding:11px 14px;border:0;border-radius:9px;
+    background:#b91c1c;color:white;font-weight:bold;margin:5px 3px;
+  }
+  .cwbUserRow{
+    border:1px solid #ddd;border-radius:10px;padding:12px;
+    margin:10px 0;
+  }
+  .cwbUserRow button{background:#374151}
+  #cwbUsersMessage{margin:10px 0;font-weight:bold}
+  `;
+
+  document.head.appendChild(s);
+}
+
+async function getMyProfile(){
+  const {data:{user}}=await supabaseClient.auth.getUser();
+
+  if(!user) return null;
+
+  const {data,error}=await supabaseClient
+    .from("cwb_profiles")
+    .select("id,full_name,active,role_id")
+    .eq("id",user.id)
+    .maybeSingle();
+
+  if(error) return null;
+
+  if(!data || !data.role_id) return null;
+
+  const {data:role}=await supabaseClient
+    .from("cwb_roles")
+    .select("name")
+    .eq("id",data.role_id)
+    .maybeSingle();
+
+  return {
+    user,
+    profile:data,
+    role:role?.name||""
+  };
+}
+
+async function openUsersPanel(){
+
+  const me=await getMyProfile();
+
+  if(!me || me.role!=="CEO"){
+    alert("Only the C.W.B CEO can manage users.");
+    return;
+  }
+
+  let panel=document.getElementById("cwbUsersPanel");
+
+  if(!panel){
+    panel=document.createElement("div");
+    panel.id="cwbUsersPanel";
+
+    panel.innerHTML=`
+      <div id="cwbUsersBox">
+
+        <h2>👥 C.W.B Users & Permissions</h2>
+
+        <p>
+        Create a C.W.B profile for an existing Supabase Auth user
+        and assign their role.
+        </p>
+
+        <input id="cwbWorkerId"
+          placeholder="Worker User ID (UUID)">
+
+        <input id="cwbWorkerName"
+          placeholder="Worker full name">
+
+        <select id="cwbWorkerRole">
+          <option value="">Choose role</option>
+          <option value="CEO">CEO</option>
+          <option value="Sales">Sales</option>
+          <option value="Inventory">Inventory</option>
+          <option value="Garage">Garage</option>
+          <option value="Accountant">Accountant</option>
+          <option value="HR">HR</option>
+          <option value="Website/Social">Website/Social</option>
+        </select>
+
+        <button id="cwbSaveWorker">Save User & Role</button>
+
+        <button id="cwbCloseUsers" style="background:#374151">
+          Close
+        </button>
+
+        <div id="cwbUsersMessage"></div>
+
+        <hr>
+
+        <h3>Current C.W.B Users</h3>
+        <div id="cwbUsersList">Loading...</div>
+
+      </div>
+    `;
+
+    document.body.appendChild(panel);
+
+    document.getElementById("cwbCloseUsers").onclick=()=>{
+      panel.remove();
+    };
+
+    document.getElementById("cwbSaveWorker").onclick=saveWorker;
+  }
+
+  await loadUsers();
+}
+
+async function saveWorker(){
+
+  const id=document.getElementById("cwbWorkerId").value.trim();
+  const name=document.getElementById("cwbWorkerName").value.trim();
+  const roleName=document.getElementById("cwbWorkerRole").value;
+
+  const msg=document.getElementById("cwbUsersMessage");
+
+  if(!id || !name || !roleName){
+    msg.textContent="Please fill User ID, name and role.";
+    msg.style.color="#b91c1c";
+    return;
+  }
+
+  msg.textContent="Saving...";
+  msg.style.color="#374151";
+
+  const {data:role,error:roleError}=await supabaseClient
+    .from("cwb_roles")
+    .select("id")
+    .eq("name",roleName)
+    .single();
+
+  if(roleError){
+    msg.textContent="Role could not be found.";
+    msg.style.color="#b91c1c";
+    return;
+  }
+
+  const {error}=await supabaseClient
+    .from("cwb_profiles")
+    .upsert({
+      id:id,
+      full_name:name,
+      role_id:role.id,
+      active:true
+    });
+
+  if(error){
+    msg.textContent=error.message;
+    msg.style.color="#b91c1c";
+    return;
+  }
+
+  msg.textContent="User and role saved successfully.";
+  msg.style.color="#166534";
+
+  document.getElementById("cwbWorkerId").value="";
+  document.getElementById("cwbWorkerName").value="";
+  document.getElementById("cwbWorkerRole").value="";
+
+  await loadUsers();
+}
+async function loadUsers(){
+  const list = document.getElementById("cwbUsersList");
+  if (!list) return;
+  list.textContent = "Loading worker profiles from Supabase...";
+
+  const client = window.cwbSupabaseClient;
+  if (!client) {
+    list.textContent = "Supabase is not ready. Please refresh the page and sign in again.";
+    return;
+  }
+
+  const withTimeout = (promise, milliseconds, label) => Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error(label + " timed out. Please check your connection and try again.")), milliseconds))
+  ]);
+
+  try {
+    const sessionResult = await withTimeout(
+      client.auth.getSession(),
+      10000,
+      "Checking your login session"
+    );
+
+    if (sessionResult.error) {
+      list.textContent = "Session error: " + sessionResult.error.message;
+      return;
+    }
+
+    const session = sessionResult.data && sessionResult.data.session;
+    if (!session || !session.access_token) {
+      list.textContent = "Please log out and sign in again as the C.W.B CEO.";
+      return;
+    }
+
+    const profileResult = await withTimeout(
+      client.from("cwb_profiles")
+        .select("id,full_name,role_id,active")
+        .order("full_name", { ascending: true }),
+      15000,
+      "Loading C.W.B user profiles"
+    );
+
+    if (profileResult.error) {
+      list.textContent = "Profile loading error: " + profileResult.error.message;
+      return;
+    }
+
+    const profiles = profileResult.data || [];
+    if (!Array.isArray(profiles)) {
+      list.textContent = "Supabase returned an unexpected response.";
+      return;
+    }
+    if (!profiles.length) {
+      list.textContent = "No C.W.B users found.";
+      return;
+    }
+
+    const roleIds = [...new Set(profiles
+      .map(p => p.role_id)
+      .filter(id => id !== null && id !== undefined && id !== ""))];
+    let roles = [];
+
+    if (roleIds.length) {
+      const roleResult = await withTimeout(
+        client.from("cwb_roles").select("id,name").in("id", roleIds),
+        12000,
+        "Loading C.W.B user roles"
+      );
+      if (roleResult.error) {
+        list.textContent = "Role loading error: " + roleResult.error.message;
+        return;
+      }
+      roles = roleResult.data || [];
+    }
+
+    const roleMap = {};
+    roles.forEach(role => { roleMap[role.id] = role.name; });
+
+    list.innerHTML = profiles.map(p => `
+      <div class="cwbUserRow" style="padding:12px;margin:10px 0;border:1px solid #ddd;border-radius:10px;">
+        <strong>${escapeHtml(p.full_name || "Unnamed user")}</strong><br>
+        Role: <strong>${escapeHtml(roleMap[p.role_id] || "No role")}</strong><br>
+        Status: ${p.active === false ? "Inactive" : "Active"}<br>
+        <small>User ID: ${escapeHtml(p.id)}</small><br><br>
+        ${p.active === false
+          ? "<span>Activate this worker before using their QR code.</span>"
+          : `<button type="button" class="cwbWorkerQRButton" data-user-id="${escapeHtml(p.id)}" style="background:#b91c1c;color:white;padding:10px;border:0;border-radius:8px;">Generate Worker QR</button>
+             <div id="cwbWorkerQR-${escapeHtml(p.id)}" style="display:none;margin-top:12px;padding:12px;background:white;border:1px solid #ddd;border-radius:8px;"></div>`}
+      </div>
+    `).join("");
+
+    list.querySelectorAll(".cwbWorkerQRButton").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.userId;
+        const box = document.getElementById("cwbWorkerQR-" + id);
+        if (!box) return;
+        if (typeof QRCode === "undefined") {
+          box.style.display = "block";
+          box.textContent = "QR library unavailable. Check your internet connection.";
+          return;
+        }
+
+        box.innerHTML = "";
+        box.style.display = "block";
+        const target = new URL(window.location.href);
+        target.searchParams.set("worker", id);
+        new QRCode(box, { text: target.toString(), width: 200, height: 200, correctLevel: QRCode.CorrectLevel.M });
+
+        const note = document.createElement("p");
+        note.textContent = "Scan this QR to open C.W.B System. The worker must still sign in using their own email and password.";
+        note.style.maxWidth = "240px";
+        note.style.fontSize = "13px";
+        box.appendChild(note);
+
+        const printBtn = document.createElement("button");
+        printBtn.type = "button";
+        printBtn.textContent = "Print Worker QR";
+        printBtn.style.cssText = "background:#111827;color:white;padding:8px 12px;border:0;border-radius:6px;margin-top:8px;";
+        printBtn.onclick = () => {
+          const w = window.open("", "_blank");
+          if (!w) { alert("Allow pop-ups to print this QR code."); return; }
+          w.document.write("<html><head><title>C.W.B Worker QR</title></head><body style='font-family:Arial;text-align:center;padding:30px;'>");
+          w.document.write("<h2>C.W.B System</h2>");
+          w.document.write("<h3>" + escapeHtml(btn.closest(".cwbUserRow").querySelector("strong").textContent) + "</h3>");
+          const qrImage = box.querySelector("canvas") || box.querySelector("img");
+          if (qrImage) w.document.write(qrImage.outerHTML);
+          w.document.write("<p>Scan to open C.W.B System. Sign in with your own email and password.</p>");
+          w.document.write("<p>Better Quality is our priority</p></body></html>");
+          w.document.close();
+          w.focus();
+          w.print();
+        };
+        box.appendChild(printBtn);
+      });
+    });
+  } catch (error) {
+    list.textContent = "Users & Permissions error: " + (error && error.message ? error.message : String(error));
+  }
+}
+
+function createCEOButton(){
+
+  if(document.getElementById("cwbUsersBtn")) return;
+
+  const btn=document.createElement("button");
+  btn.id="cwbUsersBtn";
+  btn.textContent="👥 Users & Permissions";
+
+  btn.onclick=openUsersPanel;
+
+  document.body.appendChild(btn);
+}
+
+async function startUsers(){
+
+  cwbUsersStyle();
+
+  const me=await getMyProfile();
+
+  if(me && me.role==="CEO"){
+    createCEOButton();
+  }
+}
+
+if(document.readyState==="loading"){
+  document.addEventListener("DOMContentLoaded",startUsers);
+}else{
+  startUsers();
+}
+
+})();
+</script>
+  <!-- C.W.B SYSTEM LANGUAGE SELECTOR --><div id="cwb-language-box" style="position:fixed;top:70px;right:10px;z-index:99999;background:#ffffff;padding:8px;border:2px solid #b91c1c;border-radius:10px;box-shadow:0 2px 8px #777;">
+  <label for="cwb-language" style="font-weight:bold;color:#111827;">🌐 Language:</label>
+  <select id="cwb-language" onchange="cwbChangeLanguage(this.value)" style="padding:6px;border-radius:6px;max-width:145px;">
+    <option value="en">🇬🇧 English</option>
+    <option value="fr">🇫🇷 Français</option>
+    <option value="sw">🇹🇿 Kiswahili</option>
+  </select>
+</div><script>
+(function () {
+  const translations = {
+    fr: {
+      "Business Dashboard": "Tableau de bord",
+      "Accounting": "Comptabilité",
+      "Payroll": "Paie",
+      "Inventory": "Stock",
+      "Sales & Invoice": "Ventes et factures",
+      "Purchases": "Achats",
+      "Customers & Partners": "Clients et partenaires",
+      "Expenses": "Dépenses",
+      "Garage Activities": "Activités du garage",
+      "Business Planner": "Planificateur d’entreprise",
+      "Reports": "Rapports",
+      "Scan & Pay": "Scanner et payer",
+      "Website": "Site web",
+      "Social Connections": "Réseaux sociaux",
+      "Better Quality is our priority": "La meilleure qualité est notre priorité"
+    },
+    sw: {
+      "Business Dashboard": "Dashibodi ya Biashara",
+      "Accounting": "Uhasibu",
+      "Payroll": "Malipo ya wafanyakazi",
+      "Inventory": "Stoo",
+      "Sales & Invoice": "Mauzo na Ankara",
+      "Purchases": "Manunuzi",
+      "Customers & Partners": "Wateja na Washirika",
+      "Expenses": "Matumizi",
+      "Garage Activities": "Shughuli za Gereji",
+      "Business Planner": "Mpangaji wa Biashara",
+      "Reports": "Ripoti",
+      "Scan & Pay": "Changanua na Lipa",
+      "Website": "Tovuti",
+      "Social Connections": "Mitandao ya Kijamii",
+      "Better Quality is our priority": "Ubora Bora ni Kipaumbele Chetu"
+    }
+  };
+
+  const originalText = new WeakMap();
+
+  function translatePage(language) {
+    document.documentElement.lang = language;
+
+    document.querySelectorAll("button, h1, h2, h3, label, p, option").forEach(function (element) {
+      if (element.closest("#cwb-language-box")) return;
+
+      if (!originalText.has(element)) {
+        originalText.set(element, element.textContent.trim());
+      }
+
+      const original = originalText.get(element);
+      element.textContent = language === "en"
+        ? original
+        : ((translations[language] && translations[language][original]) || original);
+    });
+
+    try {
+      localStorage.setItem("cwb-language", language);
+    } catch (error) {}
+  }
+
+  window.cwbChangeLanguage = translatePage;
+
+  document.addEventListener("DOMContentLoaded", function () {
+    let savedLanguage = "en";
+    try {
+      savedLanguage = localStorage.getItem("cwb-language") || "en";
+    } catch (error) {}
+
+    const selector = document.getElementById("cwb-language");
+    if (selector) selector.value = savedLanguage;
+    translatePage(savedLanguage);
+  });
+})();
+</script>
+</body>
+</html>
