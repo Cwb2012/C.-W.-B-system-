@@ -1,6 +1,7 @@
-/* C.W.B Japan Car Import module.
-   Upload to the ROOT of the existing GitHub Pages repository.
-   This file is not active until index.html registers it and Supabase SQL is applied.
+/* C.W.B Japan Car Import module — corrected integration build.
+   Upload this file to the ROOT of the existing GitHub Pages repository.
+   Do NOT replace index.html with this file.
+   Requires the C.W.B Supabase client, dashboard module registration, and Japan Import SQL setup.
 */
 (function () {
   'use strict';
@@ -8,6 +9,7 @@
   const $ = id => document.getElementById(id);
   const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const usd = v => Number(v || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  const burundiDateTime = v => v ? new Intl.DateTimeFormat('en-GB', {timeZone:'Africa/Bujumbura', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false}).format(new Date(v)) : ''; 
   const vehicleStates = ['Ordered','Purchased','Shipped','Arrived in Burundi','Delivered'];
   const dhlStates = ['Not dispatched','In transit','Received in Burundi'];
   let isCEO = false, user = null, orders = [], payments = [], receipts = [];
@@ -20,24 +22,24 @@
     if ($('cwbJapanStyle')) return;
     const s = document.createElement('style'); s.id = 'cwbJapanStyle';
     s.textContent = `
-      #japanImport{color:#111827}#japanImport .ji-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
-      #japanImport label{display:block;font-weight:600;margin:7px 0 4px}#japanImport input,#japanImport select{width:100%;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}
-      #japanImport button{cursor:pointer;border:0;border-radius:8px;padding:10px 13px;margin:4px 3px 4px 0;background:#b91c1c;color:white;font-weight:600}#japanImport button.secondary{background:#374151}
-      #japanImport .ji-panel{border:1px solid #e5e7eb;border-radius:12px;padding:14px;margin:14px 0;background:#fff}#japanImport .ji-tablewrap{overflow:auto}
-      #japanImport table{width:100%;border-collapse:collapse;min-width:830px}#japanImport th,#japanImport td{border-bottom:1px solid #e5e7eb;padding:9px;text-align:left;vertical-align:top}#japanImport th{background:#f3f4f6}
-      #japanImport .ji-small{font-size:12px;color:#6b7280}#japanImport .ji-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:9px}#japanImport .ji-stat{background:#f3f4f6;padding:12px;border-radius:9px}#japanImport .ji-stat strong{display:block;font-size:18px;margin-top:5px}
-      @media(max-width:600px){#japanImport .ji-panel{padding:10px}#japanImport h2{font-size:21px}}
+      #japanimport{color:#111827}#japanimport .ji-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+      #japanimport label{display:block;font-weight:600;margin:7px 0 4px}#japanimport input,#japanimport select{width:100%;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}
+      #japanimport button{cursor:pointer;border:0;border-radius:8px;padding:10px 13px;margin:4px 3px 4px 0;background:#b91c1c;color:white;font-weight:600}#japanimport button.secondary{background:#374151}
+      #japanimport .ji-panel{border:1px solid #e5e7eb;border-radius:12px;padding:14px;margin:14px 0;background:#fff}#japanimport .ji-tablewrap{overflow:auto}
+      #japanimport table{width:100%;border-collapse:collapse;min-width:830px}#japanimport th,#japanimport td{border-bottom:1px solid #e5e7eb;padding:9px;text-align:left;vertical-align:top}#japanimport th{background:#f3f4f6}
+      #japanimport .ji-small{font-size:12px;color:#6b7280}#japanimport .ji-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:9px}#japanimport .ji-stat{background:#f3f4f6;padding:12px;border-radius:9px}#japanimport .ji-stat strong{display:block;font-size:18px;margin-top:5px}
+      @media(max-width:600px){#japanimport .ji-panel{padding:10px}#japanimport h2{font-size:21px}}
     `; document.head.appendChild(s);
   }
   function buildUI() {
     const dashboard = document.querySelector('.dashboard');
-    if (dashboard && !$('japanImportNav')) {
-      const b = document.createElement('button'); b.id = 'japanImportNav'; b.className = 'module';
-      b.setAttribute('onclick', "showModule('japanImport')"); b.textContent = 'Japan Car Import'; dashboard.appendChild(b);
+    if (dashboard && !$('japanimportNav')) {
+      const b = document.createElement('button'); b.id = 'japanimportNav'; b.className = 'module';
+      b.setAttribute('onclick', "showModule('japanimport')"); b.textContent = 'Japan Car Import'; dashboard.appendChild(b);
     }
-    if ($('japanImport')) return;
+    if ($('japanimport')) return;
     const container = document.querySelector('.container'); if (!container) return;
-    const section = document.createElement('div'); section.id = 'japanImport'; section.className = 'card hidden';
+    const section = document.createElement('div'); section.id = 'japanimport'; section.className = 'card hidden';
     section.innerHTML = `
       <h2>Japan Car Import / Importation de voitures du Japon</h2>
       <p>Vehicle register, customer costs, DHL documents and C.W.B commission are kept separate.</p>
@@ -138,7 +140,7 @@
   }
   function renderPayments() {
     const body=$('jiPaymentRows');if(!payments.length){body.innerHTML='<tr><td colspan="5">No customer payment claims yet.</td></tr>';return;}
-    body.innerHTML=payments.map(p=>{const o=orders.find(x=>x.id===p.order_id);return `<tr><td>${esc(o?.order_no||p.order_id)}<br>${esc(o?.customer||'')}</td><td>${usd(p.amount)} USD</td><td>${esc(p.method)}<br>${esc(p.reference||'—')}</td><td><b>${esc(p.status)}</b></td><td>${isCEO&&p.status==='PENDING'?`<button data-confirm="${esc(p.id)}">Confirm</button><button class="secondary" data-reject="${esc(p.id)}">Reject</button>`:(p.status==='CONFIRMED'?'Confirmed':'—')}</td></tr>`;}).join('');
+    body.innerHTML=payments.map(p=>{const o=orders.find(x=>x.id===p.order_id);const when=p.status==='CONFIRMED'?burundiDateTime(p.confirmed_at):(p.status==='REJECTED'?burundiDateTime(p.rejected_at):'');return `<tr><td>${esc(o?.order_no||p.order_id)}<br>${esc(o?.customer||'')}</td><td>${usd(p.amount)} USD</td><td>${esc(p.method)}<br>${esc(p.reference||'—')}</td><td><b>${esc(p.status)}</b>${when?`<br><span class="ji-small">${p.status==='CONFIRMED'?'Confirmed':'Rejected'}: ${esc(when)} (Burundi)</span>`:''}</td><td>${isCEO&&p.status==='PENDING'?`<button data-confirm="${esc(p.id)}">Confirm</button><button class="secondary" data-reject="${esc(p.id)}">Reject</button>`:(p.status==='CONFIRMED'?'Confirmed':'—')}</td></tr>`;}).join('');
     body.querySelectorAll('[data-confirm]').forEach(el=>el.addEventListener('click',()=>confirmPayment(el.dataset.confirm,false)));body.querySelectorAll('[data-reject]').forEach(el=>el.addEventListener('click',()=>confirmPayment(el.dataset.reject,true)));
   }
   function renderSummary() {
