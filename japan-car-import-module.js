@@ -1,25 +1,38 @@
-/* C.W.B JAPAN CAR IMPORT
-   English / French
-   Requires window.cwbSupabaseClient.
-   Uses existing C.W.B Japan Import database tables.
-   Private vehicle photo bucket: Japanese_cars
+/* C.W.B Japan Car Import module — complete replacement.
+   Place in repository root as japan-car-import-module.js.
+   Uses existing Supabase schema/RPCs; does not modify index.html or database records.
 */
 (function () {
   'use strict';
 
-  const BUCKET = 'Japanese_cars';
-  const TABLE = 'cwb_japan_import_orders';
-  const PAYMENT_TABLE = 'cwb_japan_customer_payments';
-  const RECEIPT_TABLE = 'cwb_japan_commission_receipts';
-  const COMMISSION = 100;
-  const $ = id => document.getElementById(id);
   const db = () => window.cwbSupabaseClient;
+  const $ = id => document.getElementById(id);
 
-  let user = null;
-  let isCEO = false;
-  let orders = [];
-  let payments = [];
-  let receipts = [];
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[c]));
+
+  const usd = v => Number(v || 0).toLocaleString('en-US', {
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  });
+
+  const burundiDateTime = v => v
+    ? new Intl.DateTimeFormat('en-GB', {
+        timeZone:'Africa/Bujumbura',
+        year:'numeric',
+        month:'2-digit',
+        day:'2-digit',
+        hour:'2-digit',
+        minute:'2-digit',
+        second:'2-digit',
+        hour12:false
+      }).format(new Date(v))
+    : '';
 
   const vehicleStates = [
     'Ordered',
@@ -35,56 +48,29 @@
     'Received in Burundi'
   ];
 
-  const esc = value => String(value == null ? '' : value).replace(
-    /[&<>"']/g,
-    char => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;'
-    }[char])
-  );
+  const COMMISSION = 100;
 
-  const money = value => Number(value || 0).toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
+  let isCEO = false;
+  let user = null;
+  let orders = [];
+  let payments = [];
+  let receipts = [];
 
-  function localDateTime(value) {
-    if (!value) return '';
-
-    return new Intl.DateTimeFormat('en-GB', {
-      timeZone: 'Africa/Bujumbura',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
-    }).format(new Date(value));
-  }
-
-  function say(message, error = false) {
+  function note(text, bad) {
     const el = $('jiMessage');
-
-    if (!el) {
-      alert(message);
-      return;
+    if (el) {
+      el.textContent = text;
+      el.style.color = bad ? '#b91c1c' : '#166534';
     }
-
-    el.textContent = message;
-    el.style.color = error ? '#b91c1c' : '#166534';
   }
 
-  function addStyles() {
+  function styles() {
     if ($('cwbJapanStyle')) return;
 
-    const style = document.createElement('style');
-    style.id = 'cwbJapanStyle';
+    const s = document.createElement('style');
+    s.id = 'cwbJapanStyle';
 
-    style.textContent = `
+    s.textContent = `
       #japanimport{color:#111827}
       #japanimport .ji-grid{
         display:grid;
@@ -92,61 +78,89 @@
         gap:12px
       }
       #japanimport label{
-        display:block;font-weight:600;margin:8px 0 4px
+        display:block;
+        font-weight:600;
+        margin:7px 0 4px
       }
-      #japanimport input,#japanimport select,#japanimport textarea{
-        width:100%;box-sizing:border-box;padding:10px;
-        border:1px solid #cbd5e1;border-radius:8px;background:white
+      #japanimport input,
+      #japanimport select{
+        width:100%;
+        box-sizing:border-box;
+        padding:10px;
+        border:1px solid #cbd5e1;
+        border-radius:8px;
+        background:#fff
       }
-      #japanimport textarea{min-height:75px}
       #japanimport button{
-        cursor:pointer;border:0;border-radius:8px;padding:10px 13px;
-        margin:4px 3px 4px 0;background:#b91c1c;color:white;
+        cursor:pointer;
+        border:0;
+        border-radius:8px;
+        padding:10px 13px;
+        margin:4px 3px 4px 0;
+        background:#b91c1c;
+        color:white;
         font-weight:600
       }
       #japanimport button.secondary{background:#374151}
-      #japanimport button:disabled{opacity:.55;cursor:wait}
       #japanimport .ji-panel{
-        border:1px solid #e5e7eb;border-radius:12px;
-        padding:14px;margin:14px 0;background:white
+        border:1px solid #e5e7eb;
+        border-radius:12px;
+        padding:14px;
+        margin:14px 0;
+        background:#fff
       }
       #japanimport .ji-tablewrap{overflow:auto}
       #japanimport table{
-        width:100%;border-collapse:collapse;min-width:850px
+        width:100%;
+        border-collapse:collapse;
+        min-width:830px
       }
-      #japanimport th,#japanimport td{
-        border-bottom:1px solid #e5e7eb;padding:9px;
-        text-align:left;vertical-align:top
+      #japanimport th,
+      #japanimport td{
+        border-bottom:1px solid #e5e7eb;
+        padding:9px;
+        text-align:left;
+        vertical-align:top
       }
       #japanimport th{background:#f3f4f6}
-      #japanimport .ji-small{font-size:12px;color:#6b7280}
+      #japanimport .ji-small{
+        font-size:12px;
+        color:#6b7280
+      }
       #japanimport .ji-summary{
-        display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
         gap:9px
       }
-      #japanimport .ji-stat{background:#f3f4f6;padding:12px;border-radius:9px}
-      #japanimport .ji-stat strong{display:block;font-size:18px;margin-top:5px}
-      #japanimport .ji-photo{max-width:110px;max-height:80px;border-radius:6px}
-      #japanimport .ji-message{font-weight:600;margin:10px 0}
+      #japanimport .ji-stat{
+        background:#f3f4f6;
+        padding:12px;
+        border-radius:9px
+      }
+      #japanimport .ji-stat strong{
+        display:block;
+        font-size:18px;
+        margin-top:5px
+      }
       @media(max-width:600px){
         #japanimport .ji-panel{padding:10px}
         #japanimport h2{font-size:21px}
       }
     `;
 
-    document.head.appendChild(style);
+    document.head.appendChild(s);
   }
 
   function buildUI() {
     const dashboard = document.querySelector('.dashboard');
 
     if (dashboard && !$('japanimportNav')) {
-      const button = document.createElement('button');
-      button.id = 'japanimportNav';
-      button.className = 'module';
-      button.textContent = 'Japan Car Import';
-      button.setAttribute('onclick', "showModule('japanimport')");
-      dashboard.appendChild(button);
+      const b = document.createElement('button');
+      b.id = 'japanimportNav';
+      b.className = 'module';
+      b.setAttribute('onclick', "showModule('japanimport')");
+      b.textContent = 'Japan Car Import';
+      dashboard.appendChild(b);
     }
 
     if ($('japanimport')) return;
@@ -160,126 +174,124 @@
 
     section.innerHTML = `
       <h2>Japan Car Import / Importation de voitures du Japon</h2>
+
       <p>
-        <b>C.W.B System</b> — Better Quality is our priority.
-        <br>
-        Vehicle orders, customer payments, shipping and commissions.
-        <br>
-        Dossiers véhicules, paiements clients, transport et commissions.
+        Vehicle register, customer costs, DHL documents and
+        C.W.B commission are kept separate.
       </p>
 
       <div class="ji-panel">
-        <h3>1. Register vehicle / Enregistrer un véhicule</h3>
+        <h3>Register a vehicle / Enregistrer un véhicule</h3>
 
         <div class="ji-grid">
           <div>
             <label>Customer / Client *</label>
-            <input id="jiCustomer">
+            <input id="jiCustomer" required>
           </div>
+
           <div>
-            <label>Phone / Téléphone</label>
+            <label>Customer phone / Téléphone</label>
             <input id="jiPhone">
           </div>
+
           <div>
             <label>Make and model / Marque et modèle *</label>
-            <input id="jiMake">
+            <input id="jiMake" required>
           </div>
+
           <div>
             <label>Year / Année</label>
             <input id="jiYear" type="number" min="1950" max="2100">
           </div>
+
           <div>
-            <label>VIN / Chassis</label>
+            <label>VIN / Châssis</label>
             <input id="jiVin">
           </div>
+
           <div>
             <label>Japan supplier / Fournisseur au Japon</label>
             <input id="jiSupplier">
           </div>
+
           <div>
-            <label>Vehicle price USD / Prix du véhicule</label>
+            <label>Vehicle price (USD) / Prix véhicule</label>
             <input id="jiPrice" type="number" min="0" step=".01" value="0">
           </div>
+
           <div>
-            <label>Bank fee USD / Frais bancaires</label>
+            <label>Bank fee (USD) / Frais bancaires</label>
             <input id="jiBank" type="number" min="0" step=".01" value="0">
           </div>
+
           <div>
-            <label>Bank fee treatment / Traitement des frais bancaires</label>
-            <select id="jiBankTreatment">
-              <option value="Customer charged">Charged to customer / À la charge du client</option>
-              <option value="CWB absorbed">Paid by C.W.B / À la charge de C.W.B</option>
-            </select>
-          </div>
-          <div>
-            <label>Shipping USD / Transport</label>
+            <label>Shipping (USD) / Transport</label>
             <input id="jiShipping" type="number" min="0" step=".01" value="0">
           </div>
+
           <div>
-            <label>Clearing USD / Dédouanement</label>
+            <label>Clearing and other costs (USD) / Dédouanement et autres frais</label>
             <input id="jiClearing" type="number" min="0" step=".01" value="0">
           </div>
+
           <div>
-            <label>Vehicle photo / Photo du véhicule</label>
+            <label>Car photo / Photo du véhicule (private / privé)</label>
             <input id="jiPhoto" type="file" accept="image/*">
-            <div class="ji-small">
-              Private storage: Japanese_cars / Stockage privé
-            </div>
           </div>
+
           <div>
             <label>Notes / Remarques</label>
-            <textarea id="jiNotes"></textarea>
+            <input id="jiNotes">
           </div>
         </div>
 
         <p>
           <b>Customer total / Total client:</b>
-          <span id="jiCustomerTotal">0.00</span> USD
-        </p>
-        <p class="ji-small">
-          C.W.B commission is tracked separately.
-          / La commission C.W.B est suivie séparément.
+          <span id="jiCustomerTotal">0.00</span> USD.
+          <b>C.W.B commission is excluded / Commission C.W.B exclue.</b>
         </p>
 
         <button type="button" id="jiSaveOrder">
           Save vehicle / Enregistrer
         </button>
+
         <button type="button" class="secondary" id="jiRefresh">
           Refresh / Actualiser
         </button>
       </div>
 
-      <div id="jiMessage" class="ji-message" role="status"></div>
+      <div id="jiMessage" role="status" aria-live="polite"></div>
 
       <div class="ji-panel">
-        <h3>2. Vehicle register / Registre des véhicules</h3>
+        <h3>Vehicle register / Registre des véhicules</h3>
+
         <div class="ji-tablewrap">
           <table>
             <thead>
               <tr>
-                <th>Order / Client</th>
-                <th>Vehicle / Véhicule</th>
-                <th>Photo</th>
-                <th>Customer total / Total client</th>
-                <th>Vehicle status / Statut</th>
-                <th>DHL status / Statut DHL</th>
-                <th>Commission</th>
-                <th>Documents / Actions</th>
+                <th>Order / Customer</th>
+                <th>Vehicle</th>
+                <th>Customer total</th>
+                <th>Vehicle status</th>
+                <th>DHL documents</th>
+                <th>C.W.B commission</th>
+                <th>Actions</th>
               </tr>
             </thead>
+
             <tbody id="jiOrderRows">
-              <tr><td colspan="8">Loading / Chargement…</td></tr>
+              <tr><td colspan="7">Loading…</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
       <div class="ji-panel">
-        <h3>3. Customer payments / Paiements des clients</h3>
+        <h3>Customer payment claims / Paiements clients</h3>
+
         <p class="ji-small">
-          Payments stay PENDING until the CEO verifies and confirms the
-          real transaction. / Les paiements restent EN ATTENTE jusqu'à
-          la vérification et la confirmation par le PDG.
+          Claims remain PENDING until the CEO verifies and confirms
+          the real transaction.
         </p>
 
         <div class="ji-grid">
@@ -287,19 +299,22 @@
             <label>Vehicle order / Dossier véhicule</label>
             <select id="jiPaymentOrder"></select>
           </div>
+
           <div>
-            <label>Amount USD / Montant</label>
+            <label>Amount (USD) / Montant</label>
             <input id="jiPaymentAmount" type="number" min=".01" step=".01">
           </div>
+
           <div>
             <label>Method / Mode de paiement</label>
             <select id="jiPaymentMethod">
-              <option>Bank transfer / Virement bancaire</option>
+              <option>Bank transfer</option>
               <option>Mobile money</option>
-              <option>Cash / Espèces</option>
-              <option>Other / Autre</option>
+              <option>Cash</option>
+              <option>Other</option>
             </select>
           </div>
+
           <div>
             <label>Reference / Référence</label>
             <input id="jiPaymentReference">
@@ -307,154 +322,105 @@
         </div>
 
         <button type="button" id="jiSubmitPayment">
-          Submit payment claim / Soumettre le paiement
+          Submit payment claim / Soumettre
         </button>
 
         <div class="ji-tablewrap">
           <table>
             <thead>
               <tr>
-                <th>Order / Dossier</th>
-                <th>Amount / Montant</th>
-                <th>Method / Référence</th>
-                <th>Status / Statut</th>
-                <th>CEO action / Action du PDG</th>
-                <th>Receipt / Reçu</th>
+                <th>Order</th>
+                <th>Amount</th>
+                <th>Method / reference</th>
+                <th>Status</th>
+                <th>CEO action / Action PDG</th>
               </tr>
             </thead>
-            <tbody id="jiPaymentRows"></tbody>
+
+            <tbody id="jiPaymentRows">
+              <tr><td colspan="5">No claims loaded.</td></tr>
+            </tbody>
           </table>
         </div>
       </div>
 
       <div class="ji-panel">
-        <h3>4. C.W.B commission / Commission C.W.B</h3>
+        <h3>C.W.B commission report / Rapport des commissions</h3>
         <div id="jiCommissionSummary" class="ji-summary"></div>
-        <p class="ji-small">
-          Standard commission: USD 50 per vehicle.
-          Commission becomes payable after DHL documents are received
-          in Burundi. Discounts require CEO authorization and a reason.
-          Customer payments are separate from C.W.B commission.
-          <br>
-          Commission standard : 50 USD par véhicule. Elle devient
-          exigible après réception des documents DHL au Burundi.
-          Toute réduction exige l'autorisation du PDG et un motif.
-        </p>
-      </div>
 
-      <div class="ji-panel">
-        <h3>5. Print documents / Imprimer les documents</h3>
-        <div class="ji-grid">
-          <div>
-            <label>Vehicle order / Dossier véhicule</label>
-            <select id="jiDocumentOrder"></select>
-          </div>
-        </div>
-        <button type="button" id="jiPrintQuote">
-          Print quotation / Imprimer le devis
-        </button>
-        <button type="button" id="jiPrintInvoice">
-          Print invoice / Imprimer la facture
-        </button>
+        <p class="ji-small">
+          Standard commission: USD 100 per vehicle.
+          It becomes payable only when DHL documents are received in Burundi.
+          Discounts require CEO authorization and a reason.
+          Customer payments are not C.W.B commission.
+        </p>
       </div>
     `;
 
     container.appendChild(section);
 
-    ['jiPrice', 'jiBank', 'jiShipping', 'jiClearing', 'jiBankTreatment']
-      .forEach(id => $(id).addEventListener('input', updateTotal));
+    ['jiPrice','jiBank','jiShipping','jiClearing'].forEach(id =>
+      $(id).addEventListener('input', total)
+    );
 
     $('jiSaveOrder').addEventListener('click', saveOrder);
     $('jiRefresh').addEventListener('click', refresh);
     $('jiSubmitPayment').addEventListener('click', submitPayment);
-    $('jiPrintQuote').addEventListener('click', () => printDocument('quote'));
-    $('jiPrintInvoice').addEventListener('click', () => printDocument('invoice'));
   }
 
-  function updateTotal() {
-    const price = Number($('jiPrice')?.value || 0);
-    const bank = $('jiBankTreatment')?.value === 'Customer charged'
-      ? Number($('jiBank')?.value || 0)
-      : 0;
-    const shipping = Number($('jiShipping')?.value || 0);
-    const clearing = Number($('jiClearing')?.value || 0);
+  function total() {
+    const n = ['jiPrice','jiBank','jiShipping','jiClearing']
+      .reduce((a,id) => a + Number($(id)?.value || 0), 0);
 
     if ($('jiCustomerTotal')) {
-      $('jiCustomerTotal').textContent = money(price + bank + shipping + clearing);
+      $('jiCustomerTotal').textContent = usd(n);
     }
   }
 
   async function checkUser() {
     const client = db();
-    if (!client) throw new Error('C.W.B Supabase client is not available.');
 
-    const result = await client.auth.getUser();
-    if (result.error) throw result.error;
-    if (!result.data?.user) throw new Error('Please sign in first. / Veuillez vous connecter.');
+    if (!client) {
+      throw new Error('C.W.B Supabase client is not available.');
+    }
 
-    user = result.data.user;
+    const {data,error} = await client.auth.getUser();
 
-    const profile = await client
+    if (error) throw error;
+
+    if (!data?.user) {
+      throw new Error('Please sign in to C.W.B System first.');
+    }
+
+    user = data.user;
+
+    const {data:p,error:pe} = await client
       .from('cwb_profiles')
       .select('id,active,role_id')
-      .eq('id', user.id)
+      .eq('id',user.id)
       .maybeSingle();
 
-    if (profile.error) throw profile.error;
-    if (!profile.data || profile.data.active === false) {
+    if (pe) throw pe;
+
+    if (!p || p.active === false) {
       throw new Error('An active C.W.B user profile is required.');
     }
 
-    let roleName = 'User';
+    let role = 'User';
 
-    if (profile.data.role_id) {
-      const role = await client
+    if (p.role_id) {
+      const {data:r,error:re} = await client
         .from('cwb_roles')
         .select('name')
-        .eq('id', profile.data.role_id)
+        .eq('id',p.role_id)
         .maybeSingle();
 
-      if (role.error) throw role.error;
-      roleName = role.data?.name || 'User';
+      if (re) throw re;
+
+      role = r?.name || 'User';
     }
 
-    isCEO = roleName.trim().toUpperCase() === 'CEO';
-  }
-
-  async function uploadPhoto(file, orderId) {
-    if (!file) return null;
-
-    if (!file.type || !file.type.startsWith('image/')) {
-      throw new Error('Please select an image file. / Choisissez une image.');
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      throw new Error('Image must be 10 MB or smaller. / Image de 10 Mo maximum.');
-    }
-
-    const extension = (file.name.split('.').pop() || 'jpg')
-      .toLowerCase().replace(/[^a-z0-9]/g, '');
-
-    const path = `${orderId}/${Date.now()}.${extension}`;
-
-    const uploaded = await db().storage
-      .from(BUCKET)
-      .upload(path, file, { upsert: true, contentType: file.type });
-
-    if (uploaded.error) throw uploaded.error;
-
-    return path;
-  }
-
-  async function signedPhoto(path) {
-    if (!path) return '';
-
-    const result = await db().storage
-      .from(BUCKET)
-      .createSignedUrl(path, 3600);
-
-    if (result.error) return '';
-    return result.data?.signedUrl || '';
+    isCEO = role.trim().toUpperCase() === 'CEO';
   }
 
   async function saveOrder() {
@@ -463,159 +429,286 @@
     const make = $('jiMake').value.trim();
 
     if (!customer || !make) {
-      return say('Customer and vehicle are required. / Le client et le véhicule sont obligatoires.', true);
+      return note(
+        'Customer and make/model are required. / Le client et le véhicule sont obligatoires.',
+        true
+      );
     }
 
-    const numericIds = ['jiPrice', 'jiBank', 'jiShipping', 'jiClearing'];
+    const ids = ['jiPrice','jiBank','jiShipping','jiClearing'];
 
-    if (numericIds.some(id => !Number.isFinite(Number($(id).value)) || Number($(id).value) < 0)) {
-      return say('Costs must be valid non-negative numbers. / Les frais doivent être positifs ou nuls.', true);
+    if (ids.some(id =>
+      !Number.isFinite(Number($(id).value || 0)) ||
+      Number($(id).value || 0) < 0
+    )) {
+      return note('Costs must be valid non-negative numbers.',true);
     }
 
-    const button = $('jiSaveOrder');
-    button.disabled = true;
+    const photo = $('jiPhoto')?.files?.[0];
+
+    if (photo && photo.size > 10 * 1024 * 1024) {
+      return note('Please choose a photo smaller than 10 MB.',true);
+    }
+
+    const b = $('jiSaveOrder');
+    b.disabled = true;
 
     try {
-      const standard = COMMISSION;
-
-      const row = {
-        customer,
-        phone: $('jiPhone').value.trim() || null,
-        make,
-        year: $('jiYear').value ? Number($('jiYear').value) : null,
-        vin: $('jiVin').value.trim() || null,
-        supplier: $('jiSupplier').value.trim() || null,
-        price: Number($('jiPrice').value || 0),
-        bank_fee: Number($('jiBank').value || 0),
-        shipping: Number($('jiShipping').value || 0),
-        clearing: Number($('jiClearing').value || 0),
-        notes: [
-          $('jiNotes').value.trim(),
-          'Bank fee treatment: ' + $('jiBankTreatment').value
-        ].filter(Boolean).join('\n'),
-        vehicle_status: 'Ordered',
-        dhl_status: 'Not dispatched',
-
-        // commission_final is intentionally omitted because
-        // the database controls that column.
-        commission_standard: standard,
-        commission_discount: 0
-      };
-
-      const inserted = await client
-        .from(TABLE)
-        .insert(row)
-        .select('*')
+      const {data:created,error} = await client
+        .from('cwb_japan_import_orders')
+        .insert({
+          customer,
+          phone:$('jiPhone').value.trim() || null,
+          make,
+          year:$('jiYear').value ? Number($('jiYear').value) : null,
+          vin:$('jiVin').value.trim() || null,
+          supplier:$('jiSupplier').value.trim() || null,
+          price:Number($('jiPrice').value || 0),
+          bank_fee:Number($('jiBank').value || 0),
+          shipping:Number($('jiShipping').value || 0),
+          clearing:Number($('jiClearing').value || 0),
+          notes:$('jiNotes').value.trim() || null,
+          vehicle_status:'Ordered',
+          dhl_status:'Not dispatched',
+          commission_standard:COMMISSION,
+          commission_discount:0
+        })
+        .select('id')
         .single();
 
-      if (inserted.error) throw inserted.error;
-
-      const order = inserted.data;
-      const photo = $('jiPhoto').files?.[0];
+      if (error) throw error;
 
       if (photo) {
-        try {
-          const path = await uploadPhoto(photo, order.id);
+        const path = created.id + '/' + Date.now() + '_' +
+          photo.name.replace(/[^a-zA-Z0-9._-]/g,'_');
 
-          const saved = await client
-            .from(TABLE)
-            .update({ photo_url: path })
-            .eq('id', order.id);
+        const up = await client.storage
+          .from('Japanese_cars')
+          .upload(path,photo,{
+            upsert:false,
+            contentType:photo.type || 'image/jpeg'
+          });
 
-          if (saved.error) throw saved.error;
-        } catch (photoError) {
-          say(
-            'Vehicle saved, but photo upload failed: ' +
-            photoError.message +
-            '. Check the Japanese_cars bucket policies.',
-            true
+        if (up.error) {
+          throw new Error(
+            'Vehicle saved, but photo upload failed: ' + up.error.message
           );
-          await refresh();
-          return;
+        }
+
+        const saved = await client
+          .from('cwb_japan_import_orders')
+          .update({photo_url:path})
+          .eq('id',created.id);
+
+        if (saved.error) {
+          throw new Error(
+            'Photo uploaded, but its path could not be saved: ' +
+            saved.error.message
+          );
         }
       }
 
-      say('Vehicle registered successfully. / Véhicule enregistré avec succès.');
+      note(
+        'Vehicle saved successfully. Customer total excludes C.W.B commission.',
+        false
+      );
 
       [
-        'jiCustomer', 'jiPhone', 'jiMake', 'jiYear',
-        'jiVin', 'jiSupplier', 'jiNotes'
+        'jiCustomer','jiPhone','jiMake','jiYear',
+        'jiVin','jiSupplier','jiNotes'
       ].forEach(id => $(id).value = '');
 
-      numericIds.forEach(id => $(id).value = '0');
       $('jiPhoto').value = '';
-      updateTotal();
+
+      ids.forEach(id => $(id).value = '0');
+
+      total();
       await refresh();
 
-    } catch (error) {
-      say(
-        'Could not save vehicle: ' + (error.message || error) +
-        '. Check database permissions and SQL setup.',
+    } catch(e) {
+      note(
+        'Save failed: ' + (e.message || e) +
+        '. Check the Japan Import SQL setup and private bucket policies.',
         true
       );
     } finally {
-      button.disabled = false;
+      b.disabled = false;
     }
   }
 
   async function updateOrder(id, fields) {
-    const result = await db().from(TABLE).update(fields).eq('id', id);
+    const {error} = await db()
+      .from('cwb_japan_import_orders')
+      .update(fields)
+      .eq('id',id);
 
-    if (result.error) {
-      say('Update failed: ' + result.error.message, true);
+    if (error) {
+      note('Update failed: ' + error.message,true);
       return;
     }
 
-    say('Updated successfully. / Mise à jour réussie.');
     await refresh();
   }
 
-  async function authorizeDiscount(id) {
+  async function discount(id) {
     if (!isCEO) {
-      return say('Only the CEO can approve commission discounts.', true);
+      return note('Only the CEO can authorize a commission discount.',true);
     }
 
-    const raw = prompt('Commission discount in USD (0–50):', '0');
+    const raw = prompt(
+      'Commission discount in USD (0–' + COMMISSION + '):',
+      '0'
+    );
+
     if (raw === null) return;
 
-    const discount = Number(raw);
+    const amount = Number(raw);
 
-    if (!Number.isFinite(discount) || discount < 0 || discount > COMMISSION) {
-      return say('Discount must be between 0 and 50 USD.', true);
+    if (
+      !Number.isFinite(amount) ||
+      amount < 0 ||
+      amount > COMMISSION
+    ) {
+      return note(
+        'Discount must be between $0 and $' + COMMISSION + '.',
+        true
+      );
     }
 
     let reason = '';
 
-    if (discount > 0) {
-      reason = (prompt('Reason for discount / Motif de réduction:') || '').trim();
-      if (!reason) return say('A reason is required. / Le motif est obligatoire.', true);
+    if (amount > 0) {
+      reason = (prompt('Required reason for the discount:','') || '').trim();
+
+      if (!reason) {
+        return note('A reason is required for every discount.',true);
+      }
     }
 
-    const result = await db().rpc('cwb_japan_authorize_discount', {
-      p_order_id: id,
-      p_discount: discount,
-      p_reason: reason
-    });
+    try {
+      const {error} = await db().rpc(
+        'cwb_japan_authorize_discount',
+        {
+          p_order_id:id,
+          p_discount:amount,
+          p_reason:reason
+        }
+      );
 
-    if (result.error) {
-      return say('Discount authorization failed: ' + result.error.message, true);
+      if (error) {
+        return note('Discount authorization failed: ' + error.message,true);
+      }
+
+      note('CEO discount authorization saved.',false);
+      await refresh();
+
+    } catch(e) {
+      note('Discount request failed: ' + (e.message || e),true);
     }
-
-    say('CEO discount approval recorded. / Réduction approuvée par le PDG.');
-    await refresh();
   }
 
-  async function recordCommission(id, outstanding) {
+  async function submitPayment() {
+    const order_id = $('jiPaymentOrder').value;
+    const amount = Number($('jiPaymentAmount').value);
+
+    if (!order_id) {
+      return note('Select a vehicle order first.',true);
+    }
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return note('Enter a payment amount greater than zero.',true);
+    }
+
+    try {
+      const {error} = await db()
+        .from('cwb_japan_customer_payments')
+        .insert({
+          order_id,
+          amount,
+          method:$('jiPaymentMethod').value,
+          reference:$('jiPaymentReference').value.trim() || null
+        });
+
+      if (error) {
+        return note('Payment claim failed: ' + error.message,true);
+      }
+
+      $('jiPaymentAmount').value = '';
+      $('jiPaymentReference').value = '';
+
+      note(
+        'Payment claim submitted as PENDING. It is not yet confirmed.',
+        false
+      );
+
+      await refresh();
+
+    } catch(e) {
+      note('Payment claim failed: ' + (e.message || e),true);
+    }
+  }
+
+  async function confirmPayment(id,reject) {
     if (!isCEO) {
-      return say('Only the CEO can record commission received.', true);
+      return note('Only the CEO can confirm or reject customer payments.',true);
+    }
+
+    try {
+      let result;
+
+      if (reject) {
+        const reason = (
+          prompt('Reason for rejecting this payment claim (optional):','') || ''
+        ).trim();
+
+        result = await db().rpc(
+          'cwb_japan_reject_customer_payment',
+          {
+            p_payment_id:id,
+            p_reason:reason || null
+          }
+        );
+
+      } else {
+        if (!confirm(
+          'Confirm only after checking the real transaction. Confirm this customer payment?'
+        )) return;
+
+        result = await db().rpc(
+          'cwb_japan_confirm_customer_payment',
+          {p_payment_id:id}
+        );
+      }
+
+      if (result.error) {
+        return note('Payment action failed: ' + result.error.message,true);
+      }
+
+      note(
+        reject
+          ? 'Payment claim rejected.'
+          : 'Customer payment confirmed by CEO.',
+        false
+      );
+
+      await refresh();
+
+    } catch(e) {
+      note('Payment action failed: ' + (e.message || e),true);
+    }
+  }
+
+  async function commissionReceipt(id,outstanding) {
+    if (!isCEO) {
+      return note('Only the CEO can confirm commission received.',true);
     }
 
     if (outstanding <= 0) {
-      return say('No outstanding commission is payable.', true);
+      return note('No outstanding payable commission for this vehicle.',true);
     }
 
     const raw = prompt(
-      'Commission actually received, maximum ' + money(outstanding) + ' USD:',
+      'Commission actually received (USD), maximum ' + usd(outstanding) + ':',
       String(outstanding)
     );
 
@@ -623,573 +716,627 @@
 
     const amount = Number(raw);
 
-    if (!Number.isFinite(amount) || amount <= 0 || amount > outstanding) {
-      return say('Enter a valid amount not exceeding the outstanding commission.', true);
+    if (
+      !Number.isFinite(amount) ||
+      amount <= 0 ||
+      amount > outstanding
+    ) {
+      return note(
+        'Enter an amount greater than zero and no more than the outstanding commission.',
+        true
+      );
     }
 
-    const reference = prompt('Receipt/payment reference (optional):', '') || null;
+    const reference = prompt('Payment/receipt reference (optional):','') || null;
 
-    const result = await db().rpc('cwb_japan_record_commission_receipt', {
-      p_order_id: id,
-      p_amount: amount,
-      p_reference: reference
-    });
+    try {
+      const {error} = await db().rpc(
+        'cwb_japan_record_commission_receipt',
+        {
+          p_order_id:id,
+          p_amount:amount,
+          p_reference:reference
+        }
+      );
 
-    if (result.error) {
-      return say('Commission receipt failed: ' + result.error.message, true);
+      if (error) {
+        return note(
+          'Commission receipt failed: ' + error.message +
+          '. No success was reported; please refresh and verify the receipt list.',
+          true
+        );
+      }
+
+      note('Commission receipt recorded by CEO.',false);
+      await refresh();
+
+    } catch(e) {
+      note(
+        'Could not confirm the commission receipt request: ' +
+        (e.message || e) +
+        '. Check your connection and refresh the receipt list before trying again.',
+        true
+      );
     }
-
-    say('Commission receipt recorded. / Reçu de commission enregistré.');
-    await refresh();
   }
 
-  async function submitPayment() {
-    const orderId = $('jiPaymentOrder').value;
-    const amount = Number($('jiPaymentAmount').value);
+  function printCustomerDocument(id,kind) {
+    const o = orders.find(x => x.id === id);
 
-    if (!orderId) return say('Select a vehicle order first.', true);
-
-    if (!Number.isFinite(amount) || amount <= 0) {
-      return say('Enter an amount greater than zero.', true);
+    if (!o) {
+      return note('Vehicle order not found.',true);
     }
 
-    const result = await db().from(PAYMENT_TABLE).insert({
-      order_id: orderId,
-      amount,
-      method: $('jiPaymentMethod').value,
-      reference: $('jiPaymentReference').value.trim() || null,
-      status: 'PENDING',
-      claimed_by: user?.id || null
-    });
+    const sum = ['price','bank_fee','shipping','clearing']
+      .reduce((n,k) => n + Number(o[k] || 0),0);
 
-    if (result.error) {
-      return say('Payment claim failed: ' + result.error.message, true);
-    }
-
-    $('jiPaymentAmount').value = '';
-    $('jiPaymentReference').value = '';
-    say('Payment claim submitted. It is PENDING until CEO confirmation.');
-    await refresh();
-  }
-
-  async function handlePayment(id, reject) {
-    if (!isCEO) {
-      return say('Only the CEO can confirm or reject payments.', true);
-    }
-
-    let result;
-
-    if (reject) {
-      const reason = (prompt('Reason for rejection / Motif du rejet:') || '').trim();
-
-      result = await db().rpc('cwb_japan_reject_customer_payment', {
-        p_payment_id: id,
-        p_reason: reason || null
-      });
-    } else {
-      if (!confirm(
-        'Confirm only after checking the actual bank, mobile-money or cash transaction. Continue?'
-      )) return;
-
-      result = await db().rpc('cwb_japan_confirm_customer_payment', {
-        p_payment_id: id
-      });
-    }
-
-    if (result.error) {
-      return say('Payment action failed: ' + result.error.message, true);
-    }
-
-    say(reject
-      ? 'Payment claim rejected. / Paiement rejeté.'
-      : 'Payment confirmed. / Paiement confirmé.'
+    const confirmed = payments.filter(p =>
+      p.order_id === id &&
+      String(p.status || '').toUpperCase() === 'CONFIRMED'
     );
 
-    await refresh();
+    const paid = confirmed.reduce(
+      (n,p) => n + Number(p.amount || 0),0
+    );
+
+    const balance = Math.max(0,sum-paid);
+
+    const w = window.open('','_blank');
+
+    if (!w) {
+      return note('Allow pop-ups to print documents.',true);
+    }
+
+    const title = kind === 'quote'
+      ? 'Quotation / Devis'
+      : 'Invoice / Facture';
+
+    const company = `
+      <h1>C.W.B — Camel Work and Business company</h1>
+      <p>
+        Better Quality is our priority<br>
+        Bujumbura, Chaussée du Peuple Murundi No. 54<br>
+        Tel: 67481564 / 62180032<br>
+        NIF: 4002652933 | RC: 0056983/24
+      </p>
+      <h2>${title}</h2>
+    `;
+
+    const details = `
+      <p>
+        <b>Order / Dossier:</b> ${esc(o.order_no || o.id)}<br>
+        <b>Customer / Client:</b> ${esc(o.customer)}<br>
+        <b>Phone / Téléphone:</b> ${esc(o.phone || '—')}<br>
+        <b>Vehicle / Véhicule:</b> ${esc(o.make)} ${esc(o.year || '')}<br>
+        <b>VIN / Châssis:</b> ${esc(o.vin || '—')}
+      </p>
+    `;
+
+    const rows = [
+      ['Vehicle price / Prix du véhicule',o.price],
+      ['Bank fee / Frais bancaires',o.bank_fee],
+      ['Shipping / Transport',o.shipping],
+      ['Clearing and other costs / Dédouanement et autres frais',o.clearing]
+    ];
+
+    const costs = `
+      <table>
+        <tr>
+          <th>Description / Désignation</th>
+          <th>Amount / Montant (USD)</th>
+        </tr>
+        ${rows.map(r => `
+          <tr><td>${r[0]}</td><td>${usd(r[1])}</td></tr>
+        `).join('')}
+        <tr>
+          <th>Total client / Total customer</th>
+          <th>${usd(sum)} USD</th>
+        </tr>
+      </table>
+    `;
+
+    const paymentRows = confirmed.map(p => `
+      <tr>
+        <td>${esc(burundiDateTime(p.confirmed_at))} (Burundi)</td>
+        <td>${esc(p.method || '')}</td>
+        <td>${esc(p.reference || '—')}</td>
+        <td>${usd(p.amount)} USD</td>
+      </tr>
+    `).join('') || `
+      <tr><td colspan="4">No confirmed payments / Aucun paiement confirmé</td></tr>
+    `;
+
+    const paymentsBlock = `
+      <h3>CEO-confirmed payments / Paiements confirmés par le PDG</h3>
+      <table>
+        <tr>
+          <th>Date/time (Burundi)</th>
+          <th>Method / Mode</th>
+          <th>Reference / Référence</th>
+          <th>Amount / Montant</th>
+        </tr>
+        ${paymentRows}
+      </table>
+      <p>
+        <b>Total paid / Total payé:</b> ${usd(paid)} USD<br>
+        <b>Balance / Solde:</b> ${usd(balance)} USD
+      </p>
+      <p>C.W.B commission is excluded / Commission C.W.B exclue.</p>
+    `;
+
+    w.document.write(`
+      <!doctype html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>${title}</title>
+        <style>
+          body{font:14px Arial;margin:28px;color:#111827}
+          table{border-collapse:collapse;width:100%;margin:18px 0}
+          td,th{border:1px solid #bbb;padding:8px;text-align:left}
+          h1,h2{color:#991b1b}
+          @media print{button{display:none}}
+        </style>
+      </head>
+      <body>
+        ${company}
+        ${details}
+        ${costs}
+        ${kind === 'quote' ? '' : paymentsBlock}
+        <button onclick="window.print()">Print / Imprimer</button>
+      </body>
+      </html>
+    `);
+
+    w.document.close();
   }
 
-  function selectOptions(values, selected, type, id) {
-    return `<select data-${type}="${esc(id)}">${
-      values.map(value =>
-        `<option value="${esc(value)}" ${value === selected ? 'selected' : ''}>${esc(value)}</option>`
-      ).join('')
-    }</select>`;
+  function printPaymentReceipt(id) {
+    const p = payments.find(x => x.id === id);
+
+    if (
+      !p ||
+      String(p.status || '').toUpperCase() !== 'CONFIRMED' ||
+      !p.confirmed_at
+    ) {
+      return note('Receipt is available only after CEO confirmation.',true);
+    }
+
+    const o = orders.find(x => x.id === p.order_id);
+
+    if (!o) {
+      return note('Vehicle order not found.',true);
+    }
+
+    const w = window.open('','_blank');
+
+    if (!w) {
+      return note('Allow pop-ups to print receipts.',true);
+    }
+
+    const body = `
+      <h1>C.W.B — Camel Work and Business company</h1>
+      <p>
+        Better Quality is our priority<br>
+        Bujumbura, Chaussée du Peuple Murundi No. 54<br>
+        Tel: 67481564 / 62180032<br>
+        NIF: 4002652933 | RC: 0056983/24
+      </p>
+
+      <h2>Payment Receipt / Reçu de paiement</h2>
+
+      <p>
+        <b>Receipt reference / Référence:</b> ${esc(p.id)}<br>
+        <b>Order / Dossier:</b> ${esc(o.order_no || o.id)}<br>
+        <b>Customer / Client:</b> ${esc(o.customer)}<br>
+        <b>Vehicle / Véhicule:</b> ${esc(o.make)} ${esc(o.year || '')}
+      </p>
+
+      <table>
+        <tr><th>Amount / Montant</th><td>${usd(p.amount)} USD</td></tr>
+        <tr><th>Method / Mode</th><td>${esc(p.method || '—')}</td></tr>
+        <tr><th>Reference / Référence de transaction</th><td>${esc(p.reference || '—')}</td></tr>
+        <tr>
+          <th>CEO confirmation date and time / Date et heure de confirmation PDG (Burundi)</th>
+          <td>${esc(burundiDateTime(p.confirmed_at))}</td>
+        </tr>
+        <tr><th>Status / Statut</th><td>CONFIRMED / CONFIRMÉ</td></tr>
+      </table>
+
+      <p>Payment verified by C.W.B CEO / Paiement vérifié par le PDG de C.W.B.</p>
+
+      <button onclick="window.print()">Print / Imprimer</button>
+    `;
+
+    w.document.write(`
+      <!doctype html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Payment Receipt / Reçu</title>
+        <style>
+          body{font:14px Arial;margin:28px}
+          h1,h2{color:#991b1b}
+          table{border-collapse:collapse;width:100%}
+          td,th{border:1px solid #bbb;padding:10px;text-align:left}
+          @media print{button{display:none}}
+        </style>
+      </head>
+      <body>${body}</body>
+      </html>
+    `);
+
+    w.document.close();
   }
 
-  async function renderOrders() {
+  async function viewPrivatePhoto(id) {
+    const o = orders.find(x => x.id === id);
+
+    if (!o?.photo_url) {
+      return note('No private photo saved for this vehicle.',true);
+    }
+
+    const {data,error} = await db()
+      .storage
+      .from('Japanese_cars')
+      .createSignedUrl(o.photo_url,300);
+
+    if (error) {
+      return note('Cannot open private photo: ' + error.message,true);
+    }
+
+    window.open(data.signedUrl,'_blank','noopener');
+  }
+
+  function options(values,selected,kind,id) {
+    return '<select data-' + kind + '="' + esc(id) + '">' +
+      values.map(v =>
+        '<option ' + (v === selected ? 'selected' : '') + '>' +
+        esc(v) + '</option>'
+      ).join('') +
+      '</select>';
+  }
+
+  function renderOrders() {
     const body = $('jiOrderRows');
 
     if (!orders.length) {
-      body.innerHTML = '<tr><td colspan="8">No vehicles registered yet. / Aucun véhicule enregistré.</td></tr>';
+      body.innerHTML =
+        '<tr><td colspan="7">No Japan car imports registered yet.</td></tr>';
       return;
     }
 
-    const html = await Promise.all(orders.map(async order => {
-      const bankTreatment = (order.notes || '').includes('Bank fee treatment: CWB absorbed')
-        ? 'CWB absorbed'
-        : 'Customer charged';
+    body.innerHTML = orders.map(o => {
+      const ct = ['price','bank_fee','shipping','clearing']
+        .reduce((n,k) => n + Number(o[k] || 0),0);
 
-      const total =
-        Number(order.price || 0) +
-        (bankTreatment === 'Customer charged' ? Number(order.bank_fee || 0) : 0) +
-        Number(order.shipping || 0) +
-        Number(order.clearing || 0);
+      const got = receipts
+        .filter(r => r.order_id === o.id)
+        .reduce((n,r) => n + Number(r.amount || 0),0);
 
-      const received = receipts
-        .filter(receipt => receipt.order_id === order.id)
-        .reduce((sum, receipt) => sum + Number(receipt.amount || 0), 0);
-
-      const payable = order.dhl_status === 'Received in Burundi'
-        ? Number(order.commission_final || 0)
+      const payable = o.dhl_status === 'Received in Burundi'
+        ? Number(o.commission_final || 0)
         : 0;
 
-      const outstanding = Math.max(0, payable - received);
-      const photoUrl = await signedPhoto(order.photo_url);
+      const due = Math.max(0,payable-got);
 
       return `
         <tr>
           <td>
-            <b>${esc(order.order_no || order.id.slice(0, 8))}</b><br>
-            ${esc(order.customer)}<br>
-            <span class="ji-small">${esc(order.phone || '')}</span>
+            <b>${esc(o.order_no || o.id)}</b><br>
+            ${esc(o.customer)}<br>
+            <span class="ji-small">${esc(o.phone || '')}</span>
           </td>
+
           <td>
-            ${esc(order.make)} ${esc(order.year || '')}<br>
-            <span class="ji-small">VIN: ${esc(order.vin || '—')}</span>
+            ${esc(o.make)} ${esc(o.year || '')}<br>
+            <span class="ji-small">VIN: ${esc(o.vin || '—')}</span>
+            ${o.photo_url
+              ? '<br><button class="secondary" data-photo="' + esc(o.id) +
+                '">View photo / Voir photo</button>'
+              : ''}
           </td>
+
+          <td>${usd(ct)} USD</td>
+
           <td>
-            ${photoUrl
-              ? `<a href="${esc(photoUrl)}" target="_blank" rel="noopener"><img class="ji-photo" src="${esc(photoUrl)}" alt="Vehicle photo"></a>`
-              : '—'}
+            ${options(vehicleStates,o.vehicle_status,'vehicle',o.id)}
           </td>
-          <td>${money(total)} USD</td>
-          <td>${selectOptions(vehicleStates, order.vehicle_status || 'Ordered', 'vehicle', order.id)}</td>
+
           <td>
-            ${selectOptions(dhlStates, order.dhl_status || 'Not dispatched', 'dhl', order.id)}
-            <br><span class="ji-small">${
-              order.dhl_received_at
-                ? 'Received / Reçu: ' + esc(localDateTime(order.dhl_received_at))
-                : ''
-            }</span>
+            ${options(dhlStates,o.dhl_status,'dhl',o.id)}<br>
+            <span class="ji-small">
+              ${o.dhl_received_at
+                ? 'Received ' + esc(new Date(o.dhl_received_at)
+                    .toLocaleDateString('fr-FR',{timeZone:'Africa/Bujumbura'}))
+                : ''}
+            </span>
           </td>
+
           <td>
-            Final / Final: ${money(order.commission_final)} USD<br>
+            Final: ${usd(o.commission_final)} USD<br>
+            Received: ${isCEO ? usd(got) : 'CEO only'}<br>
+            Outstanding: ${isCEO ? usd(due) : 'CEO only'}
+          </td>
+
+          <td>
+            <button data-print="${esc(o.id)}">Invoice / Facture</button>
+            <button class="secondary" data-quote="${esc(o.id)}">Quotation / Devis</button>
             ${isCEO
-              ? `Received / Reçu: ${money(received)}<br>Due / Dû: ${money(outstanding)}`
-              : 'Received and due amounts: CEO only'}
-          </td>
-          <td>
-            <button data-discount="${esc(order.id)}">Discount / Réduction</button>
-            ${isCEO
-              ? `<button data-receipt="${esc(order.id)}" data-due="${outstanding}">Record commission / Enregistrer</button>`
+              ? '<button data-discount="' + esc(o.id) + '">Discount</button>' +
+                '<button data-receipt="' + esc(o.id) + '" data-due="' + due +
+                '">Record commission received</button>'
               : ''}
           </td>
         </tr>
       `;
-    }));
+    }).join('');
 
-    body.innerHTML = html.join('');
+    body.querySelectorAll('[data-vehicle]').forEach(el =>
+      el.addEventListener('change',() =>
+        updateOrder(el.dataset.vehicle,{vehicle_status:el.value})
+      )
+    );
 
-    body.querySelectorAll('[data-vehicle]').forEach(element => {
-      element.addEventListener('change', () => {
-        updateOrder(element.dataset.vehicle, {
-          vehicle_status: element.value
-        });
-      });
-    });
-
-    body.querySelectorAll('[data-dhl]').forEach(element => {
-      element.addEventListener('change', () => {
-        const status = element.value;
-
-        updateOrder(element.dataset.dhl, {
-          dhl_status: status,
-          dhl_received_at: status === 'Received in Burundi'
+    body.querySelectorAll('[data-dhl]').forEach(el =>
+      el.addEventListener('change',() =>
+        updateOrder(el.dataset.dhl,{
+          dhl_status:el.value,
+          dhl_received_at:el.value === 'Received in Burundi'
             ? new Date().toISOString()
             : null
-        });
-      });
-    });
+        })
+      )
+    );
 
-    body.querySelectorAll('[data-discount]').forEach(element => {
-      element.addEventListener('click', () => {
-        authorizeDiscount(element.dataset.discount);
-      });
-    });
+    body.querySelectorAll('[data-discount]').forEach(el =>
+      el.addEventListener('click',() => discount(el.dataset.discount))
+    );
 
-    body.querySelectorAll('[data-receipt]').forEach(element => {
-      element.addEventListener('click', () => {
-        recordCommission(
-          element.dataset.receipt,
-          Number(element.dataset.due)
-        );
-      });
-    });
+    body.querySelectorAll('[data-receipt]').forEach(el =>
+      el.addEventListener('click',() =>
+        commissionReceipt(el.dataset.receipt,Number(el.dataset.due))
+      )
+    );
+
+    body.querySelectorAll('[data-print]').forEach(el =>
+      el.addEventListener('click',() =>
+        printCustomerDocument(el.dataset.print,'invoice')
+      )
+    );
+
+    body.querySelectorAll('[data-quote]').forEach(el =>
+      el.addEventListener('click',() =>
+        printCustomerDocument(el.dataset.quote,'quote')
+      )
+    );
+
+    body.querySelectorAll('[data-photo]').forEach(el =>
+      el.addEventListener('click',() => viewPrivatePhoto(el.dataset.photo))
+    );
   }
 
   function renderPayments() {
     const body = $('jiPaymentRows');
 
     if (!payments.length) {
-      body.innerHTML = '<tr><td colspan="6">No payment claims. / Aucun paiement déclaré.</td></tr>';
+      body.innerHTML =
+        '<tr><td colspan="5">No customer payment claims yet.</td></tr>';
       return;
     }
 
-    body.innerHTML = payments.map(payment => {
-      const order = orders.find(item => item.id === payment.order_id);
-      const status = String(payment.status || 'PENDING').toUpperCase();
+    body.innerHTML = payments.map(p => {
+      const o = orders.find(x => x.id === p.order_id);
 
-      const timestamp = status === 'CONFIRMED'
-        ? localDateTime(payment.confirmed_at)
-        : status === 'REJECTED'
-          ? localDateTime(payment.rejected_at)
-          : '';
+      const when = p.status === 'CONFIRMED'
+        ? burundiDateTime(p.confirmed_at)
+        : (p.status === 'REJECTED'
+          ? burundiDateTime(p.rejected_at)
+          : '');
+
+      let action = '—';
+
+      if (isCEO && p.status === 'PENDING') {
+        action =
+          '<button data-confirm="' + esc(p.id) + '">Confirm</button>' +
+          '<button class="secondary" data-reject="' + esc(p.id) + '">Reject</button>';
+      } else if (String(p.status || '').toUpperCase() === 'CONFIRMED') {
+        action =
+          'Confirmed<br><button class="secondary" data-print-receipt="' +
+          esc(p.id) + '">Print receipt / Imprimer reçu</button>';
+      }
 
       return `
         <tr>
           <td>
-            ${esc(order?.order_no || payment.order_id)}<br>
-            ${esc(order?.customer || '')}
+            ${esc(o?.order_no || p.order_id)}<br>
+            ${esc(o?.customer || '')}
           </td>
-          <td>${money(payment.amount)} USD</td>
+
+          <td>${usd(p.amount)} USD</td>
+
           <td>
-            ${esc(payment.method || '')}<br>
-            ${esc(payment.reference || '—')}
+            ${esc(p.method || '')}<br>
+            ${esc(p.reference || '—')}
           </td>
+
           <td>
-            <b>${esc(status)}</b>
-            ${timestamp
-              ? `<br><span class="ji-small">${esc(timestamp)} (Burundi)</span>`
+            <b>${esc(p.status)}</b>
+            ${when
+              ? '<br><span class="ji-small">' +
+                (p.status === 'CONFIRMED' ? 'Confirmed' : 'Rejected') +
+                ': ' + esc(when) + ' (Burundi)</span>'
               : ''}
           </td>
-          <td>
-            ${isCEO && status === 'PENDING'
-              ? `<button data-confirm="${esc(payment.id)}">Confirm</button>
-                 <button class="secondary" data-reject="${esc(payment.id)}">Reject</button>`
-              : status === 'CONFIRMED'
-                ? 'Confirmed / Confirmé'
-                : '—'}
-          </td>
-          <td>
-            ${status === 'CONFIRMED'
-              ? `<button data-paymentreceipt="${esc(payment.id)}">Print receipt / Imprimer</button>`
-              : 'Available after confirmation / Après confirmation'}
-          </td>
+
+          <td>${action}</td>
         </tr>
       `;
     }).join('');
 
-    body.querySelectorAll('[data-confirm]').forEach(element => {
-      element.addEventListener('click', () => {
-        handlePayment(element.dataset.confirm, false);
-      });
-    });
+    body.querySelectorAll('[data-confirm]').forEach(el =>
+      el.addEventListener('click',() =>
+        confirmPayment(el.dataset.confirm,false)
+      )
+    );
 
-    body.querySelectorAll('[data-reject]').forEach(element => {
-      element.addEventListener('click', () => {
-        handlePayment(element.dataset.reject, true);
-      });
-    });
+    body.querySelectorAll('[data-reject]').forEach(el =>
+      el.addEventListener('click',() =>
+        confirmPayment(el.dataset.reject,true)
+      )
+    );
 
-    body.querySelectorAll('[data-paymentreceipt]').forEach(element => {
-      element.addEventListener('click', () => {
-        printPaymentReceipt(element.dataset.paymentreceipt);
-      });
-    });
+    body.querySelectorAll('[data-print-receipt]').forEach(el =>
+      el.addEventListener('click',() =>
+        printPaymentReceipt(el.dataset.printReceipt)
+      )
+    );
   }
 
   function renderSummary() {
-    const commissionTotal = orders.reduce(
-      (sum, order) => sum + Number(order.commission_final || 0), 0
+    const earned = orders.reduce(
+      (n,o) => n + Number(o.commission_final || 0),0
     );
 
     const discounts = orders.reduce(
-      (sum, order) => sum + Number(order.commission_discount || 0), 0
+      (n,o) => n + Number(o.commission_discount || 0),0
     );
 
     const payable = orders.reduce(
-      (sum, order) => sum + (
-        order.dhl_status === 'Received in Burundi'
-          ? Number(order.commission_final || 0)
+      (n,o) => n + (
+        o.dhl_status === 'Received in Burundi'
+          ? Number(o.commission_final || 0)
           : 0
-      ),
-      0
+      ),0
     );
 
     const received = isCEO
-      ? receipts.reduce((sum, receipt) => sum + Number(receipt.amount || 0), 0)
+      ? receipts.reduce((n,r) => n + Number(r.amount || 0),0)
       : null;
 
     const outstanding = received === null
       ? null
-      : Math.max(0, payable - received);
+      : Math.max(0,payable-received);
 
     $('jiCommissionSummary').innerHTML = `
-      <div class="ji-stat">Commission after discounts<strong>${money(commissionTotal)} USD</strong></div>
-      <div class="ji-stat">Discounts / Réductions<strong>${money(discounts)} USD</strong></div>
-      <div class="ji-stat">Payable after DHL / Dû après DHL<strong>${money(payable)} USD</strong></div>
-      <div class="ji-stat">Actually received / Reçu<strong>${received === null ? 'CEO only' : money(received) + ' USD'}</strong></div>
-      <div class="ji-stat">Outstanding / Solde dû<strong>${outstanding === null ? 'CEO only' : money(outstanding) + ' USD'}</strong></div>
+      <div class="ji-stat">
+        Commission after discounts
+        <strong>${usd(earned)} USD</strong>
+      </div>
+
+      <div class="ji-stat">
+        Authorized discounts
+        <strong>${usd(discounts)} USD</strong>
+      </div>
+
+      <div class="ji-stat">
+        Payable after DHL documents arrive
+        <strong>${usd(payable)} USD</strong>
+      </div>
+
+      <div class="ji-stat">
+        Actually received
+        <strong>${received === null ? 'CEO only' : usd(received) + ' USD'}</strong>
+      </div>
+
+      <div class="ji-stat">
+        Outstanding payable
+        <strong>${outstanding === null ? 'CEO only' : usd(outstanding) + ' USD'}</strong>
+      </div>
     `;
   }
 
-  function renderOrderSelects() {
-    const markup = orders.map(order =>
-      `<option value="${esc(order.id)}">${esc(order.order_no || order.id.slice(0, 8))} — ${esc(order.customer)} — ${esc(order.make)}</option>`
+  function renderOrderSelect() {
+    const s = $('jiPaymentOrder');
+    const old = s.value;
+
+    s.innerHTML = orders.map(o =>
+      '<option value="' + esc(o.id) + '">' +
+      esc(o.order_no || o.id) + ' — ' +
+      esc(o.customer) + ' — ' + esc(o.make) +
+      '</option>'
     ).join('');
 
-    ['jiPaymentOrder', 'jiDocumentOrder'].forEach(id => {
-      const select = $(id);
-      const previous = select.value;
-
-      select.innerHTML = markup;
-
-      if (orders.some(order => order.id === previous)) {
-        select.value = previous;
-      }
-    });
+    if (orders.some(o => o.id === old)) {
+      s.value = old;
+    }
   }
 
   async function refresh() {
     try {
       const client = db();
 
-      let result = await client
-        .from(TABLE)
+      if (!client) {
+        throw new Error('Supabase client unavailable.');
+      }
+
+      let r = await client
+        .from('cwb_japan_import_orders')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at',{ascending:false});
 
-      if (result.error) throw result.error;
-      orders = result.data || [];
+      if (r.error) throw r.error;
 
-      result = await client
-        .from(PAYMENT_TABLE)
+      orders = r.data || [];
+
+      r = await client
+        .from('cwb_japan_customer_payments')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('claimed_at',{ascending:false});
 
-      if (result.error) throw result.error;
-      payments = result.data || [];
+      if (r.error) throw r.error;
+
+      payments = r.data || [];
 
       if (isCEO) {
-        result = await client
-          .from(RECEIPT_TABLE)
+        r = await client
+          .from('cwb_japan_commission_receipts')
           .select('*')
-          .order('received_at', { ascending: false });
+          .order('received_at',{ascending:false});
 
-        if (result.error) throw result.error;
-        receipts = result.data || [];
+        if (r.error) throw r.error;
+
+        receipts = r.data || [];
       } else {
         receipts = [];
       }
 
-      await renderOrders();
+      renderOrders();
       renderPayments();
       renderSummary();
-      renderOrderSelects();
+      renderOrderSelect();
 
-    } catch (error) {
-      say(
-        'Cannot load Japan Car Import: ' + (error.message || error) +
-        '. Check the SQL setup and database permissions.',
+    } catch(e) {
+      note(
+        'Cannot load Japan Car Import: ' + (e.message || e) +
+        '. Check the separate Japan Import SQL setup.',
         true
       );
+
+      if ($('jiOrderRows')) {
+        $('jiOrderRows').innerHTML =
+          '<tr><td colspan="7">' + esc(e.message || e) + '</td></tr>';
+      }
     }
-  }
-
-  function selectedOrder() {
-    const id = $('jiDocumentOrder')?.value;
-    return orders.find(order => order.id === id);
-  }
-
-  function documentHtml(order, type) {
-    const bankTreatment = (order.notes || '').includes('Bank fee treatment: CWB absorbed')
-      ? 'CWB absorbed'
-      : 'Customer charged';
-
-    const price = Number(order.price || 0);
-    const bank = bankTreatment === 'Customer charged'
-      ? Number(order.bank_fee || 0)
-      : 0;
-    const shipping = Number(order.shipping || 0);
-    const clearing = Number(order.clearing || 0);
-    const total = price + bank + shipping + clearing;
-
-    const title = type === 'quote'
-      ? 'QUOTATION / DEVIS'
-      : 'INVOICE / FACTURE';
-
-    const date = new Intl.DateTimeFormat('en-GB', {
-      timeZone: 'Africa/Bujumbura',
-      dateStyle: 'long'
-    }).format(new Date());
-
-    return `
-      <!doctype html>
-      <html lang="en">
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>${title}</title>
-        <style>
-          body{font-family:Arial,sans-serif;color:#111827;margin:30px}
-          h1,h2{color:#991b1b}
-          table{width:100%;border-collapse:collapse;margin-top:20px}
-          th,td{border:1px solid #d1d5db;padding:10px;text-align:left}
-          th{background:#f3f4f6}
-          .right{text-align:right}
-          .small{font-size:12px;color:#555}
-          .total{font-size:18px;font-weight:bold}
-          @media print{button{display:none}body{margin:10mm}}
-        </style>
-      </head>
-      <body>
-        <h1>C.W.B System</h1>
-        <h2>Camel Work and Business Company</h2>
-        <p><b>Better Quality is our priority</b></p>
-        <p>
-          Bujumbura, Chaussée du Peuple Murundi No. 54<br>
-          Phone: 67481564 / 62180032<br>
-          NIF: 4002652933<br>
-          RC: 0056983/24
-        </p>
-        <hr>
-        <h2>${title}</h2>
-        <p><b>Document / Document :</b> ${esc(order.order_no || order.id)}</p>
-        <p><b>Date / Date :</b> ${esc(date)}</p>
-        <p><b>Customer / Client :</b> ${esc(order.customer)}</p>
-        <p><b>Phone / Téléphone :</b> ${esc(order.phone || '—')}</p>
-        <p><b>Vehicle / Véhicule :</b> ${esc(order.make)} ${esc(order.year || '')}</p>
-        <p><b>VIN / Chassis :</b> ${esc(order.vin || '—')}</p>
-
-        <table>
-          <thead>
-            <tr><th>Description / Désignation</th><th class="right">Amount / Montant (USD)</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Vehicle price / Prix du véhicule</td><td class="right">${money(price)}</td></tr>
-            <tr><td>Bank fee / Frais bancaires</td><td class="right">${money(bank)}</td></tr>
-            <tr><td>Shipping / Transport</td><td class="right">${money(shipping)}</td></tr>
-            <tr><td>Clearing / Dédouanement</td><td class="right">${money(clearing)}</td></tr>
-            <tr><td class="total">Customer total / Total client</td><td class="right total">${money(total)}</td></tr>
-          </tbody>
-        </table>
-
-        <p>
-          C.W.B commission / Commission C.W.B:
-          ${money(order.commission_final)} USD.
-          This commission is tracked separately and is not included in
-          the customer total above.
-        </p>
-        <p>
-          La commission C.W.B est suivie séparément et n'est pas incluse
-          dans le total client ci-dessus.
-        </p>
-        <p><b>Notes / Remarques:</b><br>${esc(order.notes || '—').replace(/\n/g, '<br>')}</p>
-        <p class="small">
-          This document records the listed costs. Actual payments must be
-          verified and confirmed in the C.W.B System.
-          / Ce document présente les frais indiqués. Les paiements réels
-          doivent être vérifiés et confirmés dans le système C.W.B.
-        </p>
-        <p>Customer signature / Signature du client: __________________</p>
-        <p>C.W.B signature / Signature C.W.B: __________________</p>
-        <button onclick="window.print()">Print / Imprimer</button>
-      </body>
-      </html>
-    `;
-  }
-
-  function printDocument(type) {
-    const order = selectedOrder();
-
-    if (!order) return say('Select a vehicle order first.', true);
-
-    const win = window.open('', '_blank');
-
-    if (!win) return say('Allow pop-ups to print the document.', true);
-
-    win.document.open();
-    win.document.write(documentHtml(order, type));
-    win.document.close();
-  }
-
-  function printPaymentReceipt(paymentId) {
-    const payment = payments.find(item => item.id === paymentId);
-
-    if (!payment || String(payment.status).toUpperCase() !== 'CONFIRMED') {
-      return say('Only confirmed payments can have a receipt.', true);
-    }
-
-    const order = orders.find(item => item.id === payment.order_id);
-    const confirmedTime = localDateTime(payment.confirmed_at);
-    const win = window.open('', '_blank');
-
-    if (!win) return say('Allow pop-ups to print the receipt.', true);
-
-    win.document.open();
-
-    win.document.write(`
-      <!doctype html>
-      <html lang="en">
-      <head>
-        <meta charset="utf-8">
-        <title>C.W.B Payment Receipt / Reçu de paiement</title>
-        <style>
-          body{font-family:Arial,sans-serif;margin:30px;color:#111827}
-          h1,h2{color:#991b1b}
-          .box{border:1px solid #bbb;padding:18px;margin-top:20px}
-          @media print{button{display:none}}
-        </style>
-      </head>
-      <body>
-        <h1>C.W.B System</h1>
-        <h2>Camel Work and Business Company</h2>
-        <p>Better Quality is our priority</p>
-        <p>Bujumbura, Chaussée du Peuple Murundi No. 54</p>
-        <p>Phone: 67481564 / 62180032 | NIF: 4002652933 | RC: 0056983/24</p>
-        <hr>
-        <h2>PAYMENT RECEIPT / REÇU DE PAIEMENT</h2>
-        <div class="box">
-          <p><b>Receipt reference / Référence:</b> ${esc(payment.reference || payment.id)}</p>
-          <p><b>Customer / Client:</b> ${esc(order?.customer || '')}</p>
-          <p><b>Vehicle / Véhicule:</b> ${esc(order?.make || '')} ${esc(order?.year || '')}</p>
-          <p><b>Amount received / Montant reçu:</b> ${money(payment.amount)} USD</p>
-          <p><b>Method / Mode:</b> ${esc(payment.method || '')}</p>
-          <p><b>Confirmed date and time / Date et heure de confirmation:</b>
-            ${esc(confirmedTime)} (Burundi / Burundi)
-          </p>
-          <p><b>Status / Statut:</b> CONFIRMED / CONFIRMÉ</p>
-        </div>
-        <p>
-          This receipt is issued for a payment confirmed by C.W.B.
-          / Ce reçu est délivré pour un paiement confirmé par C.W.B.
-        </p>
-        <p>Authorized signature / Signature autorisée: __________________</p>
-        <button onclick="window.print()">Print / Imprimer</button>
-      </body>
-      </html>
-    `);
-
-    win.document.close();
   }
 
   async function init() {
-    addStyles();
+    styles();
     buildUI();
-    updateTotal();
+    total();
 
     try {
       await checkUser();
       await refresh();
-    } catch (error) {
-      say(error.message || String(error), true);
+    } catch(e) {
+      note(e.message || String(e),true);
     }
   }
 
   window.cwbJapanCarImportInit = init;
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded',init);
   } else {
     init();
   }
