@@ -11,7 +11,7 @@
   const TABLE = 'cwb_japan_import_orders';
   const PAYMENT_TABLE = 'cwb_japan_customer_payments';
   const RECEIPT_TABLE = 'cwb_japan_commission_receipts';
-  const COMMISSION = 50;
+  const COMMISSION = 100;
   const $ = id => document.getElementById(id);
   const db = () => window.cwbSupabaseClient;
 
