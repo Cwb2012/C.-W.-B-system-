@@ -53,6 +53,7 @@
 
   function localDateTime(value) {
     if (!value) return '';
+
     return new Intl.DateTimeFormat('en-GB', {
       timeZone: 'Africa/Bujumbura',
       year: 'numeric',
@@ -67,10 +68,12 @@
 
   function say(message, error = false) {
     const el = $('jiMessage');
+
     if (!el) {
       alert(message);
       return;
     }
+
     el.textContent = message;
     el.style.color = error ? '#b91c1c' : '#166534';
   }
@@ -440,7 +443,6 @@
 
     if (uploaded.error) throw uploaded.error;
 
-    // The bucket is private. Save the object path, not a public URL.
     return path;
   }
 
@@ -475,6 +477,7 @@
 
     try {
       const standard = COMMISSION;
+
       const row = {
         customer,
         phone: $('jiPhone').value.trim() || null,
@@ -492,13 +495,13 @@
         ].filter(Boolean).join('\n'),
         vehicle_status: 'Ordered',
         dhl_status: 'Not dispatched',
+
+        // commission_final is intentionally omitted because
+        // the database controls that column.
         commission_standard: standard,
-        commission_discount: 0,
-        commission_final: standard
+        commission_discount: 0
       };
 
-      // Insert the order first so its database-generated ID can be used
-      // as the private photo folder.
       const inserted = await client
         .from(TABLE)
         .insert(row)
@@ -513,6 +516,7 @@
       if (photo) {
         try {
           const path = await uploadPhoto(photo, order.id);
+
           const saved = await client
             .from(TABLE)
             .update({ photo_url: path })
@@ -532,6 +536,7 @@
       }
 
       say('Vehicle registered successfully. / Véhicule enregistré avec succès.');
+
       [
         'jiCustomer', 'jiPhone', 'jiMake', 'jiYear',
         'jiVin', 'jiSupplier', 'jiNotes'
@@ -555,26 +560,32 @@
 
   async function updateOrder(id, fields) {
     const result = await db().from(TABLE).update(fields).eq('id', id);
+
     if (result.error) {
       say('Update failed: ' + result.error.message, true);
       return;
     }
+
     say('Updated successfully. / Mise à jour réussie.');
     await refresh();
   }
 
   async function authorizeDiscount(id) {
-    if (!isCEO) return say('Only the CEO can approve commission discounts.', true);
+    if (!isCEO) {
+      return say('Only the CEO can approve commission discounts.', true);
+    }
 
     const raw = prompt('Commission discount in USD (0–50):', '0');
     if (raw === null) return;
 
     const discount = Number(raw);
+
     if (!Number.isFinite(discount) || discount < 0 || discount > COMMISSION) {
       return say('Discount must be between 0 and 50 USD.', true);
     }
 
     let reason = '';
+
     if (discount > 0) {
       reason = (prompt('Reason for discount / Motif de réduction:') || '').trim();
       if (!reason) return say('A reason is required. / Le motif est obligatoire.', true);
@@ -595,13 +606,23 @@
   }
 
   async function recordCommission(id, outstanding) {
-    if (!isCEO) return say('Only the CEO can record commission received.', true);
-    if (outstanding <= 0) return say('No outstanding commission is payable.', true);
+    if (!isCEO) {
+      return say('Only the CEO can record commission received.', true);
+    }
 
-    const raw = prompt('Commission actually received, maximum ' + money(outstanding) + ' USD:', String(outstanding));
+    if (outstanding <= 0) {
+      return say('No outstanding commission is payable.', true);
+    }
+
+    const raw = prompt(
+      'Commission actually received, maximum ' + money(outstanding) + ' USD:',
+      String(outstanding)
+    );
+
     if (raw === null) return;
 
     const amount = Number(raw);
+
     if (!Number.isFinite(amount) || amount <= 0 || amount > outstanding) {
       return say('Enter a valid amount not exceeding the outstanding commission.', true);
     }
@@ -627,6 +648,7 @@
     const amount = Number($('jiPaymentAmount').value);
 
     if (!orderId) return say('Select a vehicle order first.', true);
+
     if (!Number.isFinite(amount) || amount <= 0) {
       return say('Enter an amount greater than zero.', true);
     }
@@ -651,7 +673,9 @@
   }
 
   async function handlePayment(id, reject) {
-    if (!isCEO) return say('Only the CEO can confirm or reject payments.', true);
+    if (!isCEO) {
+      return say('Only the CEO can confirm or reject payments.', true);
+    }
 
     let result;
 
@@ -720,7 +744,6 @@
         : 0;
 
       const outstanding = Math.max(0, payable - received);
-
       const photoUrl = await signedPhoto(order.photo_url);
 
       return `
@@ -769,13 +792,16 @@
 
     body.querySelectorAll('[data-vehicle]').forEach(element => {
       element.addEventListener('change', () => {
-        updateOrder(element.dataset.vehicle, { vehicle_status: element.value });
+        updateOrder(element.dataset.vehicle, {
+          vehicle_status: element.value
+        });
       });
     });
 
     body.querySelectorAll('[data-dhl]').forEach(element => {
       element.addEventListener('change', () => {
         const status = element.value;
+
         updateOrder(element.dataset.dhl, {
           dhl_status: status,
           dhl_received_at: status === 'Received in Burundi'
@@ -786,12 +812,17 @@
     });
 
     body.querySelectorAll('[data-discount]').forEach(element => {
-      element.addEventListener('click', () => authorizeDiscount(element.dataset.discount));
+      element.addEventListener('click', () => {
+        authorizeDiscount(element.dataset.discount);
+      });
     });
 
     body.querySelectorAll('[data-receipt]').forEach(element => {
       element.addEventListener('click', () => {
-        recordCommission(element.dataset.receipt, Number(element.dataset.due));
+        recordCommission(
+          element.dataset.receipt,
+          Number(element.dataset.due)
+        );
       });
     });
   }
@@ -849,15 +880,21 @@
     }).join('');
 
     body.querySelectorAll('[data-confirm]').forEach(element => {
-      element.addEventListener('click', () => handlePayment(element.dataset.confirm, false));
+      element.addEventListener('click', () => {
+        handlePayment(element.dataset.confirm, false);
+      });
     });
 
     body.querySelectorAll('[data-reject]').forEach(element => {
-      element.addEventListener('click', () => handlePayment(element.dataset.reject, true));
+      element.addEventListener('click', () => {
+        handlePayment(element.dataset.reject, true);
+      });
     });
 
     body.querySelectorAll('[data-paymentreceipt]').forEach(element => {
-      element.addEventListener('click', () => printPaymentReceipt(element.dataset.paymentreceipt));
+      element.addEventListener('click', () => {
+        printPaymentReceipt(element.dataset.paymentreceipt);
+      });
     });
   }
 
@@ -883,7 +920,9 @@
       ? receipts.reduce((sum, receipt) => sum + Number(receipt.amount || 0), 0)
       : null;
 
-    const outstanding = received === null ? null : Math.max(0, payable - received);
+    const outstanding = received === null
+      ? null
+      : Math.max(0, payable - received);
 
     $('jiCommissionSummary').innerHTML = `
       <div class="ji-stat">Commission after discounts<strong>${money(commissionTotal)} USD</strong></div>
@@ -902,8 +941,12 @@
     ['jiPaymentOrder', 'jiDocumentOrder'].forEach(id => {
       const select = $(id);
       const previous = select.value;
+
       select.innerHTML = markup;
-      if (orders.some(order => order.id === previous)) select.value = previous;
+
+      if (orders.some(order => order.id === previous)) {
+        select.value = previous;
+      }
     });
   }
 
@@ -1058,9 +1101,11 @@
 
   function printDocument(type) {
     const order = selectedOrder();
+
     if (!order) return say('Select a vehicle order first.', true);
 
     const win = window.open('', '_blank');
+
     if (!win) return say('Allow pop-ups to print the document.', true);
 
     win.document.open();
@@ -1070,17 +1115,19 @@
 
   function printPaymentReceipt(paymentId) {
     const payment = payments.find(item => item.id === paymentId);
+
     if (!payment || String(payment.status).toUpperCase() !== 'CONFIRMED') {
       return say('Only confirmed payments can have a receipt.', true);
     }
 
     const order = orders.find(item => item.id === payment.order_id);
     const confirmedTime = localDateTime(payment.confirmed_at);
-
     const win = window.open('', '_blank');
+
     if (!win) return say('Allow pop-ups to print the receipt.', true);
 
     win.document.open();
+
     win.document.write(`
       <!doctype html>
       <html lang="en">
@@ -1122,6 +1169,7 @@
       </body>
       </html>
     `);
+
     win.document.close();
   }
 
