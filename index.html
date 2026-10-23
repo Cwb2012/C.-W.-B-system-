@@ -99,7 +99,9 @@ const supabaseClient=window.cwbSupabaseClient=supabase.createClient(SUPABASE_URL
 const KEY={sales:'cwb_sales_v2',purchases:'cwb_purchases_v2',expenses:'cwb_expenses_v2',partners:'cwb_partners_v2',payroll:'cwb_payroll_v2'};
 function arr(k){try{return JSON.parse(localStorage.getItem(k))||[]}catch(e){return[]}}
 function setArr(k,v){localStorage.setItem(k,JSON.stringify(v))}
-let sales=arr(KEY.sales),purchases=arr(KEY.purchases),expenses=arr(KEY.expenses),partners=arr(KEY.partners),payroll=arr(KEY.payroll);
+let sales=arr(KEY.sales),purchases=arr(KEY.purchases),expenses=arr(KEY.expenses),partners=arr(KEY.partners);
+// Payroll is loaded from Supabase only after an authorized user signs in.
+let legacyPayroll=arr(KEY.payroll),payroll=[];
 function num(v){const n=Number(v);return Number.isFinite(n)?n:0}
 function money(v){return num(v).toLocaleString('en-US')}
 function today(){return new Date().toISOString().slice(0,10)}
@@ -1313,9 +1315,83 @@ const partnerForm=document.getElementById('partnerForm');if(partnerForm)partnerF
 function renderPartners(){const b=document.getElementById('partnerTableBody');if(!b)return;if(!partners.length){b.innerHTML='<tr><td colspan="6">No contacts yet.</td></tr>';return}b.innerHTML=partners.map((x,i)=>`<tr><td>${esc(x.name)}</td><td>${esc(x.type)}</td><td>${esc(x.phone)}</td><td>${esc(x.email)}</td><td>${esc(x.address)}</td><td><button class="btn light" style="padding:6px 9px;margin:0" onclick="deleteRecord('partners',${i})">Delete</button></td></tr>`).join('')}
 // PAYROLL
 function updatePayPreview(){const base=num(document.getElementById('pay_base')?.value),allowance=num(document.getElementById('pay_allowance')?.value),deduction=num(document.getElementById('pay_deduction')?.value),preview=document.getElementById('pay_net_preview');if(preview)preview.textContent=money(base+allowance-deduction)}['pay_base','pay_allowance','pay_deduction'].forEach(id=>{const input=document.getElementById(id);if(input)input.addEventListener('input',updatePayPreview)});
-const payrollForm=document.getElementById('payrollForm');if(payrollForm)payrollForm.addEventListener('submit',e=>{e.preventDefault();const base=num(document.getElementById('pay_base').value),allowance=num(document.getElementById('pay_allowance').value),deduction=num(document.getElementById('pay_deduction').value),gross=base+allowance;if(deduction>gross){msg('payMessage','Deductions cannot be greater than Base Salary + Allowance.',true);return}payroll.push({worker:document.getElementById('pay_worker').value.trim(),position:document.getElementById('pay_position').value.trim(),month:document.getElementById('pay_month').value||currentMonth(),base,allowance,deduction,net:gross-deduction,status:document.getElementById('pay_status').value});setArr(KEY.payroll,payroll);e.target.reset();document.getElementById('pay_month').value=currentMonth();msg('payMessage','Salary record saved successfully.');renderPayroll();updatePayPreview();updateDashboard();loadReports()});
-function renderPayroll(){const b=document.getElementById('payTableBody');if(!b)return;if(!payroll.length){b.innerHTML='<tr><td colspan="9">No payroll records yet.</td></tr>';return}b.innerHTML=payroll.map((x,i)=>`<tr><td>${esc(x.month)}</td><td>${esc(x.worker)}</td><td>${esc(x.position)}</td><td>${money(x.base)}</td><td>${money(x.allowance)}</td><td>${money(x.deduction)}</td><td>${money(x.net)}</td><td>${esc(x.status)}</td><td><button class="btn light" style="padding:6px 9px;margin:0" onclick="deleteRecord('payroll',${i})">Delete</button></td></tr>`).join('')}
-function deleteRecord(type,index){if(!confirm('Are you sure you want to delete this record?'))return;if(type==='sales'){sales.splice(index,1);setArr(KEY.sales,sales);renderSales()}else if(type==='purchases'){purchases.splice(index,1);setArr(KEY.purchases,purchases);renderPurchases()}else if(type==='expenses'){expenses.splice(index,1);setArr(KEY.expenses,expenses);renderExpenses()}else if(type==='partners'){partners.splice(index,1);setArr(KEY.partners,partners);renderPartners()}else if(type==='payroll'){payroll.splice(index,1);setArr(KEY.payroll,payroll);renderPayroll()}updateDashboard();loadReports()}
+async function payrollAuthorized(){
+  try{
+    const {data:{user},error:userError}=await supabaseClient.auth.getUser();
+    if(userError||!user)return false;
+    const {data:profile,error}=await supabaseClient.from('cwb_profiles').select('active,role_id').eq('id',user.id).maybeSingle();
+    return !error && profile && profile.active===true && [1,6].includes(Number(profile.role_id));
+  }catch(_){return false;}
+}
+function payrollFromDb(x){return {id:x.id,worker:x.worker_name||'',position:x.position||'',month:x.salary_month||'',base:num(x.base_salary),allowance:num(x.allowance),deduction:num(x.deductions),net:num(x.net_salary),status:x.payment_status||'Unpaid',payment_date:x.payment_date||null,notes:x.notes||''};}
+async function loadPayrollFromSupabase(){
+  const body=document.getElementById('payTableBody');
+  if(body)body.innerHTML='<tr><td colspan="9">Checking payroll access...</td></tr>';
+  if(!(await payrollAuthorized())){
+    payroll=[];
+    if(body)body.innerHTML='<tr><td colspan="9">Payroll access is restricted to the active CEO and HR accounts.</td></tr>';
+    updateDashboard();loadReports();return false;
+  }
+  const {data,error}=await supabaseClient.from('payroll').select('id,worker_name,position,salary_month,base_salary,allowance,deductions,net_salary,payment_status,payment_date,notes,created_at').order('created_at',{ascending:false});
+  if(error){if(body)body.innerHTML='<tr><td colspan="9">Could not load payroll from Supabase: '+esc(error.message)+'</td></tr>';msg('payMessage','Could not load payroll from Supabase: '+error.message,true);return false;}
+  payroll=(data||[]).map(payrollFromDb);
+  // Migrate old browser-only records once, and only when the protected table is empty.
+  const migrationKey='cwb_payroll_v2_migrated_to_supabase';
+  if(!localStorage.getItem(migrationKey)&&payroll.length===0&&legacyPayroll.length){
+    const rows=legacyPayroll.map(x=>({worker_name:String(x.worker||x.worker_name||'').trim(),position:String(x.position||''),salary_month:String(x.month||x.salary_month||currentMonth()),base_salary:num(x.base??x.base_salary),allowance:num(x.allowance),deductions:num(x.deduction??x.deductions),net_salary:num(x.net??x.net_salary),payment_status:String(x.status||x.payment_status||'Unpaid'),payment_date:x.payment_date||null,notes:x.notes||null})).filter(x=>x.worker_name);
+    if(rows.length){
+      const {error:migrationError}=await supabaseClient.from('payroll').insert(rows);
+      if(migrationError){msg('payMessage','Payroll loaded, but old browser records were not migrated: '+migrationError.message,true);renderPayroll();return true;}
+      localStorage.setItem(migrationKey,'yes');
+      const {data:refreshed,error:refreshError}=await supabaseClient.from('payroll').select('id,worker_name,position,salary_month,base_salary,allowance,deductions,net_salary,payment_status,payment_date,notes,created_at').order('created_at',{ascending:false});
+      if(!refreshError)payroll=(refreshed||[]).map(payrollFromDb);
+      msg('payMessage','Previous browser payroll records were copied to Supabase. The original local backup was preserved.');
+    }else{
+      localStorage.setItem(migrationKey,'yes');
+    }
+  }else if(!localStorage.getItem(migrationKey)&&payroll.length>0&&legacyPayroll.length){
+    // Do not risk duplicate salary records. Keep the old local backup untouched for review.
+    msg('payMessage','Supabase already has payroll records. Old browser records were preserved and not imported automatically.',true);
+  }else if(!localStorage.getItem(migrationKey)&&payroll.length===0){
+    localStorage.setItem(migrationKey,'yes');
+  }
+  renderPayroll();updateDashboard();loadReports();return true;
+}
+window.cwbLoadPayrollSecure=loadPayrollFromSupabase;
+function updatePayPreview(){const base=num(document.getElementById('pay_base')?.value),allowance=num(document.getElementById('pay_allowance')?.value),deduction=num(document.getElementById('pay_deduction')?.value),preview=document.getElementById('pay_net_preview');if(preview)preview.textContent=money(base+allowance-deduction)}['pay_base','pay_allowance','pay_deduction'].forEach(id=>{const input=document.getElementById(id);if(input)input.addEventListener('input',updatePayPreview)});
+const payrollForm=document.getElementById('payrollForm');
+if(payrollForm)payrollForm.addEventListener('submit',async e=>{
+  e.preventDefault();
+  if(!(await payrollAuthorized())){msg('payMessage','Only the active CEO and HR can manage payroll.',true);return;}
+  const base=num(document.getElementById('pay_base').value),allowance=num(document.getElementById('pay_allowance').value),deduction=num(document.getElementById('pay_deduction').value),gross=base+allowance;
+  if(deduction>gross){msg('payMessage','Deductions cannot be greater than Base Salary + Allowance.',true);return;}
+  const row={worker_name:document.getElementById('pay_worker').value.trim(),position:document.getElementById('pay_position').value.trim()||null,salary_month:document.getElementById('pay_month').value||currentMonth(),base_salary:base,allowance,deductions:deduction,net_salary:gross-deduction,payment_status:document.getElementById('pay_status').value};
+  if(!row.worker_name){msg('payMessage','Please enter the worker name.',true);return;}
+  msg('payMessage','Saving salary securely to Supabase...');
+  const {error}=await supabaseClient.from('payroll').insert([row]);
+  if(error){msg('payMessage','Salary was not saved: '+error.message,true);return;}
+  e.target.reset();document.getElementById('pay_month').value=currentMonth();msg('payMessage','Salary saved to Supabase successfully.');await loadPayrollFromSupabase();updatePayPreview();
+});
+async function renderPayroll(){
+  const b=document.getElementById('payTableBody');if(!b)return;
+  if(!payroll.length){b.innerHTML='<tr><td colspan="9">No payroll records yet, or load payroll after signing in as CEO/HR.</td></tr>';return;}
+  b.innerHTML=payroll.map((x,i)=>`<tr><td>${esc(x.month)}</td><td>${esc(x.worker)}</td><td>${esc(x.position)}</td><td>${money(x.base)}</td><td>${money(x.allowance)}</td><td>${money(x.deduction)}</td><td>${money(x.net)}</td><td>${esc(x.status)}</td><td><button class="btn light" style="padding:6px 9px;margin:0" onclick="deleteRecord('payroll',${i})">Delete</button></td></tr>`).join('');
+}
+async function deleteRecord(type,index){
+  if(!confirm('Are you sure you want to delete this record?'))return;
+  if(type==='sales'){sales.splice(index,1);setArr(KEY.sales,sales);renderSales()}
+  else if(type==='purchases'){purchases.splice(index,1);setArr(KEY.purchases,purchases);renderPurchases()}
+  else if(type==='expenses'){expenses.splice(index,1);setArr(KEY.expenses,expenses);renderExpenses()}
+  else if(type==='partners'){partners.splice(index,1);setArr(KEY.partners,partners);renderPartners()}
+  else if(type==='payroll'){
+    if(!(await payrollAuthorized())){msg('payMessage','Only the active CEO and HR can manage payroll.',true);return;}
+    const item=payroll[index];if(!item||item.id==null){msg('payMessage','This salary record has no database ID and cannot be deleted safely.',true);return;}
+    const {error}=await supabaseClient.from('payroll').delete().eq('id',item.id);
+    if(error){msg('payMessage','Could not delete salary: '+error.message,true);return;}
+    await loadPayrollFromSupabase();
+  }
+  updateDashboard();loadReports();
+}
 // PLANNER
 function savePlan(){localStorage.setItem('cwb_plan',document.getElementById('planText').value);msg('planMessage','Business plan saved successfully.')}
 function loadPlan(){document.getElementById('planText').value=localStorage.getItem('cwb_plan')||''}
@@ -1639,6 +1715,8 @@ roleName=role?.name||"User";
 if(roleName==="CEO"){
 Object.values(MODULES).forEach(x=>allowed.add(x));
 }else{
+if(roleName==="HR") allowed.add("payroll");
+else allowed.delete("payroll");
 
 const {data:rp,error:rpError}=await supabaseClient
 .from("cwb_role_permissions")
@@ -1683,6 +1761,10 @@ location.reload();
 
 screen.style.display="none";
 applyAccess();
+
+if(window.cwbLoadPayrollSecure){
+  window.cwbLoadPayrollSecure().catch(err=>console.error("Payroll load failed",err));
+}
 
 if(originalShowModule){
 window.showModule=function(id){
