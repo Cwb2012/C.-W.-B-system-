@@ -17,6 +17,7 @@
 <div class="container">
 <div class="card"><h2>Business Dashboard</h2><div class="dashboard">
 <button class="module" onclick="showModule('accounting')">Accounting</button><button class="module" onclick="showModule('payroll')">Payroll</button><button class="module" onclick="showModule('inventory')">Inventory</button><button class="module" onclick="showModule('sales')">Sales & Invoice</button><button class="module" onclick="showModule('purchases')">Purchases</button><button class="module" onclick="showModule('partners')">Customers & Partners</button><button class="module" onclick="showModule('expenses')">Expenses</button><button class="module" onclick="showModule('garage')">Garage Activities</button><button class="module" onclick="showModule('planner')">Business Planner</button><button class="module" onclick="showModule('reports')">Reports</button><button class="module" onclick="showModule('scanpay')">Scan & Pay</button><button class="module" onclick="showModule('website')">Website</button><button class="module" onclick="showModule('social')">Social Connections</button>
+<button class="module" onclick="showModule('chinadubai')">China & Dubai Import</button>
 </div></div>
 <div class="card"><div class="dashboard"><div class="stat">Total Sales<strong id="totalSales">0</strong></div><div class="stat">Total Purchases<strong id="totalPurchases">0</strong></div><div class="stat">Expenses<strong id="totalExpenses">0</strong></div><div class="stat">Balance<strong id="balance">0</strong></div><div class="stat">Final Balance<strong id="finalBalance">0</strong></div></div></div>
 
@@ -109,7 +110,7 @@ function currentMonth(){return new Date().toISOString().slice(0,7)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function totals(){const salesTotal=sales.reduce((a,x)=>a+num(x.amount),0),purchaseTotal=purchases.reduce((a,x)=>a+num(x.amount),0),expenseTotal=expenses.reduce((a,x)=>a+num(x.amount),0),payrollTotal=payroll.reduce((a,x)=>a+num(x.net),0),operatingBalance=salesTotal-purchaseTotal-expenseTotal;return{sales:salesTotal,purchases:purchaseTotal,expenses:expenseTotal,payroll:payrollTotal,operating:operatingBalance,final:operatingBalance-payrollTotal}}
 function msg(id,t,error=false){const e=document.getElementById(id);if(!e)return;e.textContent=t;e.classList.toggle('error',error);e.style.display='block';setTimeout(()=>e.style.display='none',4000)}
-function showModule(id){document.querySelectorAll('.card[id]').forEach(e=>e.classList.add('hidden'));const e=document.getElementById(id);if(!e)return;e.classList.remove('hidden');if(id==='inventory')loadInventory();if(id==='garage')loadGarage();if(id==='sales')renderSales();if(id==='purchases')renderPurchases();if(id==='expenses')renderExpenses();if(id==='partners')renderPartners();if(id==='payroll'){renderPayroll();updatePayPreview()}if(id==='accounting')updateDashboard();if(id==='reports')loadReports();if(id==='website')loadWebsite();if(id==='social')loadSocial();if(id==='scanpay')updatePaymentMethod();window.scrollTo({top:e.offsetTop-10,behavior:'smooth'})}
+function showModule(id){if(id==='chinadubai'&&window.cwbInitChinaDubaiImport)window.cwbInitChinaDubaiImport();document.querySelectorAll('.card[id]').forEach(e=>e.classList.add('hidden'));const e=document.getElementById(id==='chinadubai'?'chinaDubaiImport':id);if(!e)return;e.classList.remove('hidden');if(id==='inventory')loadInventory();if(id==='garage')loadGarage();if(id==='sales')renderSales();if(id==='purchases')renderPurchases();if(id==='expenses')renderExpenses();if(id==='partners')renderPartners();if(id==='payroll'){renderPayroll();updatePayPreview()}if(id==='accounting')updateDashboard();if(id==='reports')loadReports();if(id==='website')loadWebsite();if(id==='social')loadSocial();if(id==='scanpay')updatePaymentMethod();window.scrollTo({top:e.offsetTop-10,behavior:'smooth'})}
 function updateDashboard(){const t=totals();[['totalSales',t.sales],['totalPurchases',t.purchases],['totalExpenses',t.expenses],['balance',t.operating],['finalBalance',t.final],['accSales',t.sales],['accPurchases',t.purchases],['accExpenses',t.expenses],['accPayroll',t.payroll],['accBalance',t.operating],['accFinalBalance',t.final]].forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.textContent=money(v)})}
 
 // INVENTORY
@@ -1589,6 +1590,9 @@ if(!supabaseClient){
 }
 const MODULES={
  accounting:"accounting",
+
+const MODULES={
+ accounting:"accounting",
  payroll:"payroll",
  inventory:"inventory",
  sales:"sales",
@@ -1601,8 +1605,10 @@ const MODULES={
  scanpay:"scanpay",
  website:"website",
  social:"social",
-japanimport:"japanimport"
+ japanimport:"japanimport",
+ chinadubai:"chinadubai"
 };
+
 
 let currentUser=null;
 let allowed=new Set();
@@ -2386,7 +2392,9 @@ if(document.readyState==="loading"){
     translatePage(savedLanguage);
   });
 })();
-</script>
+
 <script src="./japan-car-import-module.js"></script>
+<script src="./china-dubai-import-module.js"></script>
 </body>
 </html>
+
