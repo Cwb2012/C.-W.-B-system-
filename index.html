@@ -1588,8 +1588,6 @@ if(!supabaseClient){
   console.error("C.W.B Supabase client failed to initialize.");
   return;
 }
-const MODULES={
- accounting:"accounting",
 
 const MODULES={
  accounting:"accounting",
@@ -2390,9 +2388,10 @@ if(document.readyState==="loading"){
     const selector = document.getElementById("cwb-language");
     if (selector) selector.value = savedLanguage;
     translatePage(savedLanguage);
+  
   });
 })();
-
+</script>
 <script src="./japan-car-import-module.js"></script>
 <script src="./china-dubai-import-module.js"></script>
 </body>
