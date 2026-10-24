@@ -1,239 +1,600 @@
 /* C.W.B China & Dubai Import Module
-   Separate from Japan Car Import.
-   Calculator only: database and inventory integration come later.
+   Product quantities and costs by original currency. No automatic BIF conversion.
+   Supabase saving and inventory integration are not yet implemented.
 */
 (function () {
   'use strict';
 
   const $ = id => document.getElementById(id);
-  const number = id => Math.max(0, Number($(id)?.value || 0));
 
-  const money = value => Number(value || 0).toLocaleString('fr-BI', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2
-  });
+  const num = el =>
+    Math.max(0, Number(el && el.value || 0));
 
-  const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;',
-    '"': '&quot;', "'": '&#39;'
-  }[c]));
+  const fmt = n =>
+    Number(n || 0).toLocaleString('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    });
 
-  let itemNumber = 0;
+  const esc = s =>
+    String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[c]));
+
+  let itemNo = 0;
 
   function addProduct() {
     const body = $('cdiProducts');
     if (!body) return;
 
     const row = document.createElement('tr');
-    row.dataset.id = String(++itemNumber);
+    row.dataset.id = String(++itemNo);
 
     row.innerHTML = `
-      <td><input class="cdi-name" placeholder="Product name"></td>
-      <td><input class="cdi-qty" type="number" min="0" step="0.001" value="1"></td>
       <td>
-        <select class="cdi-currency">
-          <option>USD</option>
-          <option>CNY</option>
-          <option>AED</option>
-          <option>BIF</option>
+        <input class="cdi-name"
+          placeholder="e.g. Clear Coat / Papier collant">
+      </td>
+
+      <td>
+        <select class="cdi-unit">
+          <option value="litres">Litres</option>
+          <option value="pieces">Pieces</option>
+          <option value="rolls">Rolls</option>
+          <option value="boxes">Boxes</option>
+          <option value="kg">Kilograms</option>
+          <option value="sets">Sets</option>
+          <option value="other">Other</option>
         </select>
       </td>
-      <td><input class="cdi-price" type="number" min="0" step="0.01" value="0"></td>
-      <td><input class="cdi-rate" type="number" min="0" step="0.0001" value="0" placeholder="Rate to BIF"></td>
-      <td class="cdi-purchase-total">0</td>
-      <td><button type="button" class="cdi-remove">Remove</button></td>
+
+      <td>
+        <input class="cdi-percarton"
+          type="number" min="0" step="0.001"
+          value="12" title="Units in one carton">
+      </td>
+
+      <td>
+        <input class="cdi-cartons"
+          type="number" min="0" step="1"
+          value="30" title="Number of cartons">
+      </td>
+
+      <td>
+        <select class="cdi-pricebasis">
+          <option value="carton">Price/carton</option>
+          <option value="unit">Price/unit</option>
+        </select>
+      </td>
+
+      <td>
+        <select class="cdi-currency">
+          <option value="USD">USD</option>
+          <option value="CNY">CNY</option>
+        </select>
+      </td>
+
+      <td>
+        <input class="cdi-price"
+          type="number" min="0" step="0.01" value="0">
+      </td>
+
+      <td class="cdi-totalunits">360</td>
+      <td class="cdi-unitprice">0</td>
+      <td class="cdi-purchasetotal">0 USD</td>
+
+      <td>
+        <button type="button" class="cdi-remove">
+          Remove
+        </button>
+      </td>
     `;
 
     body.appendChild(row);
 
-    row.querySelector('.cdi-currency').addEventListener('change', () => {
-      const currency = row.querySelector('.cdi-currency').value;
-      row.querySelector('.cdi-rate').value = currency === 'BIF' ? '1' : '0';
-      calculate();
+    row.querySelectorAll('input,select').forEach(el => {
+      el.addEventListener('input', calculate);
     });
 
-    row.querySelectorAll('input').forEach(input =>
-      input.addEventListener('input', calculate)
+    row.querySelectorAll('select').forEach(el => {
+      el.addEventListener('change', calculate);
+    });
+
+    row.querySelector('.cdi-remove').addEventListener(
+      'click',
+      () => {
+        row.remove();
+        calculate();
+      }
     );
-
-    row.querySelector('.cdi-remove').addEventListener('click', () => {
-      row.remove();
-      calculate();
-    });
 
     calculate();
   }
 
   function calculate() {
-    let purchaseTotal = 0;
-    const rows = [...document.querySelectorAll('#cdiProducts tr')];
+    const sums = {
+      USD: 0,
+      CNY: 0
+    };
 
-    const products = rows.map(row => {
-      const qty = Math.max(0, Number(row.querySelector('.cdi-qty').value || 0));
-      const price = Math.max(0, Number(row.querySelector('.cdi-price').value || 0));
-      const rate = Math.max(0, Number(row.querySelector('.cdi-rate').value || 0));
-      const total = qty * price * rate;
+    const rows = Array.from(
+      document.querySelectorAll('#cdiProducts tr')
+    );
 
-      row.querySelector('.cdi-purchase-total').textContent = money(total);
-      purchaseTotal += total;
+    const products = rows.map((row, i) => {
+      const name =
+        row.querySelector('.cdi-name').value.trim()
+        || 'Product ' + (i + 1);
+
+      const unit =
+        row.querySelector('.cdi-unit').value;
+
+      const perCarton =
+        num(row.querySelector('.cdi-percarton'));
+
+      const cartons =
+        num(row.querySelector('.cdi-cartons'));
+
+      const basis =
+        row.querySelector('.cdi-pricebasis').value;
+
+      const currency =
+        row.querySelector('.cdi-currency').value;
+
+      const enteredPrice =
+        num(row.querySelector('.cdi-price'));
+
+      const units = perCarton * cartons;
+
+      const total = basis === 'carton'
+        ? enteredPrice * cartons
+        : enteredPrice * units;
+
+      const unitPrice = units > 0
+        ? total / units
+        : 0;
+
+      sums[currency] += total;
+
+      const unitLabels = {
+        litres: 'L',
+        pieces: 'pc',
+        rolls: 'roll',
+        boxes: 'box',
+        kg: 'kg',
+        sets: 'set',
+        other: 'unit'
+      };
+
+      row.querySelector('.cdi-totalunits').textContent =
+        fmt(units) + ' ' + unit;
+
+      row.querySelector('.cdi-unitprice').textContent =
+        fmt(unitPrice) + ' ' + currency + '/'
+        + (unitLabels[unit] || 'unit');
+
+      row.querySelector('.cdi-purchasetotal').textContent =
+        fmt(total) + ' ' + currency;
 
       return {
-        name: row.querySelector('.cdi-name').value,
-        qty,
-        total
+        name,
+        unit,
+        units,
+        currency,
+        total,
+        unitPrice
       };
     });
 
-    const freight = number('cdiFreight');
-    const customs = number('cdiCustoms');
-    const other = number('cdiOther');
-    const extraCosts = freight + customs + other;
-    const landedTotal = purchaseTotal + extraCosts;
+    const freight = num($('cdiFreight'));
 
-    const sellingPrice = number('cdiSelling');
-    const vatRate = number('cdiVAT') / 100;
-    const vatIncluded = vatRate >= 0
-      ? sellingPrice * vatRate / (1 + vatRate)
-      : 0;
-    const revenueExVAT = sellingPrice - vatIncluded;
-    const profit = revenueExVAT - landedTotal;
+    const customs = num($('cdiCustoms'));
 
-    $('cdiPurchaseTotal').textContent = money(purchaseTotal) + ' BIF';
-    $('cdiExtraTotal').textContent = money(extraCosts) + ' BIF';
-    $('cdiLandedTotal').textContent = money(landedTotal) + ' BIF';
-    $('cdiVATAmount').textContent = money(vatIncluded) + ' BIF';
-    $('cdiRevenue').textContent = money(revenueExVAT) + ' BIF';
-    $('cdiProfit').textContent = money(profit) + ' BIF';
-    $('cdiProfit').style.color = profit < 0 ? '#b91c1c' : '#166534';
+    const customsCurrency =
+      $('cdiCustomsCurrency').value;
 
-    $('cdiResults').innerHTML = products.map((product, index) => {
-      const share = purchaseTotal > 0 ? product.total / purchaseTotal : 0;
-      const allocatedExtra = extraCosts * share;
-      const landed = product.total + allocatedExtra;
-      const perUnit = product.qty > 0 ? landed / product.qty : 0;
+    const other = num($('cdiOther'));
 
-      return `<tr>
-        <td>${escapeHTML(product.name || 'Product ' + (index + 1))}</td>
-        <td>${money(product.qty)}</td>
-        <td>${money(product.total)} BIF</td>
-        <td>${money(allocatedExtra)} BIF</td>
-        <td>${money(landed)} BIF</td>
-        <td>${money(perUnit)} BIF</td>
-      </tr>`;
-    }).join('') || '<tr><td colspan="6">Add a product first.</td></tr>';
+    const otherCurrency =
+      $('cdiOtherCurrency').value;
+
+    // Transport is kept in USD.
+    const costs = {
+      USD: freight,
+      CNY: 0
+    };
+
+    costs[customsCurrency] += customs;
+    costs[otherCurrency] += other;
+
+    $('cdiPurchaseUSD').textContent =
+      fmt(sums.USD) + ' USD';
+
+    $('cdiPurchaseCNY').textContent =
+      fmt(sums.CNY) + ' CNY';
+
+    $('cdiFreightSummary').textContent =
+      fmt(freight) + ' USD';
+
+    $('cdiCostsUSD').textContent =
+      fmt(costs.USD) + ' USD';
+
+    $('cdiCostsCNY').textContent =
+      fmt(costs.CNY) + ' CNY';
+
+    $('cdiTotalUSD').textContent =
+      fmt(sums.USD + costs.USD) + ' USD';
+
+    $('cdiTotalCNY').textContent =
+      fmt(sums.CNY + costs.CNY) + ' CNY';
+
+    const hasBoth =
+      sums.USD > 0 && sums.CNY > 0;
+
+    $('cdiCurrencyNotice').textContent = hasBoth
+      ? 'Products are purchased in both USD and CNY. Totals are shown separately; the calculator does not combine different currencies or convert to BIF.'
+      : 'All amounts remain in their stated currency. Transport is kept in USD. No automatic conversion to BIF.';
+
+    $('cdiResults').innerHTML = products.map(p => `
+      <tr>
+        <td>${esc(p.name)}</td>
+        <td>${esc(p.unit)}</td>
+        <td>${fmt(p.units)}</td>
+        <td>${fmt(p.total)} ${p.currency}</td>
+        <td>${fmt(p.unitPrice)} ${p.currency}</td>
+      </tr>
+    `).join('') || `
+      <tr>
+        <td colspan="5">Add a product first.</td>
+      </tr>
+    `;
   }
 
   function initialize() {
     if ($('chinaDubaiImport')) return;
 
-    const container = document.querySelector('.container');
+    const container =
+      document.querySelector('.container');
+
     if (!container) return;
 
     const section = document.createElement('section');
+
     section.id = 'chinaDubaiImport';
     section.className = 'card hidden';
 
     section.innerHTML = `
-      <h2>C.W.B China & Dubai Import</h2>
+      <h2>C.W.B China &amp; Dubai Import</h2>
+
       <p>Camel Work and Business company</p>
-      <p><strong>Better Quality is our priority</strong></p>
-      <p>Merchandise import calculator / Calculateur d'importation de marchandises</p>
+
+      <p>
+        <strong>Better Quality is our priority</strong>
+      </p>
+
+      <p>
+        Product purchase and import cost calculator /
+        Calculateur des achats et frais d'importation
+      </p>
 
       <div class="cdi-panel">
         <h3>1. Products / Marchandises</h3>
-        <p>Enter the purchase currency and the exchange rate into BIF for each product. For BIF, use rate 1.</p>
+
+        <p>
+          Choose the unit type, units per carton, number of
+          cartons, and whether the price is per carton or per
+          unit. Purchase currency can be USD or CNY.
+        </p>
+
         <div class="cdi-table-wrap">
           <table>
-            <thead><tr>
-              <th>Product</th><th>Quantity</th><th>Currency</th>
-              <th>Unit price</th><th>Rate to BIF</th><th>Purchase total (BIF)</th><th>Action</th>
-            </tr></thead>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Unit</th>
+                <th>Units/carton</th>
+                <th>Cartons</th>
+                <th>Entered price</th>
+                <th>Currency</th>
+                <th>Price</th>
+                <th>Total quantity</th>
+                <th>Calculated unit price</th>
+                <th>Purchase total</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
             <tbody id="cdiProducts"></tbody>
           </table>
         </div>
-        <button type="button" id="cdiAdd">+ Add product / Ajouter</button>
+
+        <button type="button" id="cdiAdd">
+          + Add product / Ajouter une marchandise
+        </button>
       </div>
 
       <div class="cdi-panel">
         <h3>2. Import costs / Frais d'importation</h3>
+
         <div class="cdi-grid">
-          <div><label>Supplier / Fournisseur</label><input id="cdiSupplier"></div>
-          <div><label>Origin / Origine</label>
+          <div>
+            <label>Supplier / Fournisseur</label>
+            <input id="cdiSupplier">
+          </div>
+
+          <div>
+            <label>Origin / Origine</label>
             <select id="cdiOrigin">
               <option>China / Chine</option>
               <option>Dubai / Dubaï</option>
               <option>China and Dubai / Chine et Dubaï</option>
             </select>
           </div>
-          <div><label>Transport (BIF)</label><input id="cdiFreight" type="number" min="0" value="0"></div>
-          <div><label>Customs and port taxes (BIF)</label><input id="cdiCustoms" type="number" min="0" value="0"></div>
-          <div><label>Other expenses (BIF)</label><input id="cdiOther" type="number" min="0" value="0"></div>
-          <div><label>Selling price including VAT (BIF)</label><input id="cdiSelling" type="number" min="0" value="0"></div>
-          <div><label>VAT rate (%)</label><input id="cdiVAT" type="number" min="0" max="100" value="18"></div>
+
+          <div>
+            <label>Transport / Freight (USD only)</label>
+            <input id="cdiFreight"
+              type="number" min="0" step="0.01" value="0">
+          </div>
+
+          <div>
+            <label>Customs and port charges / Douane et port</label>
+            <input id="cdiCustoms"
+              type="number" min="0" step="0.01" value="0">
+
+            <select id="cdiCustomsCurrency">
+              <option value="USD">USD</option>
+              <option value="CNY">CNY</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Other expenses / Autres frais</label>
+            <input id="cdiOther"
+              type="number" min="0" step="0.01" value="0">
+
+            <select id="cdiOtherCurrency">
+              <option value="USD">USD</option>
+              <option value="CNY">CNY</option>
+            </select>
+          </div>
         </div>
-        <p class="cdi-note">VAT is estimated as included in the selling price, as requested. Confirm the applicable Burundi tax treatment with your accountant or OBR before official tax reporting.</p>
+
+        <p class="cdi-note">
+          No exchange rate is entered or applied. Do not add
+          amounts in different currencies together.
+        </p>
       </div>
 
       <div class="cdi-panel">
-        <h3>3. Cost and profit summary / Résumé</h3>
+        <h3>3. Summary / Résumé</h3>
+
         <div class="cdi-grid">
-          <div class="cdi-stat">Purchase total<strong id="cdiPurchaseTotal">0 BIF</strong></div>
-          <div class="cdi-stat">Extra costs<strong id="cdiExtraTotal">0 BIF</strong></div>
-          <div class="cdi-stat">Total landed cost<strong id="cdiLandedTotal">0 BIF</strong></div>
-          <div class="cdi-stat">VAT included<strong id="cdiVATAmount">0 BIF</strong></div>
-          <div class="cdi-stat">Revenue excluding VAT<strong id="cdiRevenue">0 BIF</strong></div>
-          <div class="cdi-stat">Estimated profit<strong id="cdiProfit">0 BIF</strong></div>
+          <div class="cdi-stat">
+            Products purchase total (USD)
+            <strong id="cdiPurchaseUSD">0 USD</strong>
+          </div>
+
+          <div class="cdi-stat">
+            Products purchase total (CNY)
+            <strong id="cdiPurchaseCNY">0 CNY</strong>
+          </div>
+
+          <div class="cdi-stat">
+            Transport
+            <strong id="cdiFreightSummary">0 USD</strong>
+          </div>
+
+          <div class="cdi-stat">
+            Total import costs (USD)
+            <strong id="cdiCostsUSD">0 USD</strong>
+          </div>
+
+          <div class="cdi-stat">
+            Total import costs (CNY)
+            <strong id="cdiCostsCNY">0 CNY</strong>
+          </div>
+
+          <div class="cdi-stat">
+            Products + matching-currency costs (USD)
+            <strong id="cdiTotalUSD">0 USD</strong>
+          </div>
+
+          <div class="cdi-stat">
+            Products + matching-currency costs (CNY)
+            <strong id="cdiTotalCNY">0 CNY</strong>
+          </div>
         </div>
 
-        <h3>Cost per product / Coût par produit</h3>
+        <p id="cdiCurrencyNotice" class="cdi-note">
+          Totals are kept separate by currency.
+        </p>
+
+        <h3>
+          Product quantities and unit costs /
+          Quantités et coûts unitaires
+        </h3>
+
         <div class="cdi-table-wrap">
           <table>
-            <thead><tr>
-              <th>Product</th><th>Quantity</th><th>Purchase cost</th>
-              <th>Allocated extra costs</th><th>Landed cost</th><th>Cost per unit</th>
-            </tr></thead>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Unit</th>
+                <th>Total quantity</th>
+                <th>Purchase total</th>
+                <th>Price per unit</th>
+              </tr>
+            </thead>
+
             <tbody id="cdiResults"></tbody>
           </table>
         </div>
-        <p class="cdi-note">Extra costs are allocated proportionally to purchase value. Profit is an estimate before any unentered costs.</p>
-        <button type="button" id="cdiPrint">Print / Imprimer</button>
+
+        <button type="button" id="cdiPrint">
+          Print / Imprimer
+        </button>
       </div>
 
       <div class="cdi-panel">
         <h3>Important / Important</h3>
-        <p>This is the calculator foundation only. It does not yet save orders to Supabase or change inventory. Database security and inventory integration must be completed before business use.</p>
+
+        <p>
+          This calculator does not save orders to Supabase
+          or update inventory yet. The accountant will convert
+          amounts to BIF separately using the actual exchange
+          rate used by C.W.B.
+        </p>
       </div>
     `;
 
     const style = document.createElement('style');
+
     style.textContent = `
-      #chinaDubaiImport{color:#172033}
-      #chinaDubaiImport .cdi-panel{background:#fff;border:1px solid #dbe1ea;border-radius:12px;padding:14px;margin:14px 0}
-      #chinaDubaiImport .cdi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
-      #chinaDubaiImport label{display:block;font-weight:600;margin:7px 0 4px}
-      #chinaDubaiImport input,#chinaDubaiImport select{width:100%;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}
-      #chinaDubaiImport button{background:#b91c1c;color:#fff;border:0;border-radius:8px;padding:10px 13px;margin:5px;cursor:pointer}
-      #chinaDubaiImport .cdi-table-wrap{overflow:auto}
-      #chinaDubaiImport table{border-collapse:collapse;width:100%;min-width:760px}
-      #chinaDubaiImport th,#chinaDubaiImport td{padding:8px;border-bottom:1px solid #e2e8f0;text-align:left}
-      #chinaDubaiImport th{background:#f1f5f9}
-      #chinaDubaiImport .cdi-stat{background:#f1f5f9;padding:12px;border-radius:9px}
-      #chinaDubaiImport .cdi-stat strong{display:block;margin-top:5px;font-size:18px}
-      #chinaDubaiImport .cdi-note{font-size:13px;color:#64748b}
-      @media print{body *{visibility:hidden}#chinaDubaiImport,#chinaDubaiImport *{visibility:visible}#chinaDubaiImport{position:absolute;left:0;top:0;width:100%}#chinaDubaiImport button{display:none}}
+      #chinaDubaiImport {
+        color: #172033;
+      }
+
+      #chinaDubaiImport .cdi-panel {
+        background: #fff;
+        border: 1px solid #dbe1ea;
+        border-radius: 12px;
+        padding: 14px;
+        margin: 14px 0;
+      }
+
+      #chinaDubaiImport .cdi-grid {
+        display: grid;
+        grid-template-columns: repeat(
+          auto-fit,
+          minmax(180px, 1fr)
+        );
+        gap: 10px;
+      }
+
+      #chinaDubaiImport label {
+        display: block;
+        font-weight: 600;
+        margin: 7px 0 4px;
+      }
+
+      #chinaDubaiImport input,
+      #chinaDubaiImport select {
+        max-width: 100%;
+        box-sizing: border-box;
+        padding: 9px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      #chinaDubaiImport button {
+        background: #b91c1c;
+        color: #fff;
+        border: 0;
+        border-radius: 8px;
+        padding: 10px 13px;
+        margin: 5px;
+        cursor: pointer;
+      }
+
+      #chinaDubaiImport .cdi-table-wrap {
+        overflow: auto;
+      }
+
+      #chinaDubaiImport table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 1050px;
+      }
+
+      #chinaDubaiImport th,
+      #chinaDubaiImport td {
+        padding: 8px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      #chinaDubaiImport th {
+        background: #f1f5f9;
+      }
+
+      #chinaDubaiImport .cdi-stat {
+        background: #f1f5f9;
+        padding: 12px;
+        border-radius: 9px;
+      }
+
+      #chinaDubaiImport .cdi-stat strong {
+        display: block;
+        margin-top: 5px;
+        font-size: 18px;
+      }
+
+      #chinaDubaiImport .cdi-note {
+        font-size: 13px;
+        color: #64748b;
+      }
+
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+
+        #chinaDubaiImport,
+        #chinaDubaiImport * {
+          visibility: visible;
+        }
+
+        #chinaDubaiImport {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+        }
+
+        #chinaDubaiImport button {
+          display: none;
+        }
+      }
     `;
+
     document.head.appendChild(style);
     container.appendChild(section);
 
     $('cdiAdd').addEventListener('click', addProduct);
-    $('cdiPrint').addEventListener('click', () => window.print());
 
-    ['cdiFreight','cdiCustoms','cdiOther','cdiSelling','cdiVAT']
-      .forEach(id => $(id).addEventListener('input', calculate));
+    $('cdiPrint').addEventListener(
+      'click',
+      () => window.print()
+    );
+
+    [
+      'cdiFreight',
+      'cdiCustoms',
+      'cdiCustomsCurrency',
+      'cdiOther',
+      'cdiOtherCurrency'
+    ].forEach(id => {
+      $(id).addEventListener('input', calculate);
+    });
+
+    [
+      'cdiCustomsCurrency',
+      'cdiOtherCurrency'
+    ].forEach(id => {
+      $(id).addEventListener('change', calculate);
+    });
 
     addProduct();
   }
 
   window.cwbInitChinaDubaiImport = initialize;
   window.cwbChinaDubaiCalculate = calculate;
+
 })();
