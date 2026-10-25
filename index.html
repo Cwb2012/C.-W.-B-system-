@@ -2052,6 +2052,18 @@ async function saveWorker(){
 
   await loadUsers();
 }
+function escapeHtml(value){
+  return String(value ?? "").replace(/[&<>"']/g, function(ch){
+    return {
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#39;"
+    }[ch];
+  });
+}
+
 async function loadUsers(){
 
 const list=document.getElementById("cwbUsersList");
