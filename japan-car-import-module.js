@@ -1426,29 +1426,39 @@
   window.cwbJapanCarImportCommissionReceipt = recordCommission;
 
   function boot() {
-    mount();
+  mount();
 
-    if (window.showModule && !window.showModule.__jciWrapped) {
-      const original = window.showModule;
+  if (window.showModule && !window.showModule.__jciWrapped) {
+    const original = window.showModule;
 
-      const wrapped = function (id) {
-        if (
-          id === "japanimport" ||
-          id === "japanimportNav" ||
-          id === "japan"
-        ) {
-          showPanel();
-          loadOrders();
-          return;
-        }
+    const wrapped = function (id) {
+      if (
+        id === "japanimport" ||
+        id === "japanimportNav" ||
+        id === "japan"
+      ) {
+        showPanel();
+        loadOrders();
+        return;
+      }
 
-        return original.apply(this, arguments);
-      };
+      return original.apply(this, arguments);
+    };
 
-      wrapped.__jciWrapped = true;
-      window.showModule = wrapped;
-    }
+    wrapped.__jciWrapped = true;
+    window.showModule = wrapped;
   }
+
+  const button = byId("japanimportNav");
+
+  if (button) {
+    button.onclick = function (event) {
+      event.preventDefault();
+      showPanel();
+      loadOrders();
+    };
+  }
+}
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", boot);
