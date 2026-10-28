@@ -684,109 +684,91 @@
 
     notice("Saving record and private files…", false);
 
-    try {
-      let orderKey = id || "new-" + crypto.randomUUID();
+try {
+  let result;
+  let orderKey = id;
 
-      if (photoFiles.length) {
-        const uploadedPhotos = [];
+  if (!id) {
+    // Create the order first so its real ID exists in Supabase.
+    payload.photo_url = null;
+    payload.notes = withFiles(byId("jciNotes").value, files);
 
-        for (let i = 0; i < photoFiles.length; i++) {
-          uploadedPhotos.push(
-            await uploadFile(
-              photoFiles[i],
-              orderKey,
-              "photos",
-              i + 1
-            )
-          );
-        }
+    result = await sb.from(TABLE)
+      .insert(payload)
+      .select()
+      .single();
 
-        files.photos = uploadedPhotos;
-      }
+    if (result.error) throw result.error;
 
-      if (documentFiles.length) {
-        const uploadedDocs = [];
+    orderKey = result.data.id;
+  }
 
-        for (let i = 0; i < documentFiles.length; i++) {
-          uploadedDocs.push(
-            await uploadFile(
-              documentFiles[i],
-              orderKey,
-              "documents",
-              i + 1
-            )
-          );
-        }
+  // Upload photos only after the order exists.
+  if (photoFiles.length) {
+    const uploadedPhotos = [];
 
-        files.documents = [...files.documents, ...uploadedDocs];
-      }
+    for (let i = 0; i < photoFiles.length; i++) {
+      uploadedPhotos.push(
+        await uploadFile(
+          photoFiles[i],
+          orderKey,
+          "photos",
+          i + 1
+        )
+      );
+    }
 
-      payload.photo_url = files.photos[0]?.path ||
-        existing?.photo_url || null;
+    files.photos = uploadedPhotos;
+  }
 
-      payload.notes = withFiles(byId("jciNotes").value, files);
+  if (documentFiles.length) {
+    const uploadedDocs = [];
 
-      let result;
+    for (let i = 0; i < documentFiles.length; i++) {
+      uploadedDocs.push(
+        await uploadFile(
+          documentFiles[i],
+          orderKey,
+          "documents",
+          i + 1
+        )
+      );
+    }
 
-      if (id) {
-        result = await sb.from(TABLE)
-          .update(payload)
-          .eq("id", id)
-          .select()
-          .single();
-      } else {
-        result = await sb.from(TABLE)
-          .insert(payload)
-          .select()
-          .single();
+    files.documents = [...files.documents, ...uploadedDocs];
+  }
 
-        if (
-          !result.error &&
-          result.data &&
-          orderKey.startsWith("new-")
-        ) {
-          const newId = result.data.id;
-          const moveEntries = [];
+  payload.photo_url = files.photos[0]?.path ||
+    existing?.photo_url || null;
 
-          for (const f of [...files.photos, ...files.documents]) {
-            if (f.path.startsWith(orderKey + "/")) {
-              const newPath =
-                `${newId}/${f.path.split("/").slice(1).join("/")}`;
+  payload.notes = withFiles(byId("jciNotes").value, files);
 
-              const moved = await sb.storage
-                .from(BUCKET)
-                .move(f.path, newPath);
+  if (id) {
+    result = await sb.from(TABLE)
+      .update(payload)
+      .eq("id", id)
+      .select()
+      .single();
+  } else {
+    // Save the uploaded file paths against the new order.
+    result = await sb.from(TABLE)
+      .update({
+        photo_url: payload.photo_url,
+        notes: payload.notes,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", orderKey)
+      .select()
+      .single();
+  }
 
-              if (!moved.error) {
-                f.path = newPath;
-                moveEntries.push(true);
-              }
-            }
-          }
+  if (result.error) throw result.error;
 
-          if (moveEntries.length) {
-            payload.photo_url = files.photos[0]?.path || null;
-            payload.notes = withFiles(byId("jciNotes").value, files);
+  selectedOrder = result.data;
+  notice("Vehicle record saved successfully.", false);
 
-            result = await sb.from(TABLE)
-              .update({
-                photo_url: payload.photo_url,
-                notes: payload.notes
-              })
-              .eq("id", newId)
-              .select()
-              .single();
-          }
-        }
-      }
-
-      if (result.error) throw result.error;
-
-      selectedOrder = result.data;
-      notice("Vehicle record saved successfully.", false);
-
-      await loadOrders(true);
-      await selectOrder(result.data.id);
+  await loadOrders(true);
+  await selectOrder(result.data.id);
 
     } catch (err) {
       console.error("Japanese Cars Import save error:", err);
