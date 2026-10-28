@@ -1,4 +1,3 @@
-
 /* C.W.B System — China & Dubai Import */
 (function () {
   'use strict';
@@ -6,9 +5,12 @@
   const ID = 'chinaDubaiImport';
   const TABLE = 'cwb_china_dubai_imports';
   const BUCKET = 'cwb-china-dubai-photos';
+  const CUSTOMS_TABLE = 'cwb_china_dubai_customs_documents';
+  const CUSTOMS_BUCKET = 'cwb-china-dubai-customs';
 
   let photoFile = null;
   let bound = false;
+  let customsImport = null;
 
   const $ = id => document.getElementById(id);
 
@@ -22,8 +24,11 @@
   });
 
   const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;',
-    '"': '&quot;', "'": '&#39;'
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
   }[c]));
 
   const db = () =>
@@ -77,7 +82,8 @@
         <input id="cdiName" placeholder="Nom réel du produit">
 
         <label>Catégorie</label>
-        <input id="cdiCategory" placeholder="Peinture, pièces, accessoires...">
+        <input id="cdiCategory"
+          placeholder="Peinture, pièces, accessoires...">
 
         <label>Fournisseur</label>
         <input id="cdiSupplier">
@@ -93,7 +99,8 @@
           📷 Prendre une photo
         </button>
 
-        <input id="cdiGallery" type="file" accept="image/*" hidden>
+        <input id="cdiGallery" type="file"
+          accept="image/*" hidden>
         <input id="cdiCamera" type="file"
           accept="image/*" capture="environment" hidden>
 
@@ -124,14 +131,14 @@
 
           <div>
             <label>Nombre de cartons</label>
-            <input id="cdiCartons" type="number" min="0"
-              step="1" value="0">
+            <input id="cdiCartons" type="number"
+              min="0" step="1" value="0">
           </div>
 
           <div>
             <label>Unités par carton</label>
-            <input id="cdiPerCarton" type="number" min="1"
-              step="1" value="1">
+            <input id="cdiPerCarton" type="number"
+              min="1" step="1" value="1">
           </div>
 
           <div>
@@ -155,14 +162,14 @@
 
           <div>
             <label>Prix saisi</label>
-            <input id="cdiPrice" type="number" min="0"
-              step="0.0001" value="0">
+            <input id="cdiPrice" type="number"
+              min="0" step="0.0001" value="0">
           </div>
 
           <div>
             <label>Taux de change vers BIF</label>
-            <input id="cdiRate" type="number" min="0.0001"
-              step="0.0001" value="1">
+            <input id="cdiRate" type="number"
+              min="0.0001" step="0.0001" value="1">
             <small>Pour BIF, le taux est 1. Pour les autres devises,
               entrez le taux de conversion actuel.</small>
           </div>
@@ -251,20 +258,60 @@
       </div>
 
       <div class="cdi-panel">
-        <h3>5. Produits enregistrés</h3>
+        <h3>5. Dossier de douane</h3>
+
+        <p>
+          Le numéro d'importation est généré automatiquement
+          par Supabase lors de l'enregistrement.
+        </p>
+
+        <label>Numéro d'importation</label>
+        <input id="cdiCustomsNumber"
+          placeholder="Ex. CDI-2026-0001">
+
+        <button type="button" id="cdiCustomsSearch">
+          Rechercher le dossier
+        </button>
+
+        <p id="cdiCustomsResult" role="status" class="cdi-note">
+          Entrez le numéro d'importation pour rechercher son dossier.
+        </p>
+
+        <label>Documents de douane (PDF ou images, 20 Mo maximum par fichier)</label>
+        <input id="cdiCustomsFiles" type="file"
+          accept="application/pdf,image/jpeg,image/png,image/webp"
+          multiple>
+
+        <button type="button" id="cdiCustomsUpload" disabled>
+          Enregistrer les documents
+        </button>
+
+        <div id="cdiCustomsDocuments"></div>
+      </div>
+
+      <div class="cdi-panel">
+        <h3>6. Produits enregistrés</h3>
         <div style="overflow-x:auto">
           <table>
             <thead>
               <tr>
-                <th>Photo</th><th>Produit</th><th>Pays</th>
-                <th>Cartons</th><th>Unités/carton</th>
-                <th>Quantité</th><th>Prix unitaire</th>
-                <th>Coût total BIF</th><th>Vente/unité TTC</th>
-                <th>Bénéfice DB*</th><th>Statut</th><th>Date</th>
+                <th>N° importation</th>
+                <th>Photo</th>
+                <th>Produit</th>
+                <th>Pays</th>
+                <th>Cartons</th>
+                <th>Unités/carton</th>
+                <th>Quantité</th>
+                <th>Prix unitaire</th>
+                <th>Coût total BIF</th>
+                <th>Vente/unité TTC</th>
+                <th>Bénéfice DB*</th>
+                <th>Statut</th>
+                <th>Date</th>
               </tr>
             </thead>
             <tbody id="cdiRows">
-              <tr><td colspan="12">Chargement…</td></tr>
+              <tr><td colspan="13">Chargement…</td></tr>
             </tbody>
           </table>
         </div>
@@ -293,7 +340,8 @@
           border:1px solid #cbd5e1;border-radius:8px;margin-bottom:6px;
         }
         #chinaDubaiImport .cdi-grid {
-          display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+          display:grid;
+          grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
           gap:10px;
         }
         #chinaDubaiImport button {
@@ -305,9 +353,11 @@
           background:#f1f5f9;padding:12px;border-radius:9px;
           overflow-wrap:anywhere;
         }
-        #chinaDubaiImport .cdi-note { font-size:13px;color:#64748b; }
+        #chinaDubaiImport .cdi-note {
+          font-size:13px;color:#64748b;
+        }
         #chinaDubaiImport table {
-          border-collapse:collapse;width:100%;min-width:1100px;
+          border-collapse:collapse;width:100%;min-width:1200px;
         }
         #chinaDubaiImport th,#chinaDubaiImport td {
           padding:8px;border-bottom:1px solid #e2e8f0;
@@ -317,13 +367,22 @@
         #chinaDubaiImport .cdi-thumb {
           width:54px;height:54px;object-fit:cover;
         }
+        #chinaDubaiImport .cdi-document {
+          overflow-wrap:anywhere;margin:8px 0;
+        }
         @media print {
           body * { visibility:hidden!important; }
-          #chinaDubaiImport,#chinaDubaiImport * { visibility:visible!important; }
-          #chinaDubaiImport {
-            display:block!important;position:absolute;left:0;top:0;width:100%;
+          #chinaDubaiImport,#chinaDubaiImport * {
+            visibility:visible!important;
           }
-          #chinaDubaiImport button { display:none!important; }
+          #chinaDubaiImport {
+            display:block!important;position:absolute;
+            left:0;top:0;width:100%;
+          }
+          #chinaDubaiImport button,
+          #chinaDubaiImport input[type=file] {
+            display:none!important;
+          }
         }
       `;
       document.head.appendChild(style);
@@ -354,13 +413,32 @@
       calculate();
     });
 
-    $('cdiGalleryBtn').addEventListener('click', () => $('cdiGallery').click());
-    $('cdiCameraBtn').addEventListener('click', () => $('cdiCamera').click());
+    $('cdiGalleryBtn').addEventListener('click',
+      () => $('cdiGallery').click());
+
+    $('cdiCameraBtn').addEventListener('click',
+      () => $('cdiCamera').click());
+
     $('cdiGallery').addEventListener('change', photoChosen);
     $('cdiCamera').addEventListener('change', photoChosen);
     $('cdiSave').addEventListener('click', save);
     $('cdiRefresh').addEventListener('click', load);
     $('cdiPrint').addEventListener('click', () => window.print());
+
+    $('cdiCustomsSearch').addEventListener(
+      'click', searchCustomsImport
+    );
+
+    $('cdiCustomsUpload').addEventListener(
+      'click', uploadCustomsDocuments
+    );
+
+    $('cdiCustomsNumber').addEventListener('keydown', event => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        searchCustomsImport();
+      }
+    });
 
     calculate();
   }
@@ -389,7 +467,9 @@
       $('cdiPreview').style.display = 'block';
     };
 
-    reader.onerror = () => message('Impossible de lire la photo.', true);
+    reader.onerror = () =>
+      message('Impossible de lire la photo.', true);
+
     reader.readAsDataURL(file);
   }
 
@@ -472,7 +552,10 @@
 
     if (!Number.isInteger(rawCartons) || rawCartons < 0 ||
         !Number.isInteger(rawPer) || rawPer < 1 || x.rate <= 0) {
-      message('Vérifiez les cartons, les unités par carton et le taux de change.', true);
+      message(
+        'Vérifiez les cartons, les unités par carton et le taux de change.',
+        true
+      );
       return;
     }
 
@@ -509,15 +592,15 @@
         );
 
         if (upload.error) {
-          throw new Error('Photo non enregistrée : ' + upload.error.message);
+          throw new Error(
+            'Photo non enregistrée : ' + upload.error.message
+          );
         }
       }
 
       /*
-       * Ne pas envoyer les colonnes générées :
-       * total_pieces, purchase_cost_bif, landed_cost_bif,
-       * expected_revenue_bif, expected_profit_bif.
-       * created_by utilise automatiquement auth.uid().
+       * Les colonnes calculées restent générées par Supabase.
+       * Le numéro d'importation est généré par le trigger SQL.
        */
       const row = {
         item_name: name,
@@ -539,7 +622,10 @@
         notes: $('cdiNotes').value.trim() || null
       };
 
-      const result = await client.from(TABLE).insert([row]);
+      const result = await client.from(TABLE)
+        .insert([row])
+        .select('id, import_number')
+        .single();
 
       if (result.error) {
         if (uploadedPath) {
@@ -548,7 +634,8 @@
         throw new Error('Supabase : ' + result.error.message);
       }
 
-      $('cdiTime').textContent = burundiTime(new Date().toISOString());
+      $('cdiTime').textContent =
+        burundiTime(new Date().toISOString());
 
       photoFile = null;
       $('cdiGallery').value = '';
@@ -556,13 +643,24 @@
       $('cdiPreview').removeAttribute('src');
       $('cdiPreview').style.display = 'none';
 
-      message('Produit enregistré dans Supabase.');
+      if (result.data && result.data.import_number) {
+        $('cdiCustomsNumber').value = result.data.import_number;
+      }
+
+      message(
+        'Importation enregistrée. Numéro : ' +
+        (result.data?.import_number || 'recherche nécessaire')
+      );
+
       await load();
 
     } catch (error) {
-      message(error && error.message
-        ? error.message
-        : 'Erreur pendant la sauvegarde.', true);
+      message(
+        error && error.message
+          ? error.message
+          : 'Erreur pendant la sauvegarde.',
+        true
+      );
     } finally {
       button.disabled = false;
     }
@@ -576,12 +674,12 @@
 
     if (!client) {
       body.innerHTML =
-        '<tr><td colspan="12">Connexion Supabase indisponible.</td></tr>';
+        '<tr><td colspan="13">Connexion Supabase indisponible.</td></tr>';
       return;
     }
 
     body.innerHTML =
-      '<tr><td colspan="12">Chargement…</td></tr>';
+      '<tr><td colspan="13">Chargement…</td></tr>';
 
     try {
       const result = await client.from(TABLE)
@@ -590,14 +688,15 @@
         .limit(100);
 
       if (result.error) {
-        body.innerHTML = '<tr><td colspan="12">Erreur Supabase : ' +
+        body.innerHTML =
+          '<tr><td colspan="13">Erreur Supabase : ' +
           esc(result.error.message) + '</td></tr>';
         return;
       }
 
       if (!result.data || !result.data.length) {
         body.innerHTML =
-          '<tr><td colspan="12">Aucun produit enregistré.</td></tr>';
+          '<tr><td colspan="13">Aucun produit enregistré.</td></tr>';
         return;
       }
 
@@ -615,11 +714,18 @@
 
           if (signed.data && signed.data.signedUrl) {
             image = '<img class="cdi-thumb" src="' +
-              esc(signed.data.signedUrl) + '" alt="Photo produit">';
+              esc(signed.data.signedUrl) +
+              '" alt="Photo produit">';
           }
         }
 
         return '<tr>' +
+          '<td>' +
+            '<button type="button" class="cdi-number-btn" data-number="' +
+            esc(item.import_number || '') + '">' +
+            esc(item.import_number || '—') +
+            '</button>' +
+          '</td>' +
           '<td>' + image + '</td>' +
           '<td>' + esc(item.item_name) + '</td>' +
           '<td>' + esc(item.source_country) + '</td>' +
@@ -638,9 +744,240 @@
 
       body.innerHTML = rows.join('');
 
+      body.querySelectorAll('.cdi-number-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          const number = button.dataset.number || '';
+          if (!number || number === '—') return;
+
+          $('cdiCustomsNumber').value = number;
+          searchCustomsImport();
+
+          $('cdiCustomsNumber').scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        });
+      });
+
     } catch (error) {
-      body.innerHTML = '<tr><td colspan="12">Erreur : ' +
-        esc(error.message || 'Chargement impossible') + '</td></tr>';
+      body.innerHTML =
+        '<tr><td colspan="13">Erreur : ' +
+        esc(error.message || 'Chargement impossible') +
+        '</td></tr>';
+    }
+  }
+
+  async function searchCustomsImport() {
+    const client = db();
+    const input = $('cdiCustomsNumber');
+    const number = input.value.trim().toUpperCase();
+
+    customsImport = null;
+    $('cdiCustomsUpload').disabled = true;
+    $('cdiCustomsDocuments').textContent = '';
+
+    if (!client) {
+      $('cdiCustomsResult').textContent =
+        'Connexion Supabase indisponible.';
+      return;
+    }
+
+    if (!number) {
+      $('cdiCustomsResult').textContent =
+        'Entrez le numéro d’importation.';
+      return;
+    }
+
+    $('cdiCustomsResult').textContent = 'Recherche en cours…';
+
+    try {
+      const result = await client.from(TABLE)
+        .select('id, import_number, item_name, source_country')
+        .eq('import_number', number)
+        .maybeSingle();
+
+      if (result.error) throw result.error;
+
+      if (!result.data) {
+        $('cdiCustomsResult').textContent =
+          'Aucune importation trouvée avec ce numéro.';
+        return;
+      }
+
+      customsImport = result.data;
+      $('cdiCustomsUpload').disabled = false;
+
+      $('cdiCustomsResult').textContent =
+        'Importation : ' + customsImport.import_number +
+        ' — Produit : ' + customsImport.item_name +
+        ' — Origine : ' + customsImport.source_country;
+
+      await loadCustomsDocuments();
+
+    } catch (error) {
+      $('cdiCustomsResult').textContent =
+        'Erreur : ' + (error.message || 'Recherche impossible');
+    }
+  }
+
+  async function loadCustomsDocuments() {
+    const client = db();
+    const container = $('cdiCustomsDocuments');
+
+    if (!client || !customsImport) return;
+
+    container.textContent = 'Chargement des documents…';
+
+    const result = await client
+      .from(CUSTOMS_TABLE)
+      .select('id, document_path, original_name, created_at')
+      .eq('import_id', customsImport.id)
+      .order('created_at', { ascending: false });
+
+    if (result.error) {
+      container.textContent =
+        'Impossible de charger les documents : ' +
+        result.error.message;
+      return;
+    }
+
+    container.replaceChildren();
+
+    if (!result.data || !result.data.length) {
+      container.textContent =
+        'Aucun document de douane enregistré.';
+      return;
+    }
+
+    for (const doc of result.data) {
+      const line = document.createElement('p');
+      line.className = 'cdi-document';
+
+      const link = document.createElement('a');
+      link.href = '#';
+      link.textContent =
+        doc.original_name + ' — ' + burundiTime(doc.created_at);
+
+      link.addEventListener('click', async event => {
+        event.preventDefault();
+
+        const signed = await client.storage
+          .from(CUSTOMS_BUCKET)
+          .createSignedUrl(doc.document_path, 300);
+
+        if (signed.error || !signed.data?.signedUrl) {
+          message('Impossible d’ouvrir le document.', true);
+          return;
+        }
+
+        window.open(
+          signed.data.signedUrl,
+          '_blank',
+          'noopener'
+        );
+      });
+
+      line.appendChild(link);
+      container.appendChild(line);
+    }
+  }
+
+  async function uploadCustomsDocuments() {
+    const client = db();
+    const input = $('cdiCustomsFiles');
+    const files = Array.from(input.files || []);
+    const button = $('cdiCustomsUpload');
+
+    if (!client || !customsImport) {
+      message('Recherchez d’abord une importation valide.', true);
+      return;
+    }
+
+    if (!files.length) {
+      message('Choisissez au moins un document.', true);
+      return;
+    }
+
+    const allowed = [
+      'application/pdf',
+      'image/jpeg',
+      'image/png',
+      'image/webp'
+    ];
+
+    for (const file of files) {
+      if (!allowed.includes(file.type) ||
+          file.size > 20 * 1024 * 1024) {
+        message(
+          'Chaque fichier doit être un PDF ou une image autorisée de 20 Mo maximum.',
+          true
+        );
+        return;
+      }
+    }
+
+    const auth = await client.auth.getUser();
+    const user = auth.data && auth.data.user;
+
+    if (auth.error || !user) {
+      message('Connectez-vous avant d’enregistrer les documents.', true);
+      return;
+    }
+
+    button.disabled = true;
+    let saved = 0;
+
+    try {
+      for (const file of files) {
+        const safeName = file.name
+          .replace(/[^a-zA-Z0-9._-]/g, '_')
+          .slice(-100);
+
+        const path = user.id + '/' + customsImport.id + '/' +
+          Date.now() + '-' + safeName;
+
+        const upload = await client.storage
+          .from(CUSTOMS_BUCKET)
+          .upload(path, file, {
+            upsert: false,
+            contentType: file.type
+          });
+
+        if (upload.error) throw upload.error;
+
+        const savedDoc = await client
+          .from(CUSTOMS_TABLE)
+          .insert({
+            import_id: customsImport.id,
+            document_path: path,
+            original_name: file.name,
+            uploaded_by: user.id
+          });
+
+        if (savedDoc.error) {
+          await client.storage
+            .from(CUSTOMS_BUCKET)
+            .remove([path]);
+
+          throw savedDoc.error;
+        }
+
+        saved++;
+      }
+
+      message(saved + ' document(s) de douane enregistré(s).');
+      input.value = '';
+
+      await loadCustomsDocuments();
+
+    } catch (error) {
+      message(
+        'Erreur pendant l’enregistrement : ' +
+        (error.message || 'erreur inconnue'),
+        true
+      );
+    } finally {
+      button.disabled = false;
     }
   }
 
