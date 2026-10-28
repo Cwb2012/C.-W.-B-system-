@@ -110,7 +110,7 @@ function currentMonth(){return new Date().toISOString().slice(0,7)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function totals(){const salesTotal=sales.reduce((a,x)=>a+num(x.amount),0),purchaseTotal=purchases.reduce((a,x)=>a+num(x.amount),0),expenseTotal=expenses.reduce((a,x)=>a+num(x.amount),0),payrollTotal=payroll.reduce((a,x)=>a+num(x.net),0),operatingBalance=salesTotal-purchaseTotal-expenseTotal;return{sales:salesTotal,purchases:purchaseTotal,expenses:expenseTotal,payroll:payrollTotal,operating:operatingBalance,final:operatingBalance-payrollTotal}}
 function msg(id,t,error=false){const e=document.getElementById(id);if(!e)return;e.textContent=t;e.classList.toggle('error',error);e.style.display='block';setTimeout(()=>e.style.display='none',4000)}
-function showModule(id){if(id==='chinadubai'&&window.cwbInitChinaDubaiImport)window.cwbInitChinaDubaiImport();document.querySelectorAll('.card[id]').forEach(e=>e.classList.add('hidden'));const e=document.getElementById(id==='chinadubai'?'chinaDubaiImport':id);if(!e)return;e.classList.remove('hidden');if(id==='inventory')loadInventory();if(id==='garage')loadGarage();if(id==='sales')renderSales();if(id==='purchases')renderPurchases();if(id==='expenses')renderExpenses();if(id==='partners')renderPartners();if(id==='payroll'){renderPayroll();updatePayPreview()}if(id==='accounting')updateDashboard();if(id==='reports')loadReports();if(id==='website')loadWebsite();if(id==='social')loadSocial();if(id==='scanpay')updatePaymentMethod();window.scrollTo({top:e.offsetTop-10,behavior:'smooth'})}
+function showModule(id){if(id==='chinadubai'&&window.cwbInitChinaDubaiImport)window.cwbInitChinaDubaiImport();document.querySelectorAll('.card[id]').forEach(e=>e.classList.add('hidden'));const e=document.getElementById(id==='chinadubai'?'chinaDubaiImport':id);if(!e)return;e.classList.remove('hidden');if(id==='inventory')loadInventory();if(id==='garage')loadGarage();if(id==='sales')loadSales();if(id==='purchases')renderPurchases();if(id==='expenses')renderExpenses();if(id==='partners')renderPartners();if(id==='payroll'){renderPayroll();updatePayPreview()}if(id==='accounting')updateDashboard();if(id==='reports')loadReports();if(id==='website')loadWebsite();if(id==='social')loadSocial();if(id==='scanpay')updatePaymentMethod();window.scrollTo({top:e.offsetTop-10,behavior:'smooth'})}
 function updateDashboard(){const t=totals();[['totalSales',t.sales],['totalPurchases',t.purchases],['totalExpenses',t.expenses],['balance',t.operating],['finalBalance',t.final],['accSales',t.sales],['accPurchases',t.purchases],['accExpenses',t.expenses],['accPayroll',t.payroll],['accBalance',t.operating],['accFinalBalance',t.final]].forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.textContent=money(v)})}
 
 // INVENTORY
@@ -737,80 +737,158 @@ async function loadGarage() {
   }
 }
 
-// SALES - COMPLETE CORRECTED SECTION
-
-// SAVE SALES AND DISPLAY THEM
+ // SALES - SUPABASE CONNECTED SECTION
 
 const salesForm = document.getElementById('salesForm');
 
+// LOAD SALES FROM SUPABASE
+async function loadSales() {
+  const body = document.getElementById('salesTableBody');
+  if (body) {
+    body.innerHTML = '<tr><td colspan="7">Loading sales...</td></tr>';
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from('sales')
+      .select('*')
+      .order('id', { ascending: false });
+
+    if (error) throw error;
+
+    sales = (data || []).map(row => ({
+      id: row.id,
+      date: row.created_at
+        ? String(row.created_at).slice(0, 10)
+        : '',
+      invoice: row.Invoice_number || '',
+      customer: row.Customer_name || 'Walk-in Customer',
+      product: row.Product_name || row['Product nam'] || row.Product || '',
+      amount: num(row.Selling_price),
+      totalAmount: num(row.Total_amount),
+      payment: row.Payment_status || 'Unpaid'
+    }));
+
+    renderSales();
+
+    if (typeof updateDashboard === 'function') {
+      updateDashboard();
+    }
+
+    if (typeof loadReports === 'function') {
+      loadReports();
+    }
+  } catch (error) {
+    if (body) {
+      body.innerHTML =
+        '<tr><td colspan="7">Could not load sales from Supabase.</td></tr>';
+    }
+
+    msg(
+      'salesMessage',
+      'Unable to load sales: ' + error.message,
+      true
+    );
+  }
+}
+
+// SAVE A SALE TO SUPABASE
 if (salesForm) {
-  salesForm.addEventListener('submit', function (e) {
+  salesForm.addEventListener('submit', async function (e) {
     e.preventDefault();
 
     try {
-      const customer = document.getElementById('sale_customer').value.trim();
-      const product = document.getElementById('sale_product').value.trim();
-      const enteredInvoice = document.getElementById('sale_invoice').value.trim();
-      const amount = num(document.getElementById('sale_amount').value);
-      const payment = document.getElementById('sale_payment').value;
-      const date = document.getElementById('sale_date').value || today();
+      const customer =
+        document.getElementById('sale_customer').value.trim();
+
+      const product =
+        document.getElementById('sale_product').value.trim();
+
+      const enteredInvoice =
+        document.getElementById('sale_invoice').value.trim();
+
+      const amount =
+        num(document.getElementById('sale_amount').value);
+
+      const payment =
+        document.getElementById('sale_payment').value;
+
+      const date =
+        document.getElementById('sale_date').value || today();
 
       if (!product) {
-        msg('salesMessage', 'Please enter the product or service.', true);
-        return;
-      }
-
-      if (!Number.isFinite(amount) || amount < 0) {
-        msg('salesMessage', 'Please enter a valid sale amount.', true);
-        return;
-      }
-
-      const invoice =
-        enteredInvoice ||
-        ('CWB-S-' + new Date().toISOString().replace(/\D/g, '').slice(0, 14));
-
-      // Prevent accidental reuse of an invoice number.
-      if (sales.some(s => String(s.invoice) === invoice)) {
         msg(
           'salesMessage',
-          'This invoice number already exists. Please use a different number.',
+          'Please enter the product or service.',
           true
         );
         return;
       }
 
-      const sale = {
-        date: date,
-        invoice: invoice,
-        customer: customer || 'Walk-in Customer',
-        product: product,
-        amount: amount,
-        payment: payment
+      if (!Number.isFinite(amount) || amount <= 0) {
+        msg(
+          'salesMessage',
+          'Please enter an amount greater than zero.',
+          true
+        );
+        return;
+      }
+
+      const invoice =
+        enteredInvoice ||
+        ('CWB-S-' +
+          new Date().toISOString().replace(/\D/g, '').slice(0, 14));
+
+      // Check whether the invoice number already exists.
+      const { data: existing, error: checkError } =
+        await supabaseClient
+          .from('sales')
+          .select('id')
+          .eq('Invoice_number', invoice)
+          .maybeSingle();
+
+      if (checkError) throw checkError;
+
+      if (existing) {
+        msg(
+          'salesMessage',
+          'This invoice number already exists. Please use another number.',
+          true
+        );
+        return;
+      }
+
+      // The entered amount is BEFORE VAT.
+      // VAT is 18%; the invoice calculates and displays it.
+      const vat = amount * 0.18;
+      const totalIncludingVAT = amount + vat;
+
+      const saleRecord = {
+        Customer_name: customer || 'Walk-in Customer',
+        Product_name: product,
+        quantity: 1,
+        Selling_price: amount,
+        Total_amount: totalIncludingVAT,
+        Payment_status: payment,
+        Invoice_number: invoice,
+        created_at: new Date(date + 'T12:00:00').toISOString()
       };
 
-      // Save using the existing C.W.B storage system.
-      sales.push(sale);
-      setArr(KEY.sales, sales);
+      const { error: insertError } = await supabaseClient
+        .from('sales')
+        .insert([saleRecord]);
 
-      // Update the form and dashboard.
+      if (insertError) throw insertError;
+
       salesForm.reset();
       document.getElementById('sale_date').value = today();
 
-      renderSales();
-
-      if (typeof updateDashboard === 'function') {
-        updateDashboard();
-      }
-
-      if (typeof loadReports === 'function') {
-        loadReports();
-      }
+      await loadSales();
 
       msg(
         'salesMessage',
-        'Sale saved successfully! Invoice: ' + invoice
+        'Sale saved to Supabase. Invoice: ' + invoice
       );
-
     } catch (error) {
       msg(
         'salesMessage',
@@ -820,6 +898,75 @@ if (salesForm) {
     }
   });
 }
+
+// DISPLAY SALES
+function renderSales() {
+  const body = document.getElementById('salesTableBody');
+  if (!body) return;
+
+  if (!sales.length) {
+    body.innerHTML =
+      '<tr><td colspan="7">No sales yet.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = sales.map((sale, index) => `
+    <tr>
+      <td>${esc(sale.date || '')}</td>
+      <td>${esc(sale.invoice || '')}</td>
+      <td>${esc(sale.customer || '')}</td>
+      <td>${esc(sale.product || '')}</td>
+      <td>${money(sale.amount)}</td>
+      <td>${esc(sale.payment || '')}</td>
+      <td>
+        <button class="btn"
+          style="padding:6px 9px;margin:0 4px 0 0"
+          onclick="viewSalesInvoice(${index})">
+          🧾 Invoice
+        </button>
+        <button class="btn light"
+          style="padding:6px 9px;margin:0"
+          onclick="deleteSale(${sale.id})">
+          Delete
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// DELETE SALE — SUPABASE RLS MUST AUTHORIZE THE CEO
+async function deleteSale(id) {
+  if (id === undefined || id === null) {
+    msg('salesMessage', 'Sale ID is missing.', true);
+    return;
+  }
+
+  if (!confirm('Are you sure you want to delete this sale?')) {
+    return;
+  }
+
+  try {
+    const { error } = await supabaseClient
+      .from('sales')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    await loadSales();
+
+    msg('salesMessage', 'Sale deleted successfully.');
+  } catch (error) {
+    msg(
+      'salesMessage',
+      'Deletion failed. Only an authorized CEO can delete sales. ' +
+        error.message,
+      true
+    );
+  }
+}
+
+window.deleteSale = deleteSale;
 
 
 // DISPLAY SAVED SALES
