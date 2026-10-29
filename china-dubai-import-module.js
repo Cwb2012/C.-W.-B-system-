@@ -216,7 +216,6 @@
               <option>Ordered</option>
               <option>In Transit</option>
               <option>Arrived</option>
-              <option>Received</option>
               <option>Cancelled</option>
             </select>
           </div>
@@ -301,17 +300,19 @@
                 <th>Pays</th>
                 <th>Cartons</th>
                 <th>Unités/carton</th>
+                <th>Unité</th>
                 <th>Quantité</th>
                 <th>Prix unitaire</th>
                 <th>Coût total BIF</th>
                 <th>Vente/unité TTC</th>
                 <th>Bénéfice DB*</th>
                 <th>Statut</th>
+                <th>Stock</th>
                 <th>Date</th>
               </tr>
             </thead>
             <tbody id="cdiRows">
-              <tr><td colspan="13">Chargement…</td></tr>
+              <tr><td colspan="15">Chargement…</td></tr>
             </tbody>
           </table>
         </div>
@@ -326,59 +327,85 @@
       style.id = 'cdiStyle';
       style.textContent = `
         #chinaDubaiImport { color:#172033; }
+
+        #chinaDubaiImport .cdi-receive-btn {
+          background:#166534;color:#fff;white-space:normal;
+          min-width:150px;padding:8px;border:0;border-radius:7px;
+        }
+
+        #chinaDubaiImport .cdi-receive-btn:disabled {
+          opacity:.6;cursor:wait;
+        }
+
         #chinaDubaiImport .cdi-panel {
           background:#fff;border:1px solid #dbe1ea;
           border-radius:12px;padding:14px;margin:14px 0;
         }
+
         #chinaDubaiImport label {
           display:block;font-weight:600;margin:10px 0 5px;
         }
+
         #chinaDubaiImport input:not([type=file]),
         #chinaDubaiImport select,
         #chinaDubaiImport textarea {
           box-sizing:border-box;width:100%;padding:10px;
           border:1px solid #cbd5e1;border-radius:8px;margin-bottom:6px;
         }
+
         #chinaDubaiImport .cdi-grid {
           display:grid;
           grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
           gap:10px;
         }
+
         #chinaDubaiImport button {
           background:#b91c1c;color:white;border:0;border-radius:8px;
           padding:11px 13px;margin:6px 4px 6px 0;
         }
+
         #chinaDubaiImport button:disabled { opacity:.6; }
+
         #chinaDubaiImport .cdi-results {
           background:#f1f5f9;padding:12px;border-radius:9px;
           overflow-wrap:anywhere;
         }
+
         #chinaDubaiImport .cdi-note {
           font-size:13px;color:#64748b;
         }
+
         #chinaDubaiImport table {
           border-collapse:collapse;width:100%;min-width:1200px;
         }
+
         #chinaDubaiImport th,#chinaDubaiImport td {
           padding:8px;border-bottom:1px solid #e2e8f0;
           font-size:12px;text-align:left;
         }
+
         #chinaDubaiImport th { background:#111827;color:white; }
+
         #chinaDubaiImport .cdi-thumb {
           width:54px;height:54px;object-fit:cover;
         }
+
         #chinaDubaiImport .cdi-document {
           overflow-wrap:anywhere;margin:8px 0;
         }
+
         @media print {
           body * { visibility:hidden!important; }
+
           #chinaDubaiImport,#chinaDubaiImport * {
             visibility:visible!important;
           }
+
           #chinaDubaiImport {
             display:block!important;position:absolute;
             left:0;top:0;width:100%;
           }
+
           #chinaDubaiImport button,
           #chinaDubaiImport input[type=file] {
             display:none!important;
@@ -604,6 +631,7 @@
        */
       const row = {
         item_name: name,
+        unit: $('cdiUnit').value,
         category: $('cdiCategory').value.trim() || null,
         source_country: $('cdiOrigin').value,
         supplier_name: $('cdiSupplier').value.trim() || null,
@@ -674,12 +702,12 @@
 
     if (!client) {
       body.innerHTML =
-        '<tr><td colspan="13">Connexion Supabase indisponible.</td></tr>';
+        '<tr><td colspan="15">Connexion Supabase indisponible.</td></tr>';
       return;
     }
 
     body.innerHTML =
-      '<tr><td colspan="13">Chargement…</td></tr>';
+      '<tr><td colspan="15">Chargement…</td></tr>';
 
     try {
       const result = await client.from(TABLE)
@@ -689,14 +717,14 @@
 
       if (result.error) {
         body.innerHTML =
-          '<tr><td colspan="13">Erreur Supabase : ' +
+          '<tr><td colspan="15">Erreur Supabase : ' +
           esc(result.error.message) + '</td></tr>';
         return;
       }
 
       if (!result.data || !result.data.length) {
         body.innerHTML =
-          '<tr><td colspan="13">Aucun produit enregistré.</td></tr>';
+          '<tr><td colspan="15">Aucun produit enregistré.</td></tr>';
         return;
       }
 
@@ -731,6 +759,7 @@
           '<td>' + esc(item.source_country) + '</td>' +
           '<td>' + fmt(item.carton_quantity) + '</td>' +
           '<td>' + fmt(item.pieces_per_carton) + '</td>' +
+          '<td>' + esc(item.unit || 'pieces') + '</td>' +
           '<td>' + fmt(item.total_pieces) + '</td>' +
           '<td>' + fmt(item.purchase_unit_price) + ' ' +
             esc(item.purchase_currency) + '</td>' +
@@ -738,11 +767,69 @@
           '<td>' + fmt(item.selling_price_per_piece_bif) + ' BIF</td>' +
           '<td>' + fmt(item.expected_profit_bif) + ' BIF</td>' +
           '<td>' + esc(item.import_status) + '</td>' +
+          '<td>' + (
+            item.stock_received_at
+              ? 'Stock ajouté'
+              : item.import_status === 'Arrived'
+                ? '<button type="button" class="cdi-receive-btn" data-id="' +
+                  esc(item.id) + '">Confirmer la réception</button>'
+                : '—'
+          ) + '</td>' +
           '<td>' + esc(burundiTime(item.created_at)) + '</td>' +
           '</tr>';
       }));
 
       body.innerHTML = rows.join('');
+
+      body.querySelectorAll('.cdi-receive-btn').forEach(button => {
+        button.addEventListener('click', async () => {
+          const importId = button.dataset.id;
+          if (!importId) return;
+
+          const accepted = window.confirm(
+            'Confirmer que les marchandises sont physiquement arrivées ? ' +
+            'Cette action ajoutera la quantité à l’inventaire une seule fois.'
+          );
+          if (!accepted) return;
+
+          button.disabled = true;
+
+          try {
+            const receipt = await client.rpc('cwb_cd_confirm_receipt', {
+              p_import_id: importId
+            });
+
+            if (receipt.error) throw receipt.error;
+
+            const result = receipt.data;
+
+            if (!result || result.success !== true) {
+              throw new Error(
+                result && result.message
+                  ? result.message
+                  : 'La base de données n’a pas confirmé la réception.'
+              );
+            }
+
+            message(
+              'Réception confirmée : ' + fmt(result.quantity_added) +
+              ' ' + (result.unit || '') +
+              ' ajouté(s) au stock. Coût rendu/unité : ' +
+              fmt(result.unit_landed_cost_bif) + ' BIF.'
+            );
+
+            await load();
+
+          } catch (error) {
+            message(
+              'Réception non effectuée : ' +
+              (error.message || 'erreur inconnue'),
+              true
+            );
+            button.disabled = false;
+          }
+        });
+      });
 
       body.querySelectorAll('.cdi-number-btn').forEach(button => {
         button.addEventListener('click', () => {
@@ -761,7 +848,7 @@
 
     } catch (error) {
       body.innerHTML =
-        '<tr><td colspan="13">Erreur : ' +
+        '<tr><td colspan="15">Erreur : ' +
         esc(error.message || 'Chargement impossible') +
         '</td></tr>';
     }
