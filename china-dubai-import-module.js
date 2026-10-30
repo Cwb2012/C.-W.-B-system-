@@ -209,12 +209,7 @@
             <input id="cdiRetail" type="number" min="0" step="0.01" value="0">
           </div>
 
-          <div>
-            <label>Prix de vente unitaire TTC (BIF)</label>
-            <input id="cdiSelling" type="number" min="0" value="0">
-          </div>
-
-          <div>
+          
             <label>Statut de l'importation</label>
             <select id="cdiStatus">
               <option>Planned</option>
