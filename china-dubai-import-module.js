@@ -545,7 +545,7 @@
       wholesaleProfit,
       retailSelling, retailRevenue, retailVat, retailProfit
     };
-
+  } 
   function calculate() {
     if (!$('cdiQty')) return;
 
@@ -574,7 +574,7 @@
     $('cdiRetailRevenue').textContent = fmt(x.retailRevenue) + ' BIF';
     $('cdiRetailVat').textContent = fmt(x.retailVat) + ' BIF';
     $('cdiRetailProfit').textContent = fmt(x.retailProfit) + ' BIF';
-
+     }  
   async function save() {
     const client = db();
 
