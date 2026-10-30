@@ -21,8 +21,8 @@
 </div></div>
 <div class="card"><div class="dashboard"><div class="stat">Total Sales<strong id="totalSales">0</strong></div><div class="stat">Total Purchases<strong id="totalPurchases">0</strong></div><div class="stat">Expenses<strong id="totalExpenses">0</strong></div><div class="stat">Balance<strong id="balance">0</strong></div><div class="stat">Final Balance<strong id="finalBalance">0</strong></div></div></div>
 
-<div id="inventory" class="card hidden"><h2>Inventory</h2><p>Products and stock management.</p><form id="inventoryForm"><div class="form-grid"><div><label>Product Name</label><input id="inv_name" required></div><div><label>Category</label><input id="inv_category"></div><div><label>Quantity</label><input id="inv_quantity" type="number" min="0" value="0" required></div><div><label>Buying Price</label><input id="inv_buying_price" type="number" min="0" step="0.01" value="0"></div><div><label>Selling Price</label><input id="inv_selling_price" type="number" min="0" step="0.01" value="0"></div></div><button class="btn" type="submit">Save Product</button><button class="btn secondary" type="button" onclick="loadInventory()">Refresh Inventory</button></form><div id="inventoryMessage" class="message"></div><div class="table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Quantity</th><th>Buying Price</th><th>Selling Price</th><th>Stock Value</th></tr></thead><tbody id="inventoryTableBody"></tbody></table></div></div>
-
+<div id="inventory" class="card hidden"><h2>Inventory</h2><p>Products and stock management.</p><form id="inventoryForm"><div class="form-grid"><div><label>Product Name</label><input id="inv_name" required></div><div><label>Category</label><input id="inv_category"></div><div><label>Quantity</label><input id="inv_quantity" type="number" min="0" value="0" required></div><div><label>Buying Price</label><input id="inv_buying_price" type="number" min="0" step="0.01" value="0"></div><div><label>Wholesale Selling Price (BIF TTC)</label><input id="inv_wholesale_price" type="number" min="0" step="0.01" value="0" required></div><div><label>Retail Selling Price (BIF TTC)</label><input id="inv_retail_price" type="number" min="0" step="0.01" value="0" required></div></div><button class="btn" type="submit">Save Product</button><button class="btn secondary" type="button" onclick="loadInventory()">Refresh Inventory</button></form><div id="inventoryMessage" class="message"></div><div class="table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Quantity</th><th>Buying Price</th><th>Wholesale Price (BIF TTC)</th><th>Retail Price (BIF TTC)</th><th>Stock Value</th></tr></thead><tbody id="inventoryTableBody"></tbody></table></div></div>
+  
 <div id="garage" class="card hidden"><h2>Garage Activities</h2><form id="garageForm"><div class="form-grid"><div><label>Job Number</label><input id="job_number"></div><div><label>Customer Name</label><input id="customer_name" required></div><div><label>Customer Phone</label><input id="customer_phone"></div><div><label>Customer Address</label><input id="customer_address"></div><div><label>Vehicle Name</label><input id="vehicle_name"></div><div><label>Vehicle Model</label><input id="vehicle_model"></div><div><label>Vehicle Color</label><input id="vehicle_color"></div><div><label>Mechanic Name</label><input id="mechanic_name"></div><div><label>Job Status</label><select id="job_status"><option>Pending</option><option>In Progress</option><option>Completed</option><option>Cancelled</option></select></div><div><label>Payment Status</label><select id="payment_status"><option>Unpaid</option><option>Partially Paid</option><option>Paid</option></select></div><div><label>Payment Method</label><select id="payment_method"><option>Cash</option><option>Bank</option><option>Mobile Money</option><option>Card</option><option>Other</option></select></div><div><label>Invoice Number</label><input id="invoice_number"></div><div><label>Job Cost</label><input id="job_cost" type="number" step="0.01"></div><div><label>Parts Cost</label><input id="parts_cost" type="number" step="0.01"></div><div><label>Service Date</label><input id="service_date" type="date"></div><div><label>Estimated Completion</label><input id="estimated_completion_date" type="date"></div><div><label>Completion Date</label><input id="completion_date" type="date"></div><div><label>Pick Up Status</label><select id="pickup_status"><option>Pending</option><option>Ready</option><option>Picked Up</option></select></div><div><label>Warranty</label><select id="warranty"><option>No</option><option>Yes</option></select></div><div class="full"><label>Repair Description</label><textarea id="repair_description"></textarea></div><div class="full"><label>Notes</label><textarea id="garage_notes"></textarea></div></div><button class="btn" type="submit">Save Garage Activity</button><button class="btn secondary" type="button" onclick="loadGarage()">Refresh Garage</button></form><div id="garageMessage" class="message"></div><div id="garageInvoiceArea" class="hidden"></div>
 <section id="cwbDevisPanel" class="connection-box" style="margin-top:18px;border:2px solid #b91c1c;background:#fff">
   <h2 style="margin-bottom:5px">🧾 Devis de Réparation</h2>
@@ -113,11 +113,72 @@ function msg(id,t,error=false){const e=document.getElementById(id);if(!e)return;
 function showModule(id){if(id==='chinadubai'&&window.cwbInitChinaDubaiImport)window.cwbInitChinaDubaiImport();document.querySelectorAll('.card[id]').forEach(e=>e.classList.add('hidden'));const e=document.getElementById(id==='chinadubai'?'chinaDubaiImport':id);if(!e)return;e.classList.remove('hidden');if(id==='inventory')loadInventory();if(id==='garage')loadGarage();if(id==='sales')loadSales();if(id==='purchases')renderPurchases();if(id==='expenses')renderExpenses();if(id==='partners')renderPartners();if(id==='payroll'){renderPayroll();updatePayPreview()}if(id==='accounting')updateDashboard();if(id==='reports')loadReports();if(id==='website')loadWebsite();if(id==='social')loadSocial();if(id==='scanpay')updatePaymentMethod();window.scrollTo({top:e.offsetTop-10,behavior:'smooth'})}
 function updateDashboard(){const t=totals();[['totalSales',t.sales],['totalPurchases',t.purchases],['totalExpenses',t.expenses],['balance',t.operating],['finalBalance',t.final],['accSales',t.sales],['accPurchases',t.purchases],['accExpenses',t.expenses],['accPayroll',t.payroll],['accBalance',t.operating],['accFinalBalance',t.final]].forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.textContent=money(v)})}
 
+
 // INVENTORY
 const inventoryForm=document.getElementById('inventoryForm');
-if(inventoryForm)inventoryForm.addEventListener('submit',async e=>{e.preventDefault();const product={name:document.getElementById('inv_name').value.trim(),category:document.getElementById('inv_category').value.trim()||null,quantity:num(document.getElementById('inv_quantity').value),buying_price:num(document.getElementById('inv_buying_price').value),selling_price:num(document.getElementById('inv_selling_price').value)};msg('inventoryMessage','Saving...');const {error}=await supabaseClient.from('products').insert([product]);if(error){msg('inventoryMessage','Error saving product: '+error.message,true);return}e.target.reset();document.getElementById('inv_quantity').value=0;document.getElementById('inv_buying_price').value=0;document.getElementById('inv_selling_price').value=0;msg('inventoryMessage','Product saved successfully to Supabase.');loadInventory()});
-async function loadInventory(){const b=document.getElementById('inventoryTableBody');if(!b)return;b.innerHTML='<tr><td colspan="6">Loading...</td></tr>';const {data,error}=await supabaseClient.from('products').select('*').order('created_at',{ascending:false});if(error){b.innerHTML='<tr><td colspan="6">Error loading inventory</td></tr>';return}if(!data?.length){b.innerHTML='<tr><td colspan="6">No products yet.</td></tr>';return}b.innerHTML=data.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.category||'')}</td><td>${money(x.quantity)}</td><td>${money(x.buying_price)}</td><td>${money(x.selling_price)}</td><td>${money(num(x.quantity)*num(x.buying_price))}</td></tr>`).join('')}
+
+if(inventoryForm)inventoryForm.addEventListener('submit',async e=>{
+e.preventDefault();
+
+const product={
+name:document.getElementById('inv_name').value.trim(),
+category:document.getElementById('inv_category').value.trim()||null,
+quantity:num(document.getElementById('inv_quantity').value),
+buying_price:num(document.getElementById('inv_buying_price').value),
+wholesale_price_bif:num(document.getElementById('inv_wholesale_price').value),
+retail_price_bif:num(document.getElementById('inv_retail_price').value),
+selling_price:num(document.getElementById('inv_retail_price').value)
+};
+
+msg('inventoryMessage','Saving...');
+
+const {error}=await supabaseClient.from('products').insert([product]);
+
+if(error){
+msg('inventoryMessage','Error saving product: '+error.message,true);
+return;
+}
+
+e.target.reset();
+document.getElementById('inv_quantity').value=0;
+document.getElementById('inv_buying_price').value=0;
+document.getElementById('inv_wholesale_price').value=0;
+document.getElementById('inv_retail_price').value=0;
+
+msg('inventoryMessage','Product saved successfully to Supabase.');
+loadInventory();
+});
+
+async function loadInventory(){
+const b=document.getElementById('inventoryTableBody');
+if(!b)return;
+
+b.innerHTML='<tr><td colspan="7">Loading...</td></tr>';
+
+const {data,error}=await supabaseClient.from('products').select('*').order('created_at',{ascending:false});
+
+if(error){
+b.innerHTML='<tr><td colspan="7">Error loading inventory</td></tr>';
+return;
+}
+
+if(!data?.length){
+b.innerHTML='<tr><td colspan="7">No products yet.</td></tr>';
+return;
+}
+
+b.innerHTML=data.map(x=>`<tr>
+<td>${esc(x.name)}</td>
+<td>${esc(x.category||'')}</td>
+<td>${money(x.quantity)}</td>
+<td>${money(x.buying_price)}</td>
+<td>${money(x.wholesale_price_bif??0)}</td>
+<td>${money(x.retail_price_bif??x.selling_price??0)}</td>
+<td>${money(num(x.quantity)*num(x.buying_price))}</td>
+</tr>`).join('');
+}
 // GARAGE - JavaScript is safely kept inside the script section.
+
 
 const garageForm = document.getElementById('garageForm');
 
