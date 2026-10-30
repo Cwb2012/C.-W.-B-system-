@@ -199,9 +199,14 @@
             <input id="cdiCustoms" type="number" min="0" value="0">
           </div>
 
+                    <div>
+            <label>Prix de vente en gros TTC (BIF)</label>
+            <input id="cdiWholesale" type="number" min="0" step="0.01" value="0">
+          </div>
+
           <div>
-            <label>Autres frais (BIF)</label>
-            <input id="cdiOther" type="number" min="0" value="0">
+            <label>Prix de vente au détail TTC (BIF)</label>
+            <input id="cdiRetail" type="number" min="0" step="0.01" value="0">
           </div>
 
           <div>
@@ -233,12 +238,19 @@
         <p>Coût total d'importation :
           <b id="cdiLanded">0 BIF</b></p>
         <p>Coût par unité : <b id="cdiCostUnit">0 BIF</b></p>
-        <p>Chiffre d'affaires TTC prévu :
-          <b id="cdiRevenue">0 BIF</b></p>
-        <p>TVA estimée incluse (18/118) :
-          <b id="cdiVat">0 BIF</b></p>
-        <p>Bénéfice estimé après TVA calculée :
-          <b id="cdiProfit">0 BIF</b></p>
+                <p>Chiffre d'affaires TTC prévu — gros :
+          <b id="cdiWholesaleRevenue">0 BIF</b></p>
+        <p>TVA estimée incluse — gros :
+          <b id="cdiWholesaleVat">0 BIF</b></p>
+        <p>Bénéfice estimé après TVA — gros :
+          <b id="cdiWholesaleProfit">0 BIF</b></p>
+
+        <p>Chiffre d'affaires TTC prévu — détail :
+          <b id="cdiRetailRevenue">0 BIF</b></p>
+        <p>TVA estimée incluse — détail :
+          <b id="cdiRetailVat">0 BIF</b></p>
+        <p>Bénéfice estimé après TVA — détail :
+          <b id="cdiRetailProfit">0 BIF</b></p>
         <p class="cdi-note">
           Estimation de gestion uniquement. Confirmez le traitement
           fiscal applicable au Burundi avec un professionnel.
@@ -427,7 +439,7 @@
     [
       'cdiCartons', 'cdiPerCarton', 'cdiBasis', 'cdiCurrency',
       'cdiPrice', 'cdiRate', 'cdiFreight', 'cdiCustoms',
-      'cdiOther', 'cdiSelling', 'cdiUnit'
+            'cdiOther', 'cdiWholesale', 'cdiRetail', 'cdiUnit'
     ].forEach(id => {
       $(id).addEventListener('input', calculate);
       $(id).addEventListener('change', calculate);
@@ -519,17 +531,25 @@
     const customs = num('cdiCustoms');
     const other = num('cdiOther');
     const landed = purchaseBif + freight + customs + other;
-    const selling = num('cdiSelling');
-    const revenue = quantity * selling;
-    const vat = revenue * 18 / 118;
+        const wholesaleSelling = num('cdiWholesale');
+    const retailSelling = num('cdiRetail');
 
-    return {
+    const wholesaleRevenue = quantity * wholesaleSelling;
+    const wholesaleVat = wholesaleRevenue * 18 / 118;
+    const wholesaleProfit = wholesaleRevenue - wholesaleVat - landed;
+
+    const retailRevenue = quantity * retailSelling;
+    const retailVat = retailRevenue * 18 / 118;
+    const retailProfit = retailRevenue - retailVat - landed;
+
+        return {
       cartons, per, quantity, currency, rate, unitPrice,
       cartonPrice, purchaseTotal, purchaseBif, freight,
-      customs, other, landed, selling, revenue, vat,
-      profit: revenue - vat - landed
+      customs, other, landed,
+      wholesaleSelling, wholesaleRevenue, wholesaleVat,
+      wholesaleProfit,
+      retailSelling, retailRevenue, retailVat, retailProfit
     };
-  }
 
   function calculate() {
     if (!$('cdiQty')) return;
@@ -552,10 +572,13 @@
     $('cdiLanded').textContent = fmt(x.landed) + ' BIF';
     $('cdiCostUnit').textContent =
       fmt(x.quantity ? x.landed / x.quantity : 0) + ' BIF';
-    $('cdiRevenue').textContent = fmt(x.revenue) + ' BIF';
-    $('cdiVat').textContent = fmt(x.vat) + ' BIF';
-    $('cdiProfit').textContent = fmt(x.profit) + ' BIF';
-  }
+        $('cdiWholesaleRevenue').textContent = fmt(x.wholesaleRevenue) + ' BIF';
+    $('cdiWholesaleVat').textContent = fmt(x.wholesaleVat) + ' BIF';
+    $('cdiWholesaleProfit').textContent = fmt(x.wholesaleProfit) + ' BIF';
+
+    $('cdiRetailRevenue').textContent = fmt(x.retailRevenue) + ' BIF';
+    $('cdiRetailVat').textContent = fmt(x.retailVat) + ' BIF';
+    $('cdiRetailProfit').textContent = fmt(x.retailProfit) + ' BIF';
 
   async function save() {
     const client = db();
@@ -644,7 +667,9 @@
         transport_cost_bif: x.freight,
         customs_cost_bif: x.customs,
         other_costs_bif: x.other,
-        selling_price_per_piece_bif: x.selling,
+                wholesale_price_bif: x.wholesaleSelling,
+        retail_price_bif: x.retailSelling,
+        selling_price_per_piece_bif: x.retailSelling,
         photo_path: uploadedPath,
         import_status: $('cdiStatus').value,
         notes: $('cdiNotes').value.trim() || null
