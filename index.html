@@ -65,7 +65,7 @@
     <div class="full"><label for="devisSearch">Rechercher un devis enregistré (numéro, client, véhicule)</label><input id="devisSearch" type="search" placeholder="Ex. CWB-DV, nom du client ou véhicule" oninput="renderSaved()"></div>
   </div>
   <div id="devisSavedList" style="margin-top:15px"></div>
-</section><div class="table-wrap"><table><thead><tr><th>Customer</th><th>Vehicle</th><th>Mechanic</th><th>Status</th><th>Job Cost</th><th>Payment</th></tr></thead><tbody id="garageTableBody"></tbody></table></div></div>
+</section><div class="table-wrap"><table><thead><tr><th>Invoice Number</th><th>Customer</th><th>Vehicle</th><th>Mechanic</th><th>Status</th><th>Total Cost (BIF)</th><th>Payment</th><th>Action</th></tr></thead><tbody id="garageTableBody"></tbody></table></div></div>
 
 <div id="sales" class="card hidden"><h2>Sales & Invoice</h2><p class="small">Sales are kept in the system and used in dashboard totals.</p><form id="salesForm"><div class="form-grid"><div><label>Customer</label><input id="sale_customer"></div><div><label>Product / Service</label><input id="sale_product" required></div><div><label>Invoice Number</label><input id="sale_invoice"></div><div><label>Amount</label><input id="sale_amount" type="number" min="0" step="0.01" required></div><div><label>Payment Status</label><select id="sale_payment"><option>Paid</option><option>Partially Paid</option><option>Unpaid</option></select></div><div><label>Date</label><input id="sale_date" type="date"></div></div><button class="btn" type="submit">Save Sale</button></form><div id="salesMessage" class="message"></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Invoice</th><th>Customer</th><th>Product / Service</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody id="salesTableBody"></tbody></table></div></div>
 
@@ -186,14 +186,27 @@ if (garageForm) {
   garageForm.addEventListener('submit', async e => {
     e.preventDefault();
 
-    const invoiceNumber =
-      document.getElementById('invoice_number').value.trim() ||
-      ('CWB-G-' + new Date().toISOString().replace(/\D/g, '').slice(0, 14));
+    const makeGarageNumber = prefix => {
+      const now = new Date();
+      const stamp = now.getFullYear() +
+        String(now.getMonth() + 1).padStart(2, '0') +
+        String(now.getDate()).padStart(2, '0') + '-' +
+        String(now.getHours()).padStart(2, '0') +
+        String(now.getMinutes()).padStart(2, '0') +
+        String(now.getSeconds()).padStart(2, '0');
+      const suffix = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+      return prefix + stamp + '-' + suffix;
+    };
 
-    document.getElementById('invoice_number').value = invoiceNumber;
+    const invoiceInput = document.getElementById('invoice_number');
+    const jobNumberInput = document.getElementById('job_number');
+    const invoiceNumber = invoiceInput.value.trim() || makeGarageNumber('CWB-G-');
+    const jobNumber = jobNumberInput.value.trim() || makeGarageNumber('CWB-J-');
+    invoiceInput.value = invoiceNumber;
+    jobNumberInput.value = jobNumber;
 
     const job = {
-      job_number: document.getElementById('job_number').value.trim() || null,
+      job_number: jobNumber,
       customer_name: document.getElementById('customer_name').value.trim(),
       customer_phone: document.getElementById('customer_phone').value.trim() || null,
       customer_address: document.getElementById('customer_address').value.trim() || null,
@@ -255,6 +268,19 @@ if (garageForm) {
       }
 
       const column = match[1];
+      const legacyAliases = {
+        invoice_number: 'Invoice_number',
+        Invoice_number: 'invoice_number',
+        job_number: 'Job_number',
+        Job_number: 'job_number'
+      };
+
+      if (legacyAliases[column] && column in saveJob) {
+        const alternate = legacyAliases[column];
+        saveJob[alternate] = saveJob[column];
+        delete saveJob[column];
+        continue;
+      }
 
       if (!(column in saveJob)) {
         msg(
@@ -741,60 +767,82 @@ function escapeInvoiceText(value) {
 }
 
 // LOAD GARAGE ACTIVITIES FROM SUPABASE
+let garageJobs = [];
+
+function normalizeGarageJob(job) {
+  return {
+    ...job,
+    job_number: job.job_number || job.Job_number || '',
+    customer_name: job.customer_name || job.Customer_name || '',
+    customer_phone: job.customer_phone || job.Customer_phone || '',
+    customer_address: job.customer_address || job.Customer_address || '',
+    vehicle_name: job.vehicle_name || job.Vehicle_name || '',
+    vehicle_model: job.vehicle_model || job.Vehicle_model || '',
+    vehicle_color: job.vehicle_color || job.Vehicle_color || '',
+    mechanic_name: job.mechanic_name || job.Mechanic_name || job.machanic_name || '',
+    job_status: job.job_status || job.Job_status || job.status || '',
+    payment_status: job.payment_status || job.Payment_status || '',
+    payment_method: job.payment_method || job.Payment_method || '',
+    invoice_number: job.invoice_number || job.Invoice_number || '',
+    job_cost: job.job_cost ?? job.Job_cost ?? job.cost ?? 0,
+    parts_cost: job.parts_cost ?? job.Parts_cost ?? 0,
+    service_date: job.service_date || job.Service_date || '',
+    estimated_completion_date: job.estimated_completion_date || job.Estimated_completion_date || '',
+    completion_date: job.completion_date || job.Completion_date || '',
+    pickup_status: job.pickup_status || job.Pickup_status || '',
+    warranty: job.warranty || job.Warranty || '',
+    repair_description: job.repair_description || job.Repair_description || '',
+    notes: job.notes || job.Notes || ''
+  };
+}
+
+function viewSavedGarageInvoice(index) {
+  const job = garageJobs[index];
+  if (!job) {
+    msg('garageMessage', 'Garage activity not found. Refresh the list and try again.', true);
+    return;
+  }
+  renderGarageInvoice(job);
+  document.getElementById('garageInvoiceArea')?.scrollIntoView({behavior:'smooth', block:'start'});
+}
+window.viewSavedGarageInvoice = viewSavedGarageInvoice;
+
 async function loadGarage() {
   const body = document.getElementById('garageTableBody');
   if (!body) return;
-
-  body.innerHTML =
-    '<tr><td colspan="6">Loading...</td></tr>';
+  body.innerHTML = '<tr><td colspan="8">Loading...</td></tr>';
 
   try {
+    // Avoid relying on one exact timestamp column spelling in older Garage_jobs tables.
     const { data, error } = await supabaseClient
       .from('Garage_jobs')
-      .select('*')
-      .order('Created_at', { ascending: false });
+      .select('*');
 
-    if (error) {
-      console.error('Garage loading error:', error);
-      body.innerHTML =
-        '<tr><td colspan="6">Error loading garage activities: ' +
-        esc(error.message) +
-        '</td></tr>';
+    if (error) throw error;
+
+    garageJobs = (data || []).map(normalizeGarageJob);
+    garageJobs.sort((a, b) => String(b.created_at || b.Created_at || '').localeCompare(String(a.created_at || a.Created_at || '')));
+
+    if (!garageJobs.length) {
+      body.innerHTML = '<tr><td colspan="8">No garage activities yet.</td></tr>';
       return;
     }
 
-    if (!data || data.length === 0) {
-      body.innerHTML =
-        '<tr><td colspan="6">No garage activities yet.</td></tr>';
-      return;
-    }
-
-    body.innerHTML = data.map(job => `
+    body.innerHTML = garageJobs.map((job, index) => `
       <tr>
-        <td>${esc(job.customer_name || '')}</td>
-        <td>${esc(
-          (job.Vehicle_name || job.vehicle_name || '') + ' ' +
-          (job.Vehicle_model || job.vehicle_model || '')
-        )}</td>
-        <td>${esc(
-          job.mechanic_name || job.machanic_name || ''
-        )}</td>
-        <td>${esc(
-          job.Job_status || job.job_status || job.status || ''
-        )}</td>
-        <td>${money(
-          job.Job_cost ?? job.job_cost ?? job.cost ?? 0
-        )}</td>
-        <td>${esc(
-          job.Payment_status || job.payment_status || ''
-        )}</td>
+        <td>${esc(job.invoice_number || '—')}</td>
+        <td>${esc(job.customer_name)}</td>
+        <td>${esc((job.vehicle_name + ' ' + job.vehicle_model).trim())}</td>
+        <td>${esc(job.mechanic_name)}</td>
+        <td>${esc(job.job_status)}</td>
+        <td>${money(num(job.job_cost) + num(job.parts_cost))}</td>
+        <td>${esc(job.payment_status)}</td>
+        <td><button class="btn secondary" type="button" style="padding:6px 9px;margin:0" onclick="viewSavedGarageInvoice(${index})">View / Print</button></td>
       </tr>
     `).join('');
-
   } catch (error) {
     console.error('Garage loading error:', error);
-    body.innerHTML =
-      '<tr><td colspan="6">Error loading garage activities.</td></tr>';
+    body.innerHTML = '<tr><td colspan="8">Error loading garage activities: ' + esc(error.message) + '</td></tr>';
   }
 }
 
@@ -895,10 +943,15 @@ if (salesForm) {
         return;
       }
 
-      const invoice =
-        enteredInvoice ||
-        ('CWB-S-' +
-          new Date().toISOString().replace(/\D/g, '').slice(0, 14));
+      const now = new Date();
+      const saleStamp = now.getFullYear() +
+        String(now.getMonth() + 1).padStart(2, '0') +
+        String(now.getDate()).padStart(2, '0') + '-' +
+        String(now.getHours()).padStart(2, '0') +
+        String(now.getMinutes()).padStart(2, '0') +
+        String(now.getSeconds()).padStart(2, '0');
+      const saleSuffix = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+      const invoice = enteredInvoice || ('CWB-S-' + saleStamp + '-' + saleSuffix);
 
       // Check whether the invoice number already exists.
       const { data: existing, error: checkError } =
@@ -1030,46 +1083,7 @@ async function deleteSale(id) {
 window.deleteSale = deleteSale;
 
 
-// DISPLAY SAVED SALES
-
-function renderSales() {
-  const body = document.getElementById('salesTableBody');
-
-  if (!body) return;
-
-  if (!sales.length) {
-    body.innerHTML =
-      '<tr><td colspan="7">No sales yet.</td></tr>';
-    return;
-  }
-
-  body.innerHTML = sales.map((sale, index) => `
-    <tr>
-      <td>${esc(sale.date || '')}</td>
-      <td>${esc(sale.invoice || '')}</td>
-      <td>${esc(sale.customer || '')}</td>
-      <td>${esc(sale.product || '')}</td>
-      <td>${money(sale.amount)}</td>
-      <td>${esc(sale.payment || '')}</td>
-      <td>
-        <button
-          class="btn"
-          style="padding:6px 9px;margin:0 4px 0 0"
-          onclick="viewSalesInvoice(${index})">
-          🧾 Invoice
-        </button>
-
-        <button
-          class="btn light"
-          style="padding:6px 9px;margin:0"
-          onclick="deleteRecord('sales',${index})">
-          Delete
-        </button>
-      </td>
-    </tr>
-  `).join('');
-}
-
+// Sales table uses the single renderer above; deletion is performed by Supabase ID.
 
 // OPEN AND GENERATE A PROFESSIONAL SALES INVOICE
 
