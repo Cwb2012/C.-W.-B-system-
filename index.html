@@ -65,7 +65,7 @@
     <div class="full"><label for="devisSearch">Rechercher un devis enregistré (numéro, client, véhicule)</label><input id="devisSearch" type="search" placeholder="Ex. CWB-DV, nom du client ou véhicule" oninput="renderSaved()"></div>
   </div>
   <div id="devisSavedList" style="margin-top:15px"></div>
-</section><div class="table-wrap"><table><thead><tr><th>Invoice Number</th><th>Customer</th><th>Vehicle</th><th>Mechanic</th><th>Status</th><th>Total Cost (BIF)</th><th>Payment</th><th>Action</th></tr></thead><tbody id="garageTableBody"></tbody></table></div></div>
+</section><div class="table-wrap"><table><thead><tr><th>Job Number</th><th>Invoice Number</th><th>Customer</th><th>Vehicle</th><th>Mechanic</th><th>Status</th><th>Total Cost (BIF)</th><th>Payment</th><th>Action</th></tr></thead><tbody id="garageTableBody"></tbody></table></div></div>
 
 <div id="sales" class="card hidden"><h2>Sales & Invoice</h2><p class="small">Sales are kept in the system and used in dashboard totals.</p><form id="salesForm"><div class="form-grid"><div><label>Customer</label><input id="sale_customer"></div><div><label>Product / Service</label><input id="sale_product" required></div><div><label>Invoice Number</label><input id="sale_invoice"></div><div><label>Amount</label><input id="sale_amount" type="number" min="0" step="0.01" required></div><div><label>Payment Status</label><select id="sale_payment"><option>Paid</option><option>Partially Paid</option><option>Unpaid</option></select></div><div><label>Date</label><input id="sale_date" type="date"></div></div><button class="btn" type="submit">Save Sale</button></form><div id="salesMessage" class="message"></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Invoice</th><th>Customer</th><th>Product / Service</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody id="salesTableBody"></tbody></table></div></div>
 
@@ -810,7 +810,7 @@ window.viewSavedGarageInvoice = viewSavedGarageInvoice;
 async function loadGarage() {
   const body = document.getElementById('garageTableBody');
   if (!body) return;
-  body.innerHTML = '<tr><td colspan="8">Loading...</td></tr>';
+  body.innerHTML = '<tr><td colspan="9">Loading...</td></tr>';
 
   try {
     // Avoid relying on one exact timestamp column spelling in older Garage_jobs tables.
@@ -824,12 +824,13 @@ async function loadGarage() {
     garageJobs.sort((a, b) => String(b.created_at || b.Created_at || '').localeCompare(String(a.created_at || a.Created_at || '')));
 
     if (!garageJobs.length) {
-      body.innerHTML = '<tr><td colspan="8">No garage activities yet.</td></tr>';
+      body.innerHTML = '<tr><td colspan="9">No garage activities yet.</td></tr>';
       return;
     }
 
     body.innerHTML = garageJobs.map((job, index) => `
       <tr>
+        <td>${esc(job.job_number || '—')}</td>
         <td>${esc(job.invoice_number || '—')}</td>
         <td>${esc(job.customer_name)}</td>
         <td>${esc((job.vehicle_name + ' ' + job.vehicle_model).trim())}</td>
@@ -842,7 +843,7 @@ async function loadGarage() {
     `).join('');
   } catch (error) {
     console.error('Garage loading error:', error);
-    body.innerHTML = '<tr><td colspan="8">Error loading garage activities: ' + esc(error.message) + '</td></tr>';
+    body.innerHTML = '<tr><td colspan="9">Error loading garage activities: ' + esc(error.message) + '</td></tr>';
   }
 }
 
