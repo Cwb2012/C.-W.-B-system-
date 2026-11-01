@@ -17,13 +17,14 @@
 <div class="container">
 <div class="card"><h2>Business Dashboard</h2><div class="dashboard">
 <button class="module" onclick="showModule('accounting')">Accounting</button><button class="module" onclick="showModule('payroll')">Payroll</button><button class="module" onclick="showModule('inventory')">Inventory</button><button class="module" onclick="showModule('sales')">Sales & Invoice</button><button class="module" onclick="showModule('purchases')">Purchases</button><button class="module" onclick="showModule('partners')">Customers & Partners</button><button class="module" onclick="showModule('expenses')">Expenses</button><button class="module" onclick="showModule('garage')">Garage Activities</button><button class="module" onclick="showModule('planner')">Business Planner</button><button class="module" onclick="showModule('reports')">Reports</button><button class="module" onclick="showModule('scanpay')">Scan & Pay</button><button class="module" onclick="showModule('website')">Website</button><button class="module" onclick="showModule('social')">Social Connections</button>
+<button class="module" onclick="showModule('japanimport')">Japan Car Import</button>
 <button class="module" onclick="showModule('chinadubai')">China & Dubai Import</button>
 </div></div>
 <div class="card"><div class="dashboard"><div class="stat">Total Sales<strong id="totalSales">0</strong></div><div class="stat">Total Purchases<strong id="totalPurchases">0</strong></div><div class="stat">Expenses<strong id="totalExpenses">0</strong></div><div class="stat">Balance<strong id="balance">0</strong></div><div class="stat">Final Balance<strong id="finalBalance">0</strong></div></div></div>
 
 <div id="inventory" class="card hidden"><h2>Inventory</h2><p>Products and stock management.</p><form id="inventoryForm"><div class="form-grid"><div><label>Product Name</label><input id="inv_name" required></div><div><label>Category</label><input id="inv_category"></div><div><label>Quantity</label><input id="inv_quantity" type="number" min="0" value="0" required></div><div><label>Buying Price</label><input id="inv_buying_price" type="number" min="0" step="0.01" value="0"></div><div><label>Wholesale Selling Price (BIF TTC)</label><input id="inv_wholesale_price" type="number" min="0" step="0.01" value="0" required></div><div><label>Retail Selling Price (BIF TTC)</label><input id="inv_retail_price" type="number" min="0" step="0.01" value="0" required></div></div><button class="btn" type="submit">Save Product</button><button class="btn secondary" type="button" onclick="loadInventory()">Refresh Inventory</button></form><div id="inventoryMessage" class="message"></div><div class="table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Quantity</th><th>Buying Price</th><th>Wholesale Price (BIF TTC)</th><th>Retail Price (BIF TTC)</th><th>Stock Value</th></tr></thead><tbody id="inventoryTableBody"></tbody></table></div></div>
   
-<div id="garage" class="card hidden"><h2>Garage Activities</h2><form id="garageForm"><div class="form-grid"><div><label>Job Number</label><input id="job_number"></div><div><label>Customer Name</label><input id="customer_name" required></div><div><label>Customer Phone</label><input id="customer_phone"></div><div><label>Customer Address</label><input id="customer_address"></div><div><label>Vehicle Name</label><input id="vehicle_name"></div><div><label>Vehicle Model</label><input id="vehicle_model"></div><div><label>Vehicle Color</label><input id="vehicle_color"></div><div><label>Mechanic Name</label><input id="mechanic_name"></div><div><label>Job Status</label><select id="job_status"><option>Pending</option><option>In Progress</option><option>Completed</option><option>Cancelled</option></select></div><div><label>Payment Status</label><select id="payment_status"><option>Unpaid</option><option>Partially Paid</option><option>Paid</option></select></div><div><label>Payment Method</label><select id="payment_method"><option>Cash</option><option>Bank</option><option>Mobile Money</option><option>Card</option><option>Other</option></select></div><div><label>Invoice Number</label><input id="invoice_number"></div><div><label>Job Cost</label><input id="job_cost" type="number" step="0.01"></div><div><label>Parts Cost</label><input id="parts_cost" type="number" step="0.01"></div><div><label>Service Date</label><input id="service_date" type="date"></div><div><label>Estimated Completion</label><input id="estimated_completion_date" type="date"></div><div><label>Completion Date</label><input id="completion_date" type="date"></div><div><label>Pick Up Status</label><select id="pickup_status"><option>Pending</option><option>Ready</option><option>Picked Up</option></select></div><div><label>Warranty</label><select id="warranty"><option>No</option><option>Yes</option></select></div><div class="full"><label>Repair Description</label><textarea id="repair_description"></textarea></div><div class="full"><label>Notes</label><textarea id="garage_notes"></textarea></div></div><button class="btn" type="submit">Save Garage Activity</button><button class="btn secondary" type="button" onclick="loadGarage()">Refresh Garage</button></form><div id="garageMessage" class="message"></div><div id="garageInvoiceArea" class="hidden"></div>
+<div id="garage" class="card hidden"><h2>Garage Activities</h2><form id="garageForm"><div class="form-grid"><div><label>Job Number</label><input id="job_number"></div><div><label>Customer Name</label><input id="customer_name" required></div><div><label>Customer Phone</label><input id="customer_phone"></div><div><label>Customer Address</label><input id="customer_address"></div><div><label>Vehicle Name</label><input id="vehicle_name"></div><div><label>Vehicle Model</label><input id="vehicle_model"></div><div><label>Vehicle Color</label><input id="vehicle_color"></div><div><label>Mechanic Name</label><input id="mechanic_name"></div><div><label>Job Status</label><select id="job_status"><option>Pending</option><option>In Progress</option><option>Completed</option><option>Cancelled</option></select></div><div><label>Payment Status</label><select id="payment_status"><option>Unpaid</option><option>Partially Paid</option><option>Paid</option></select></div><div><label>Payment Method</label><select id="payment_method"><option>Cash</option><option>Bank</option><option>Mobile Money</option><option>Card</option><option>Other</option></select></div><div><label>Invoice Number (generated by Supabase)</label><input id="invoice_number" readonly placeholder="Generated when saved"></div><div><label>Job Cost</label><input id="job_cost" type="number" step="0.01"></div><div><label>Parts Cost</label><input id="parts_cost" type="number" step="0.01"></div><div><label>Service Date</label><input id="service_date" type="date"></div><div><label>Estimated Completion</label><input id="estimated_completion_date" type="date"></div><div><label>Completion Date</label><input id="completion_date" type="date"></div><div><label>Pick Up Status</label><select id="pickup_status"><option>Pending</option><option>Ready</option><option>Picked Up</option></select></div><div><label>Warranty</label><select id="warranty"><option>No</option><option>Yes</option></select></div><div class="full"><label>Repair Description</label><textarea id="repair_description"></textarea></div><div class="full"><label>Notes</label><textarea id="garage_notes"></textarea></div></div><button class="btn" type="submit">Save Garage Activity</button><button class="btn secondary" type="button" onclick="loadGarage()">Refresh Garage</button></form><div id="garageMessage" class="message"></div><div id="garageInvoiceArea" class="hidden"></div>
 <section id="cwbDevisPanel" class="connection-box" style="margin-top:18px;border:2px solid #b91c1c;background:#fff">
   <h2 style="margin-bottom:5px">🧾 Devis de Réparation</h2>
   <p class="small">Préparez un devis avant de commencer les réparations. Le devis reste séparé des activités du garage et des factures.</p>
@@ -65,9 +66,9 @@
     <div class="full"><label for="devisSearch">Rechercher un devis enregistré (numéro, client, véhicule)</label><input id="devisSearch" type="search" placeholder="Ex. CWB-DV, nom du client ou véhicule" oninput="renderSaved()"></div>
   </div>
   <div id="devisSavedList" style="margin-top:15px"></div>
-</section><div class="table-wrap"><table><thead><tr><th>Job Number</th><th>Invoice Number</th><th>Customer</th><th>Vehicle</th><th>Mechanic</th><th>Status</th><th>Total Cost (BIF)</th><th>Payment</th><th>Action</th></tr></thead><tbody id="garageTableBody"></tbody></table></div></div>
+</section><div class="table-wrap"><table><thead><tr><th>Customer</th><th>Vehicle</th><th>Mechanic</th><th>Status</th><th>Job Cost</th><th>Payment</th></tr></thead><tbody id="garageTableBody"></tbody></table></div></div>
 
-<div id="sales" class="card hidden"><h2>Sales & Invoice</h2><p class="small">Sales are kept in the system and used in dashboard totals.</p><form id="salesForm"><div class="form-grid"><div><label>Customer</label><input id="sale_customer"></div><div><label>Product / Service</label><input id="sale_product" required></div><div><label>Invoice Number</label><input id="sale_invoice"></div><div><label>Amount</label><input id="sale_amount" type="number" min="0" step="0.01" required></div><div><label>Payment Status</label><select id="sale_payment"><option>Paid</option><option>Partially Paid</option><option>Unpaid</option></select></div><div><label>Date</label><input id="sale_date" type="date"></div></div><button class="btn" type="submit">Save Sale</button></form><div id="salesMessage" class="message"></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Invoice</th><th>Customer</th><th>Product / Service</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody id="salesTableBody"></tbody></table></div></div>
+<div id="sales" class="card hidden"><h2>Sales & Invoice</h2><p class="small">Sales are saved in Supabase. Product sales reduce Inventory; Service sales do not change stock. VAT: 18%.</p><form id="salesForm"><div class="form-grid"><div><label>Customer</label><input id="sale_customer"></div><div><label>Item Type</label><select id="sale_item_type" required><option value="PRODUCT">Product (deduct from stock)</option><option value="SERVICE">Service (no stock deduction)</option></select></div><div><label>Product / Service Name</label><input id="sale_product" required></div><div><label>Quantity</label><input id="sale_quantity" type="number" min="1" step="1" value="1" required></div><div><label>Invoice Number (leave blank for automatic number)</label><input id="sale_invoice"></div><div><label>Unit Price Before VAT (BIF)</label><input id="sale_amount" type="number" min="0" step="0.01" required></div><div><label>Payment Status</label><select id="sale_payment"><option>Paid</option><option>Partially Paid</option><option>Unpaid</option></select></div><div><label>Date</label><input id="sale_date" type="date"></div></div><button class="btn" type="submit">Save Sale & Generate Invoice</button></form><div id="salesMessage" class="message"></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Invoice</th><th>Customer</th><th>Product / Service</th><th>Qty</th><th>Unit Price Before VAT</th><th>Total TTC</th><th>Status</th><th>Action</th></tr></thead><tbody id="salesTableBody"></tbody></table></div></div>
 
 <div id="purchases" class="card hidden"><h2>Purchases & Suppliers</h2><form id="purchaseForm"><div class="form-grid"><div><label>Supplier</label><input id="purchase_supplier"></div><div><label>Product</label><input id="purchase_product" required></div><div><label>Amount</label><input id="purchase_amount" type="number" min="0" step="0.01" required></div><div><label>Payment Status</label><select id="purchase_payment"><option>Paid</option><option>Partially Paid</option><option>Unpaid</option></select></div><div><label>Date</label><input id="purchase_date" type="date"></div></div><button class="btn" type="submit">Save Purchase</button></form><div id="purchaseMessage" class="message"></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Supplier</th><th>Product</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody id="purchaseTableBody"></tbody></table></div></div>
 
@@ -108,9 +109,9 @@ function money(v){return num(v).toLocaleString('en-US')}
 function today(){return new Date().toISOString().slice(0,10)}
 function currentMonth(){return new Date().toISOString().slice(0,7)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function totals(){const salesTotal=sales.reduce((a,x)=>a+num(x.amount),0),purchaseTotal=purchases.reduce((a,x)=>a+num(x.amount),0),expenseTotal=expenses.reduce((a,x)=>a+num(x.amount),0),payrollTotal=payroll.reduce((a,x)=>a+num(x.net),0),operatingBalance=salesTotal-purchaseTotal-expenseTotal;return{sales:salesTotal,purchases:purchaseTotal,expenses:expenseTotal,payroll:payrollTotal,operating:operatingBalance,final:operatingBalance-payrollTotal}}
+function totals(){const salesTotal=sales.reduce((a,x)=>a+(num(x.totalAmount)||num(x.amount)),0),purchaseTotal=purchases.reduce((a,x)=>a+num(x.amount),0),expenseTotal=expenses.reduce((a,x)=>a+num(x.amount),0),payrollTotal=payroll.reduce((a,x)=>a+num(x.net),0),operatingBalance=salesTotal-purchaseTotal-expenseTotal;return{sales:salesTotal,purchases:purchaseTotal,expenses:expenseTotal,payroll:payrollTotal,operating:operatingBalance,final:operatingBalance-payrollTotal}}
 function msg(id,t,error=false){const e=document.getElementById(id);if(!e)return;e.textContent=t;e.classList.toggle('error',error);e.style.display='block';setTimeout(()=>e.style.display='none',4000)}
-function showModule(id){if(id==='chinadubai'&&window.cwbInitChinaDubaiImport)window.cwbInitChinaDubaiImport();document.querySelectorAll('.card[id]').forEach(e=>e.classList.add('hidden'));const e=document.getElementById(id==='chinadubai'?'chinaDubaiImport':id);if(!e)return;e.classList.remove('hidden');if(id==='inventory')loadInventory();if(id==='garage')loadGarage();if(id==='sales')loadSales();if(id==='purchases')renderPurchases();if(id==='expenses')renderExpenses();if(id==='partners')renderPartners();if(id==='payroll'){renderPayroll();updatePayPreview()}if(id==='accounting')updateDashboard();if(id==='reports')loadReports();if(id==='website')loadWebsite();if(id==='social')loadSocial();if(id==='scanpay')updatePaymentMethod();window.scrollTo({top:e.offsetTop-10,behavior:'smooth'})}
+function showModule(id){const key=String(id||'').toLowerCase();if(key==='chinadubai'&&window.cwbInitChinaDubaiImport)window.cwbInitChinaDubaiImport();if(key==='japanimport'&&window.cwbJapanCarImportInit)window.cwbJapanCarImportInit();document.querySelectorAll('.card[id]').forEach(e=>e.classList.add('hidden'));const targetId=key==='chinadubai'?'chinaDubaiImport':key==='japanimport'?'japanCarImportModule':id;const e=document.getElementById(targetId)||(key==='japanimport'?document.getElementById('japanimport'):null);if(!e){console.error('C.W.B module container not found:',targetId);return;}e.classList.remove('hidden');if(key==='inventory')loadInventory();if(key==='garage')loadGarage();if(key==='sales')loadSales();if(key==='purchases')renderPurchases();if(key==='expenses')renderExpenses();if(key==='partners')renderPartners();if(key==='payroll'){renderPayroll();updatePayPreview()}if(key==='accounting')updateDashboard();if(key==='reports')loadReports();if(key==='website')loadWebsite();if(key==='social')loadSocial();if(key==='scanpay')updatePaymentMethod();window.scrollTo({top:e.offsetTop-10,behavior:'smooth'})}
 function updateDashboard(){const t=totals();[['totalSales',t.sales],['totalPurchases',t.purchases],['totalExpenses',t.expenses],['balance',t.operating],['finalBalance',t.final],['accSales',t.sales],['accPurchases',t.purchases],['accExpenses',t.expenses],['accPayroll',t.payroll],['accBalance',t.operating],['accFinalBalance',t.final]].forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.textContent=money(v)})}
 
 
@@ -186,27 +187,11 @@ if (garageForm) {
   garageForm.addEventListener('submit', async e => {
     e.preventDefault();
 
-    const makeGarageNumber = prefix => {
-      const now = new Date();
-      const stamp = now.getFullYear() +
-        String(now.getMonth() + 1).padStart(2, '0') +
-        String(now.getDate()).padStart(2, '0') + '-' +
-        String(now.getHours()).padStart(2, '0') +
-        String(now.getMinutes()).padStart(2, '0') +
-        String(now.getSeconds()).padStart(2, '0');
-      const suffix = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
-      return prefix + stamp + '-' + suffix;
-    };
-
-    const invoiceInput = document.getElementById('invoice_number');
-    const jobNumberInput = document.getElementById('job_number');
-    const invoiceNumber = invoiceInput.value.trim() || makeGarageNumber('CWB-G-');
-    const jobNumber = jobNumberInput.value.trim() || makeGarageNumber('CWB-J-');
-    invoiceInput.value = invoiceNumber;
-    jobNumberInput.value = jobNumber;
+    // The Garage_jobs BEFORE INSERT trigger in Supabase generates the official invoice number.
+    // Do not invent or submit a local invoice number here.
 
     const job = {
-      job_number: jobNumber,
+      job_number: document.getElementById('job_number').value.trim() || null,
       customer_name: document.getElementById('customer_name').value.trim(),
       customer_phone: document.getElementById('customer_phone').value.trim() || null,
       customer_address: document.getElementById('customer_address').value.trim() || null,
@@ -217,7 +202,6 @@ if (garageForm) {
       job_status: document.getElementById('job_status').value,
       payment_status: document.getElementById('payment_status').value,
       payment_method: document.getElementById('payment_method').value,
-      invoice_number: invoiceNumber,
       job_cost: num(document.getElementById('job_cost').value),
       parts_cost: num(document.getElementById('parts_cost').value),
       service_date: document.getElementById('service_date').value || null,
@@ -236,20 +220,34 @@ if (garageForm) {
     let saveJob = { ...job };
 
     for (let attempt = 0; attempt < 12; attempt++) {
-      const { error } = await supabaseClient
+      const { data: savedJob, error } = await supabaseClient
         .from('Garage_jobs')
-        .insert([saveJob]);
+        .insert([saveJob])
+        .select('*')
+        .single();
 
       if (!error) {
+        const officialInvoiceNumber =
+          savedJob?.Invoice_number || savedJob?.invoice_number || '';
+
         e.target.reset();
         document.getElementById('service_date').value = today();
+        document.getElementById('invoice_number').value = '';
 
-        msg(
-          'garageMessage',
-          'Garage activity saved successfully in Supabase.'
-        );
+        if (officialInvoiceNumber) {
+          msg(
+            'garageMessage',
+            'Garage activity saved. Supabase invoice: ' + officialInvoiceNumber
+          );
+          renderGarageInvoice({ ...job, invoice_number: officialInvoiceNumber });
+        } else {
+          msg(
+            'garageMessage',
+            'Garage activity saved, but Supabase did not return an invoice number. Please check the Garage_jobs invoice trigger.',
+            true
+          );
+        }
 
-        renderGarageInvoice({ ...job });
         loadGarage();
         return;
       }
@@ -268,19 +266,6 @@ if (garageForm) {
       }
 
       const column = match[1];
-      const legacyAliases = {
-        invoice_number: 'Invoice_number',
-        Invoice_number: 'invoice_number',
-        job_number: 'Job_number',
-        Job_number: 'job_number'
-      };
-
-      if (legacyAliases[column] && column in saveJob) {
-        const alternate = legacyAliases[column];
-        saveJob[alternate] = saveJob[column];
-        delete saveJob[column];
-        continue;
-      }
 
       if (!(column in saveJob)) {
         msg(
@@ -767,84 +752,107 @@ function escapeInvoiceText(value) {
 }
 
 // LOAD GARAGE ACTIVITIES FROM SUPABASE
-let garageJobs = [];
-
-function normalizeGarageJob(job) {
-  return {
-    ...job,
-    job_number: job.job_number || job.Job_number || '',
-    customer_name: job.customer_name || job.Customer_name || '',
-    customer_phone: job.customer_phone || job.Customer_phone || '',
-    customer_address: job.customer_address || job.Customer_address || '',
-    vehicle_name: job.vehicle_name || job.Vehicle_name || '',
-    vehicle_model: job.vehicle_model || job.Vehicle_model || '',
-    vehicle_color: job.vehicle_color || job.Vehicle_color || '',
-    mechanic_name: job.mechanic_name || job.Mechanic_name || job.machanic_name || '',
-    job_status: job.job_status || job.Job_status || job.status || '',
-    payment_status: job.payment_status || job.Payment_status || '',
-    payment_method: job.payment_method || job.Payment_method || '',
-    invoice_number: job.invoice_number || job.Invoice_number || '',
-    job_cost: job.job_cost ?? job.Job_cost ?? job.cost ?? 0,
-    parts_cost: job.parts_cost ?? job.Parts_cost ?? 0,
-    service_date: job.service_date || job.Service_date || '',
-    estimated_completion_date: job.estimated_completion_date || job.Estimated_completion_date || '',
-    completion_date: job.completion_date || job.Completion_date || '',
-    pickup_status: job.pickup_status || job.Pickup_status || '',
-    warranty: job.warranty || job.Warranty || '',
-    repair_description: job.repair_description || job.Repair_description || '',
-    notes: job.notes || job.Notes || ''
-  };
-}
-
-function viewSavedGarageInvoice(index) {
-  const job = garageJobs[index];
-  if (!job) {
-    msg('garageMessage', 'Garage activity not found. Refresh the list and try again.', true);
-    return;
-  }
-  renderGarageInvoice(job);
-  document.getElementById('garageInvoiceArea')?.scrollIntoView({behavior:'smooth', block:'start'});
-}
-window.viewSavedGarageInvoice = viewSavedGarageInvoice;
-
 async function loadGarage() {
   const body = document.getElementById('garageTableBody');
   if (!body) return;
-  body.innerHTML = '<tr><td colspan="9">Loading...</td></tr>';
+
+  body.innerHTML =
+    '<tr><td colspan="6">Loading...</td></tr>';
 
   try {
-    // Avoid relying on one exact timestamp column spelling in older Garage_jobs tables.
     const { data, error } = await supabaseClient
       .from('Garage_jobs')
-      .select('*');
+      .select('*')
+      .order('Created_at', { ascending: false });
 
-    if (error) throw error;
-
-    garageJobs = (data || []).map(normalizeGarageJob);
-    garageJobs.sort((a, b) => String(b.created_at || b.Created_at || '').localeCompare(String(a.created_at || a.Created_at || '')));
-
-    if (!garageJobs.length) {
-      body.innerHTML = '<tr><td colspan="9">No garage activities yet.</td></tr>';
+    if (error) {
+      console.error('Garage loading error:', error);
+      body.innerHTML =
+        '<tr><td colspan="6">Error loading garage activities: ' +
+        esc(error.message) +
+        '</td></tr>';
       return;
     }
 
-    body.innerHTML = garageJobs.map((job, index) => `
+    if (!data || data.length === 0) {
+      body.innerHTML =
+        '<tr><td colspan="6">No garage activities yet.</td></tr>';
+      return;
+    }
+
+    body.innerHTML = data.map(job => `
       <tr>
-        <td>${esc(job.job_number || '—')}</td>
-        <td>${esc(job.invoice_number || '—')}</td>
-        <td>${esc(job.customer_name)}</td>
-        <td>${esc((job.vehicle_name + ' ' + job.vehicle_model).trim())}</td>
-        <td>${esc(job.mechanic_name)}</td>
-        <td>${esc(job.job_status)}</td>
-        <td>${money(num(job.job_cost) + num(job.parts_cost))}</td>
-        <td>${esc(job.payment_status)}</td>
-        <td><button class="btn secondary" type="button" style="padding:6px 9px;margin:0" onclick="viewSavedGarageInvoice(${index})">View / Print</button></td>
+        <td>${esc(job.customer_name || '')}</td>
+        <td>${esc(
+          (job.Vehicle_name || job.vehicle_name || '') + ' ' +
+          (job.Vehicle_model || job.vehicle_model || '')
+        )}</td>
+        <td>${esc(
+          job.mechanic_name || job.machanic_name || ''
+        )}</td>
+        <td>${esc(
+          job.Job_status || job.job_status || job.status || ''
+        )}</td>
+        <td>${money(
+          job.Job_cost ?? job.job_cost ?? job.cost ?? 0
+        )}</td>
+        <td>${esc(
+          job.Payment_status || job.payment_status || ''
+        )}</td>
       </tr>
     `).join('');
+
   } catch (error) {
     console.error('Garage loading error:', error);
-    body.innerHTML = '<tr><td colspan="9">Error loading garage activities: ' + esc(error.message) + '</td></tr>';
+    body.innerHTML =
+      '<tr><td colspan="6">Error loading garage activities.</td></tr>';
   }
+}
+
+// Update one matching inventory product with an optimistic quantity check.
+// Returns { tracked:false } for services that are not inventory products.
+async function changeProductStock(productName, change) {
+  const { data: product, error: findError } = await supabaseClient
+    .from('products')
+    .select('id, name, quantity')
+    .eq('name', productName)
+    .limit(1)
+    .maybeSingle();
+
+  if (findError) throw findError;
+  if (!product) return { tracked: false };
+
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const currentQuantity = num(product.quantity);
+    const nextQuantity = currentQuantity + change;
+
+    if (nextQuantity < 0) {
+      throw new Error('Insufficient stock for "' + productName + '". Available quantity: ' + currentQuantity + '.');
+    }
+
+    const { data: updated, error: updateError } = await supabaseClient
+      .from('products')
+      .update({ quantity: nextQuantity })
+      .eq('id', product.id)
+      .eq('quantity', currentQuantity)
+      .select('id, quantity')
+      .maybeSingle();
+
+    if (updateError) throw updateError;
+    if (updated) return { tracked: true, productId: product.id, quantity: updated.quantity };
+
+    const { data: refreshed, error: refreshError } = await supabaseClient
+      .from('products')
+      .select('id, name, quantity')
+      .eq('id', product.id)
+      .maybeSingle();
+
+    if (refreshError) throw refreshError;
+    if (!refreshed) return { tracked: false };
+    product.quantity = refreshed.quantity;
+  }
+
+  throw new Error('Stock changed repeatedly. Please refresh Inventory and try again.');
 }
 
  // SALES - SUPABASE CONNECTED SECTION
@@ -855,7 +863,7 @@ const salesForm = document.getElementById('salesForm');
 async function loadSales() {
   const body = document.getElementById('salesTableBody');
   if (body) {
-    body.innerHTML = '<tr><td colspan="7">Loading sales...</td></tr>';
+    body.innerHTML = '<tr><td colspan="9">Loading sales...</td></tr>';
   }
 
   try {
@@ -871,12 +879,14 @@ async function loadSales() {
       date: row.created_at
         ? String(row.created_at).slice(0, 10)
         : '',
-      invoice: row.Invoice_number || '',
-      customer: row.Customer_name || 'Walk-in Customer',
-      product: row.Product_name || row['Product nam'] || row.Product || '',
-      amount: num(row.Selling_price),
-      totalAmount: num(row.Total_amount),
-      payment: row.Payment_status || 'Unpaid'
+      invoice: row.Invoice_number || row.invoice_number || '',
+      customer: row.Customer_name || row.customer_name || 'Walk-in Customer',
+      product: row.Product_name || row.product_name || row['Product nam'] || (row.Product === 'PRODUCT' || row.Product === 'SERVICE' ? '' : row.Product) || '',
+      itemType: row.Product === 'PRODUCT' || row.Product === 'SERVICE' ? row.Product : '',
+      quantity: num(row.quantity) || 1,
+      amount: num(row.Selling_price ?? row.selling_price),
+      totalAmount: num(row.Total_amount ?? row.total_amount),
+      payment: row.Payment_status || row.payment_status || 'Unpaid'
     }));
 
     renderSales();
@@ -891,7 +901,7 @@ async function loadSales() {
   } catch (error) {
     if (body) {
       body.innerHTML =
-        '<tr><td colspan="7">Could not load sales from Supabase.</td></tr>';
+        '<tr><td colspan="9">Could not load sales from Supabase.</td></tr>';
     }
 
     msg(
@@ -906,111 +916,45 @@ async function loadSales() {
 if (salesForm) {
   salesForm.addEventListener('submit', async function (e) {
     e.preventDefault();
-
+    const submitButton = salesForm.querySelector('button[type="submit"]');
+    if (submitButton) submitButton.disabled = true;
+    let stockWasReduced = false, itemName = '', itemQuantity = 0;
     try {
-      const customer =
-        document.getElementById('sale_customer').value.trim();
-
-      const product =
-        document.getElementById('sale_product').value.trim();
-
-      const enteredInvoice =
-        document.getElementById('sale_invoice').value.trim();
-
-      const amount =
-        num(document.getElementById('sale_amount').value);
-
-      const payment =
-        document.getElementById('sale_payment').value;
-
-      const date =
-        document.getElementById('sale_date').value || today();
-
-      if (!product) {
-        msg(
-          'salesMessage',
-          'Please enter the product or service.',
-          true
-        );
-        return;
-      }
-
-      if (!Number.isFinite(amount) || amount <= 0) {
-        msg(
-          'salesMessage',
-          'Please enter an amount greater than zero.',
-          true
-        );
-        return;
-      }
-
-      const now = new Date();
-      const saleStamp = now.getFullYear() +
-        String(now.getMonth() + 1).padStart(2, '0') +
-        String(now.getDate()).padStart(2, '0') + '-' +
-        String(now.getHours()).padStart(2, '0') +
-        String(now.getMinutes()).padStart(2, '0') +
-        String(now.getSeconds()).padStart(2, '0');
-      const saleSuffix = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
-      const invoice = enteredInvoice || ('CWB-S-' + saleStamp + '-' + saleSuffix);
-
-      // Check whether the invoice number already exists.
-      const { data: existing, error: checkError } =
-        await supabaseClient
-          .from('sales')
-          .select('id')
-          .eq('Invoice_number', invoice)
-          .maybeSingle();
-
+      const customer = document.getElementById('sale_customer').value.trim();
+      const product = document.getElementById('sale_product').value.trim();
+      const itemType = document.getElementById('sale_item_type').value;
+      const quantity = Number(document.getElementById('sale_quantity').value);
+      const enteredInvoice = document.getElementById('sale_invoice').value.trim();
+      const unitPrice = num(document.getElementById('sale_amount').value);
+      const payment = document.getElementById('sale_payment').value;
+      const date = document.getElementById('sale_date').value || today();
+      if (!product) throw new Error('Please enter the product or service name.');
+      if (itemType !== 'PRODUCT' && itemType !== 'SERVICE') throw new Error('Please select Product or Service.');
+      if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Quantity must be a whole number of at least 1.');
+      if (!Number.isFinite(unitPrice) || unitPrice <= 0) throw new Error('Please enter a unit price greater than zero.');
+      const invoice = enteredInvoice || ('CWB-S-' + new Date().toISOString().replace(/\D/g, '').slice(0, 14));
+      const { data: existing, error: checkError } = await supabaseClient.from('sales').select('id').eq('Invoice_number', invoice).maybeSingle();
       if (checkError) throw checkError;
-
-      if (existing) {
-        msg(
-          'salesMessage',
-          'This invoice number already exists. Please use another number.',
-          true
-        );
-        return;
+      if (existing) throw new Error('This invoice number already exists. Please use another number.');
+      const baseAmount = unitPrice * quantity;
+      const vat = Math.round(baseAmount * 0.18 * 100) / 100;
+      const totalIncludingVAT = baseAmount + vat;
+      if (itemType === 'PRODUCT') {
+        const stockChange = await changeProductStock(product, -quantity);
+        if (!stockChange.tracked) throw new Error('This Product was not found in Inventory. Add it to Inventory first, or select Service if it is not a stock item.');
+        stockWasReduced = true; itemName = product; itemQuantity = quantity;
       }
-
-      // The entered amount is BEFORE VAT.
-      // VAT is 18%; the invoice calculates and displays it.
-      const vat = amount * 0.18;
-      const totalIncludingVAT = amount + vat;
-
-      const saleRecord = {
-        Customer_name: customer || 'Walk-in Customer',
-        Product_name: product,
-        quantity: 1,
-        Selling_price: amount,
-        Total_amount: totalIncludingVAT,
-        Payment_status: payment,
-        Invoice_number: invoice,
-        created_at: new Date(date + 'T12:00:00').toISOString()
-      };
-
-      const { error: insertError } = await supabaseClient
-        .from('sales')
-        .insert([saleRecord]);
-
+      const saleRecord = { Customer_name: customer || 'Walk-in Customer', Product_name: product, Product: itemType, quantity, Selling_price: unitPrice, Total_amount: totalIncludingVAT, Payment_status: payment, Invoice_number: invoice, created_at: new Date(date + 'T12:00:00').toISOString() };
+      const { data: insertedSale, error: insertError } = await supabaseClient.from('sales').insert([saleRecord]).select('*').single();
       if (insertError) throw insertError;
-
-      salesForm.reset();
-      document.getElementById('sale_date').value = today();
-
-      await loadSales();
-
-      msg(
-        'salesMessage',
-        'Sale saved to Supabase. Invoice: ' + invoice
-      );
+      const savedInvoice = insertedSale?.Invoice_number || insertedSale?.invoice_number || invoice;
+      salesForm.reset(); document.getElementById('sale_quantity').value = 1; document.getElementById('sale_date').value = today();
+      await loadSales(); await loadInventory();
+      msg('salesMessage', 'Sale saved to Supabase. Invoice: ' + savedInvoice + (itemType === 'PRODUCT' ? ' — Inventory reduced by ' + quantity + '.' : ' — Service sale; Inventory unchanged.') + ' Total TTC: ' + money(totalIncludingVAT) + ' BIF.');
     } catch (error) {
-      msg(
-        'salesMessage',
-        'Could not save the sale: ' + error.message,
-        true
-      );
-    }
+      if (stockWasReduced) { try { await changeProductStock(itemName, itemQuantity); } catch (restoreError) { console.error('Stock rollback failed:', restoreError); } }
+      msg('salesMessage', 'Could not save the sale: ' + error.message, true);
+    } finally { if (submitButton) submitButton.disabled = false; }
   });
 }
 
@@ -1018,73 +962,41 @@ if (salesForm) {
 function renderSales() {
   const body = document.getElementById('salesTableBody');
   if (!body) return;
-
-  if (!sales.length) {
-    body.innerHTML =
-      '<tr><td colspan="7">No sales yet.</td></tr>';
-    return;
-  }
-
-  body.innerHTML = sales.map((sale, index) => `
-    <tr>
-      <td>${esc(sale.date || '')}</td>
-      <td>${esc(sale.invoice || '')}</td>
-      <td>${esc(sale.customer || '')}</td>
-      <td>${esc(sale.product || '')}</td>
-      <td>${money(sale.amount)}</td>
-      <td>${esc(sale.payment || '')}</td>
-      <td>
-        <button class="btn"
-          style="padding:6px 9px;margin:0 4px 0 0"
-          onclick="viewSalesInvoice(${index})">
-          🧾 Invoice
-        </button>
-        <button class="btn light"
-          style="padding:6px 9px;margin:0"
-          onclick="deleteSale(${sale.id})">
-          Delete
-        </button>
-      </td>
-    </tr>
-  `).join('');
+  if (!sales.length) { body.innerHTML = '<tr><td colspan="9">No sales yet.</td></tr>'; return; }
+  body.innerHTML = sales.map((sale, index) => {
+    const quantity = num(sale.quantity) || 1;
+    const total = num(sale.totalAmount) || (num(sale.amount) * quantity * 1.18);
+    return `<tr><td>${esc(sale.date || '')}</td><td>${esc(sale.invoice || '')}</td><td>${esc(sale.customer || '')}</td><td>${esc(sale.product || '')}</td><td>${quantity}</td><td>${money(sale.amount)} BIF</td><td>${money(total)} BIF</td><td>${esc(sale.payment || '')}</td><td><button class="btn" style="padding:6px 9px;margin:0 4px 0 0" onclick="viewSalesInvoice(${index})">🧾 Invoice</button><button class="btn light" style="padding:6px 9px;margin:0" onclick="deleteSale(${sale.id})">Delete</button></td></tr>`;
+  }).join('');
 }
 
 // DELETE SALE — SUPABASE RLS MUST AUTHORIZE THE CEO
 async function deleteSale(id) {
-  if (id === undefined || id === null) {
-    msg('salesMessage', 'Sale ID is missing.', true);
-    return;
-  }
-
-  if (!confirm('Are you sure you want to delete this sale?')) {
-    return;
-  }
-
+  if (id === undefined || id === null) { msg('salesMessage', 'Sale ID is missing.', true); return; }
+  if (!confirm('Are you sure you want to delete this sale?')) return;
   try {
-    const { error } = await supabaseClient
-      .from('sales')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
-
-    await loadSales();
-
-    msg('salesMessage', 'Sale deleted successfully.');
-  } catch (error) {
-    msg(
-      'salesMessage',
-      'Deletion failed. Only an authorized CEO can delete sales. ' +
-        error.message,
-      true
-    );
-  }
+    const saleToDelete = sales.find(item => String(item.id) === String(id));
+    if (!saleToDelete) throw new Error('Sale not found. Refresh the Sales table and try again.');
+    const quantity = num(saleToDelete.quantity) || 1;
+    let stockRestored = false;
+    if (saleToDelete.itemType === 'PRODUCT') {
+      const restored = await changeProductStock(saleToDelete.product, quantity);
+      if (!restored.tracked) throw new Error('The product is no longer present in Inventory; sale was not deleted.');
+      stockRestored = true;
+    }
+    const { error } = await supabaseClient.from('sales').delete().eq('id', id);
+    if (error) {
+      if (stockRestored) { try { await changeProductStock(saleToDelete.product, -quantity); } catch (rollbackError) { console.error('Stock rollback failed after delete error:', rollbackError); } }
+      throw error;
+    }
+    await loadSales(); await loadInventory();
+    const legacyNote = !saleToDelete.itemType ? ' This is an older sale without a saved Product/Service type; stock was not changed.' : '';
+    msg('salesMessage', 'Sale deleted successfully.' + (stockRestored ? ' Inventory restored by ' + quantity + '.' : '') + legacyNote);
+  } catch (error) { msg('salesMessage', 'Deletion failed. Only an authorized CEO can delete sales. ' + error.message, true); }
 }
 
 window.deleteSale = deleteSale;
 
-
-// Sales table uses the single renderer above; deletion is performed by Supabase ID.
 
 // OPEN AND GENERATE A PROFESSIONAL SALES INVOICE
 
@@ -1096,9 +1008,10 @@ function viewSalesInvoice(index) {
     return;
   }
 
-  const baseAmount = num(sale.amount);
+  const quantity = num(sale.quantity) || 1;
+  const baseAmount = num(sale.amount) * quantity;
   const vat = baseAmount * 0.18;
-  const total = baseAmount + vat;
+  const total = num(sale.totalAmount) || (baseAmount + vat);
 
   const w = window.open('', '_blank', 'width=900,height=850');
 
@@ -1474,13 +1387,17 @@ function viewSalesInvoice(index) {
             <thead>
               <tr>
                 <th>Product / Service</th>
-                <th class="amount">Amount (BIF)</th>
+                <th>Quantity</th>
+                <th class="amount">Unit Price (BIF)</th>
+                <th class="amount">Subtotal (BIF)</th>
               </tr>
             </thead>
 
             <tbody>
               <tr>
                 <td>${esc(product)}</td>
+                <td>${quantity}</td>
+                <td class="amount">${money(sale.amount)}</td>
                 <td class="amount">${money(baseAmount)}</td>
               </tr>
             </tbody>
@@ -1602,9 +1519,9 @@ async function renderPayroll(){
   b.innerHTML=payroll.map((x,i)=>`<tr><td>${esc(x.month)}</td><td>${esc(x.worker)}</td><td>${esc(x.position)}</td><td>${money(x.base)}</td><td>${money(x.allowance)}</td><td>${money(x.deduction)}</td><td>${money(x.net)}</td><td>${esc(x.status)}</td><td><button class="btn light" style="padding:6px 9px;margin:0" onclick="deleteRecord('payroll',${i})">Delete</button></td></tr>`).join('');
 }
 async function deleteRecord(type,index){
+  if(type==='sales'){const item=sales[index];if(!item||item.id==null){msg('salesMessage','This sale has no Supabase ID and cannot be deleted safely.',true);return;}await deleteSale(item.id);return;}
   if(!confirm('Are you sure you want to delete this record?'))return;
-  if(type==='sales'){sales.splice(index,1);setArr(KEY.sales,sales);renderSales()}
-  else if(type==='purchases'){purchases.splice(index,1);setArr(KEY.purchases,purchases);renderPurchases()}
+  if(type==='purchases'){purchases.splice(index,1);setArr(KEY.purchases,purchases);renderPurchases()}
   else if(type==='expenses'){expenses.splice(index,1);setArr(KEY.expenses,expenses);renderExpenses()}
   else if(type==='partners'){partners.splice(index,1);setArr(KEY.partners,partners);renderPartners()}
   else if(type==='payroll'){
@@ -1633,7 +1550,6 @@ function openSocial(key){const url=localStorage.getItem('cwb_social_'+key);if(!u
 // SCAN & PAY
 function updatePaymentMethod(){const method=document.getElementById('qr_method'),bank=document.getElementById('qr_bank_box'),label=document.getElementById('qr_account_label');if(!method||!bank||!label)return;if(method.value==='Bank'){bank.style.display='block';label.textContent='Bank Account Number'}else{bank.style.display='none';label.textContent='Payment Account / Number'}}
 const qrMethod=document.getElementById('qr_method');if(qrMethod)qrMethod.addEventListener('change',updatePaymentMethod);
-function generateQR(){const customer=document.getElementById('qr_customer').value.trim(),invoice=document.getElementById('qr_invoice').value.trim(),amount=document.getElementById('qr_amount').value,currency=document.getElementById('qr_currency').value,method=document.getElementById('qr_method').value,account=document.getElementById('qr_account').value.trim(),accountName=document.getElementById('qr_account_name').value.trim(),note=document.getElementById('qr_note').value.trim();if(!customer||!invoice||!amount){msg('qrMessage','Please complete Customer Name, Invoice Number and Amount.',true);return}if(typeof QRCode==='undefined'){msg('qrMessage','QR generator is not loaded. Please refresh the page.',true);return}const paymentText='CWB PAYMENT|Merchant:984868|Number:06691086015|Customer:'+customer+'|Invoice:'+invoice+'|Amount:'+amount+' '+currency+'|Method:'+method+'|Account:'+account+'|Name:'+accountName+'|Note:'+note;const area=document.getElementById('qrArea');area.innerHTML=`<div class="cwb-qr-card"><div class="cwb-qr-header"><img class="cwb-qr-logo" src="./file_000000009d80820694001bdae16e2e4b.png" alt="C.W.B Logo"><div class="cwb-qr-title">C.W.B PAYMENT</div><div class="cwb-qr-company">CAMEL WORK AND BUSINESS COMPANY</div><div class="cwb-qr-slogan">Better Quality is our priority</div></div><div class="cwb-qr-body"><div class="cwb-qr-code"><div id="generatedQRCode"></div></div><div class="cwb-payment-details"><div class="cwb-payment-detail"><b>Customer</b>${esc(customer)}</div><div class="cwb-payment-detail"><b>Invoice</b>${esc(invoice)}</div><div class="cwb-payment-detail"><b>Amount</b>${esc(amount)} ${esc(currency)}</div><div class="cwb-payment-detail"><b>Payment Method</b>${esc(method)}</div></div><div class="cwb-payment-number">Payment Number<strong>06691086015</strong></div><div class="cwb-bank-box"><b>Payment Account</b><br>${esc(accountName)}<br>${esc(account)}</div>${note?`<div class="cwb-payment-note"><b>Note</b><br>${esc(note)}</div>`:''}<div class="cwb-qr-footer">C.W.B System • Master Version 2</div></div></div>`;new QRCode(document.getElementById('generatedQRCode'),{text:paymentText,width:260,height:260,correctLevel:QRCode.CorrectLevel.L});document.getElementById('qrText').textContent=paymentText;msg('qrMessage','Professional payment QR generated successfully.')}
   function openCWPayment(){
 const params=new URLSearchParams(window.location.search);
 
@@ -1704,7 +1620,6 @@ if(typeof QRCode==='undefined'){
 msg('qrMessage','QR generator is not loaded. Please refresh the page.',true);
 return;
 }
-Bu
 const paymentLink =
 'https://cwb2012.github.io/C.-W.-B-system-/?payment=1'+
 '&customer='+encodeURIComponent(customer)+
@@ -2631,3 +2546,4 @@ if(document.readyState==="loading"){
 <script src="./china-dubai-import-module.js"></script>
 </body>
 </html>
+
