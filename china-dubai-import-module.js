@@ -580,7 +580,7 @@
         purchase_currency: 'BIF',
         purchase_unit_price: c.purchase,
         exchange_rate_to_bif: 1,
-        purchase_cost_bif: c.purchaseTotal,
+        
 
         transport_cost_bif: c.transport,
         customs_cost_bif: c.customs,
