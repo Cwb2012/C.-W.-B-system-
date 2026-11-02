@@ -68,8 +68,6 @@
     }
 
     const parent =
-      document.querySelector('.container') ||
-      document.querySelector('main') ||
       document.body;
     const section = document.createElement('section');
 section.id = ID;
