@@ -2640,29 +2640,43 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
-  <script>
+<script>
 let cwbInstallPrompt = null;
+
+const cwbInstallBox = document.getElementById("cwbInstallBox");
+const cwbInstallButton = document.getElementById("cwbInstallButton");
+
+const cwbIsInstalled =
+  window.matchMedia("(display-mode: standalone)").matches ||
+  window.navigator.standalone === true;
+
+if (cwbInstallBox && !cwbIsInstalled) {
+  cwbInstallBox.style.display = "block";
+}
 
 window.addEventListener("beforeinstallprompt", function (event) {
   event.preventDefault();
   cwbInstallPrompt = event;
-
-  const box = document.getElementById("cwbInstallBox");
-  if (box) box.style.display = "block";
 });
 
-document.getElementById("cwbInstallButton")
-  ?.addEventListener("click", async function () {
-    if (!cwbInstallPrompt) return;
+if (cwbInstallButton) {
+  cwbInstallButton.addEventListener("click", async function () {
+    if (!cwbInstallPrompt) {
+      alert("Pour installer C.W.B System, ouvrez le menu Chrome ⋮ puis choisissez Installer l'application.");
+      return;
+    }
 
     cwbInstallPrompt.prompt();
     await cwbInstallPrompt.userChoice;
-
     cwbInstallPrompt = null;
-
-    const box = document.getElementById("cwbInstallBox");
-    if (box) box.style.display = "none";
   });
+}
+
+window.addEventListener("appinstalled", function () {
+  if (cwbInstallBox) {
+    cwbInstallBox.style.display = "none";
+  }
+});
 </script>
 </body>
 </html>
