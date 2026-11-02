@@ -1,15 +1,18 @@
+
 {
   "name": "C.W.B System",
   "short_name": "C.W.B",
-  "start_url": "./",
+  "start_url": "/C.-W.-B-system-/",
+  "scope": "/C.-W.-B-system-/",
   "display": "standalone",
   "background_color": "#111827",
   "theme_color": "#b91c1c",
   "icons": [
     {
-      "src": "file_000000009d80820694001bdae16e2e4b.png",
+      "src": "./file_000000009d80820694001bdae16e2e4b.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
