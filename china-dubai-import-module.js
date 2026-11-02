@@ -1422,14 +1422,15 @@
     }
   }
 
-  window.cwbInitChinaDubaiImport = init;
   window.cwbChinaDubaiCalculate = calculate;
 
-  // Build the hidden module panel as soon as this script is loaded.
-  // The dashboard button can then show an already-existing panel reliably.
-  try {
-    init();
-  } catch (error) {
-    console.error('C.W.B China & Dubai initialization failed:', error);
-  }
+// Make initialization available to index.html
+window.cwbInitChinaDubaiImport = init;
+
+// Build the hidden module panel as soon as this script is loaded.
+try {
+  init();
+} catch (error) {
+  console.error('C.W.B China & Dubai initialization failed:', error);
+}
 })();
