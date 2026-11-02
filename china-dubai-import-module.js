@@ -566,7 +566,7 @@
 
       const photoPath = await uploadPhoto(client, user.id);
 
-      const payload = {
+            const payload = {
         created_by: user.id,
         item_name: $('cdiItem').value.trim(),
         category: $('cdiCategory').value.trim() || null,
@@ -576,7 +576,6 @@
 
         carton_quantity: c.cartons,
         pieces_per_carton: c.perCarton,
-        total_pieces: c.total,
 
         purchase_currency: 'BIF',
         purchase_unit_price: c.purchase,
