@@ -151,36 +151,31 @@
 
           <div>
             <label>Devise d'achat</label>
-            <select id="cdiCurrency">
-              <option>USD</option>
-              <option>CNY</option>
-              <option>AED</option>
-              <option>BIF</option>
-              <option>EUR</option>
-            </select>
+            <input id="cdiCurrency" type="text"
+              value="BIF" readonly>
+            <small>
+              Le comptable convertit les achats en BIF avant la saisie.
+              Aucune conversion automatique n'est effectuée ici.
+            </small>
           </div>
 
           <div>
-            <label>Prix saisi</label>
+            <label>Prix d'achat saisi (BIF)</label>
             <input id="cdiPrice" type="number"
-              min="0" step="0.0001" value="0">
+              min="0" step="1" value="0">
           </div>
 
-          <div>
-            <label>Taux de change vers BIF</label>
-            <input id="cdiRate" type="number"
-              min="0.0001" step="0.0001" value="1">
-            <small>Pour BIF, le taux est 1. Pour les autres devises,
-              entrez le taux de conversion actuel.</small>
-          </div>
+          <input id="cdiRate" type="hidden" value="1">
         </div>
 
         <div class="cdi-results">
           <p>Quantité totale : <b id="cdiQty">0</b></p>
-          <p>Prix d'achat par unité : <b id="cdiUnitPrice">0</b></p>
-          <p>Prix d'achat par carton : <b id="cdiCartonPrice">0</b></p>
+          <p>Prix d'achat par unité :
+            <b id="cdiUnitPrice">0</b></p>
+          <p>Prix d'achat par carton :
+            <b id="cdiCartonPrice">0</b></p>
           <p>Total d'achat : <b id="cdiPurchase">0</b></p>
-          <p>Coût d'achat converti en BIF :
+          <p>Coût d'achat en BIF :
             <b id="cdiPurchaseBif">0 BIF</b></p>
         </div>
       </div>
@@ -191,31 +186,40 @@
         <div class="cdi-grid">
           <div>
             <label>Transport (BIF)</label>
-            <input id="cdiFreight" type="number" min="0" value="0">
+            <input id="cdiFreight" type="number"
+              min="0" value="0">
           </div>
 
           <div>
             <label>Douane, port et taxes (BIF)</label>
-            <input id="cdiCustoms" type="number" min="0" value="0">
+            <input id="cdiCustoms" type="number"
+              min="0" value="0">
           </div>
 
-                    <div>
-            <label>Prix de vente en gros TTC (BIF)</label>
-            <input id="cdiWholesale" type="number" min="0" step="0.01" value="0">
+          <div>
+            <label>Autres frais (BIF)</label>
+            <input id="cdiOther" type="number"
+              min="0" value="0">
           </div>
 
           <div>
             <label>Prix de vente au détail TTC (BIF)</label>
-            <input id="cdiRetail" type="number" min="0" step="0.01" value="0">
+            <input id="cdiRetail" type="number"
+              min="0" step="1" value="0">
+
+            <label>Prix de vente en gros TTC (BIF)</label>
+            <input id="cdiWholesale" type="number"
+              min="0" step="1" value="0">
           </div>
 
-          
+          <div>
             <label>Statut de l'importation</label>
             <select id="cdiStatus">
               <option>Planned</option>
               <option>Ordered</option>
               <option>In Transit</option>
               <option>Arrived</option>
+              <option>Received</option>
               <option>Cancelled</option>
             </select>
           </div>
@@ -227,25 +231,44 @@
 
       <div class="cdi-panel">
         <h3>3. Coûts, TVA et bénéfice estimé</h3>
-        <p>Transport : <b id="cdiShowFreight">0 BIF</b></p>
-        <p>Douane/port/taxes : <b id="cdiShowCustoms">0 BIF</b></p>
-        <p>Autres frais : <b id="cdiShowOther">0 BIF</b></p>
+
+        <p>Transport :
+          <b id="cdiShowFreight">0 BIF</b></p>
+
+        <p>Douane/port/taxes :
+          <b id="cdiShowCustoms">0 BIF</b></p>
+
+        <p>Autres frais :
+          <b id="cdiShowOther">0 BIF</b></p>
+
         <p>Coût total d'importation :
           <b id="cdiLanded">0 BIF</b></p>
-        <p>Coût par unité : <b id="cdiCostUnit">0 BIF</b></p>
-                <p>Chiffre d'affaires TTC prévu — gros :
+
+        <p>Coût par unité :
+          <b id="cdiCostUnit">0 BIF</b></p>
+
+        <h4>Scénario de vente au détail</h4>
+
+        <p>Chiffre d'affaires TTC au détail :
+          <b id="cdiRetailRevenue">0 BIF</b></p>
+
+        <p>TVA estimée comprise dans le prix TTC au détail (18/118) :
+          <b id="cdiRetailVat">0 BIF</b></p>
+
+        <p>Bénéfice estimé au détail après TVA :
+          <b id="cdiRetailProfit">0 BIF</b></p>
+
+        <h4>Scénario de vente en gros</h4>
+
+        <p>Chiffre d'affaires TTC en gros :
           <b id="cdiWholesaleRevenue">0 BIF</b></p>
-        <p>TVA estimée incluse — gros :
+
+        <p>TVA estimée comprise dans le prix TTC en gros (18/118) :
           <b id="cdiWholesaleVat">0 BIF</b></p>
-        <p>Bénéfice estimé après TVA — gros :
+
+        <p>Bénéfice estimé en gros après TVA :
           <b id="cdiWholesaleProfit">0 BIF</b></p>
 
-        <p>Chiffre d'affaires TTC prévu — détail :
-          <b id="cdiRetailRevenue">0 BIF</b></p>
-        <p>TVA estimée incluse — détail :
-          <b id="cdiRetailVat">0 BIF</b></p>
-        <p>Bénéfice estimé après TVA — détail :
-          <b id="cdiRetailProfit">0 BIF</b></p>
         <p class="cdi-note">
           Estimation de gestion uniquement. Confirmez le traitement
           fiscal applicable au Burundi avec un professionnel.
@@ -254,13 +277,24 @@
 
       <div class="cdi-panel">
         <h3>4. Enregistrement</h3>
-        <p>Date et heure au Burundi : <b id="cdiTime">—</b></p>
+
+        <p>Date et heure au Burundi :
+          <b id="cdiTime">—</b></p>
+
         <button type="button" id="cdiSave">
           Enregistrer dans Supabase
         </button>
-        <button type="button" id="cdiRefresh">Actualiser</button>
-        <button type="button" id="cdiPrint">Imprimer</button>
-        <p id="cdiMessage" role="status" class="cdi-note"></p>
+
+        <button type="button" id="cdiRefresh">
+          Actualiser
+        </button>
+
+        <button type="button" id="cdiPrint">
+          Imprimer
+        </button>
+
+        <p id="cdiMessage" role="status"
+          class="cdi-note"></p>
       </div>
 
       <div class="cdi-panel">
@@ -279,11 +313,15 @@
           Rechercher le dossier
         </button>
 
-        <p id="cdiCustomsResult" role="status" class="cdi-note">
+        <p id="cdiCustomsResult"
+          role="status" class="cdi-note">
           Entrez le numéro d'importation pour rechercher son dossier.
         </p>
 
-        <label>Documents de douane (PDF ou images, 20 Mo maximum par fichier)</label>
+        <label>
+          Documents de douane (PDF ou images, 20 Mo maximum par fichier)
+        </label>
+
         <input id="cdiCustomsFiles" type="file"
           accept="application/pdf,image/jpeg,image/png,image/webp"
           multiple>
@@ -297,6 +335,7 @@
 
       <div class="cdi-panel">
         <h3>6. Produits enregistrés</h3>
+
         <div style="overflow-x:auto">
           <table>
             <thead>
@@ -307,24 +346,30 @@
                 <th>Pays</th>
                 <th>Cartons</th>
                 <th>Unités/carton</th>
-                <th>Unité</th>
                 <th>Quantité</th>
                 <th>Prix unitaire</th>
                 <th>Coût total BIF</th>
-                <th>Vente/unité TTC</th>
-                <th>Bénéfice DB*</th>
+                <th>Vente détail TTC (BIF)</th>
+                <th>Vente gros TTC (BIF)</th>
+                <th>Bénéfice détail estimé (BIF)</th>
+                <th>Bénéfice gros estimé (BIF)</th>
                 <th>Statut</th>
-                <th>Stock</th>
                 <th>Date</th>
+                <th>Stock / Action</th>
               </tr>
             </thead>
+
             <tbody id="cdiRows">
-              <tr><td colspan="15">Chargement…</td></tr>
+              <tr><td colspan="16">Chargement…</td></tr>
             </tbody>
           </table>
         </div>
+
         <p class="cdi-note">
-          *Le bénéfice de la base de données ne déduit pas la TVA estimée.
+          Les bénéfices affichés sont des estimations après déduction
+          de la TVA comprise dans le TTC (18/118), selon le prix de vente
+          choisi. Les anciennes importations utilisent leur ancien prix
+          unitaire comme prix de détail si le nouveau champ est encore à zéro.
         </p>
       </div>
     `;
@@ -332,32 +377,33 @@
     if (!$('cdiStyle')) {
       const style = document.createElement('style');
       style.id = 'cdiStyle';
+
       style.textContent = `
         #chinaDubaiImport { color:#172033; }
 
-        #chinaDubaiImport .cdi-receive-btn {
-          background:#166534;color:#fff;white-space:normal;
-          min-width:150px;padding:8px;border:0;border-radius:7px;
-        }
-
-        #chinaDubaiImport .cdi-receive-btn:disabled {
-          opacity:.6;cursor:wait;
-        }
-
         #chinaDubaiImport .cdi-panel {
-          background:#fff;border:1px solid #dbe1ea;
-          border-radius:12px;padding:14px;margin:14px 0;
+          background:#fff;
+          border:1px solid #dbe1ea;
+          border-radius:12px;
+          padding:14px;
+          margin:14px 0;
         }
 
         #chinaDubaiImport label {
-          display:block;font-weight:600;margin:10px 0 5px;
+          display:block;
+          font-weight:600;
+          margin:10px 0 5px;
         }
 
         #chinaDubaiImport input:not([type=file]),
         #chinaDubaiImport select,
         #chinaDubaiImport textarea {
-          box-sizing:border-box;width:100%;padding:10px;
-          border:1px solid #cbd5e1;border-radius:8px;margin-bottom:6px;
+          box-sizing:border-box;
+          width:100%;
+          padding:10px;
+          border:1px solid #cbd5e1;
+          border-radius:8px;
+          margin-bottom:6px;
         }
 
         #chinaDubaiImport .cdi-grid {
@@ -367,50 +413,76 @@
         }
 
         #chinaDubaiImport button {
-          background:#b91c1c;color:white;border:0;border-radius:8px;
-          padding:11px 13px;margin:6px 4px 6px 0;
+          background:#b91c1c;
+          color:white;
+          border:0;
+          border-radius:8px;
+          padding:11px 13px;
+          margin:6px 4px 6px 0;
         }
 
-        #chinaDubaiImport button:disabled { opacity:.6; }
+        #chinaDubaiImport button:disabled {
+          opacity:.6;
+        }
 
         #chinaDubaiImport .cdi-results {
-          background:#f1f5f9;padding:12px;border-radius:9px;
+          background:#f1f5f9;
+          padding:12px;
+          border-radius:9px;
           overflow-wrap:anywhere;
         }
 
         #chinaDubaiImport .cdi-note {
-          font-size:13px;color:#64748b;
+          font-size:13px;
+          color:#64748b;
         }
 
         #chinaDubaiImport table {
-          border-collapse:collapse;width:100%;min-width:1200px;
+          border-collapse:collapse;
+          width:100%;
+          min-width:1200px;
         }
 
-        #chinaDubaiImport th,#chinaDubaiImport td {
-          padding:8px;border-bottom:1px solid #e2e8f0;
-          font-size:12px;text-align:left;
+        #chinaDubaiImport th,
+        #chinaDubaiImport td {
+          padding:8px;
+          border-bottom:1px solid #e2e8f0;
+          font-size:12px;
+          text-align:left;
         }
 
-        #chinaDubaiImport th { background:#111827;color:white; }
+        #chinaDubaiImport th {
+          background:#111827;
+          color:white;
+        }
 
         #chinaDubaiImport .cdi-thumb {
-          width:54px;height:54px;object-fit:cover;
+          width:54px;
+          height:54px;
+          object-fit:cover;
         }
 
         #chinaDubaiImport .cdi-document {
-          overflow-wrap:anywhere;margin:8px 0;
+          overflow-wrap:anywhere;
+          margin:8px 0;
         }
 
         @media print {
-          body * { visibility:hidden!important; }
+          body * {
+            visibility:hidden!important;
+          }
 
-          #chinaDubaiImport,#chinaDubaiImport * {
+          #chinaDubaiImport,
+          #chinaDubaiImport * {
             visibility:visible!important;
           }
 
           #chinaDubaiImport {
-            display:block!important;position:absolute;
-            left:0;top:0;width:100%;
+            display:block!important;
+            position:absolute;
+            left:0;
+            top:0;
+            width:100%;
           }
 
           #chinaDubaiImport button,
@@ -419,6 +491,7 @@
           }
         }
       `;
+
       document.head.appendChild(style);
     }
 
@@ -429,23 +502,29 @@
 
   function bind() {
     if (bound || !$('cdiSave')) return;
+
     bound = true;
 
     [
-      'cdiCartons', 'cdiPerCarton', 'cdiBasis', 'cdiCurrency',
-      'cdiPrice', 'cdiRate', 'cdiFreight', 'cdiCustoms',
-            'cdiOther', 'cdiWholesale', 'cdiRetail', 'cdiUnit'
+      'cdiCartons',
+      'cdiPerCarton',
+      'cdiBasis',
+      'cdiCurrency',
+      'cdiPrice',
+      'cdiRate',
+      'cdiFreight',
+      'cdiCustoms',
+      'cdiOther',
+      'cdiRetail',
+      'cdiWholesale',
+      'cdiUnit'
     ].forEach(id => {
       $(id).addEventListener('input', calculate);
       $(id).addEventListener('change', calculate);
     });
 
-    $('cdiCurrency').addEventListener('change', () => {
-      if ($('cdiCurrency').value === 'BIF') {
-        $('cdiRate').value = '1';
-      }
-      calculate();
-    });
+    $('cdiCurrency').value = 'BIF';
+    $('cdiRate').value = '1';
 
     $('cdiGalleryBtn').addEventListener('click',
       () => $('cdiGallery').click());
@@ -455,9 +534,12 @@
 
     $('cdiGallery').addEventListener('change', photoChosen);
     $('cdiCamera').addEventListener('change', photoChosen);
+
     $('cdiSave').addEventListener('click', save);
     $('cdiRefresh').addEventListener('click', load);
-    $('cdiPrint').addEventListener('click', () => window.print());
+
+    $('cdiPrint').addEventListener('click',
+      () => window.print());
 
     $('cdiCustomsSearch').addEventListener(
       'click', searchCustomsImport
@@ -494,6 +576,7 @@
     }
 
     photoFile = file;
+
     const reader = new FileReader();
 
     reader.onload = () => {
@@ -511,8 +594,11 @@
     const cartons = Math.floor(num('cdiCartons'));
     const per = Math.max(1, Math.floor(num('cdiPerCarton') || 1));
     const quantity = cartons * per;
-    const currency = $('cdiCurrency').value;
-    const rate = currency === 'BIF' ? 1 : num('cdiRate');
+
+    // Les achats sont saisis directement en BIF.
+    const currency = 'BIF';
+    const rate = 1;
+
     const enteredPrice = num('cdiPrice');
 
     const unitPrice = $('cdiBasis').value === 'carton'
@@ -521,60 +607,105 @@
 
     const cartonPrice = unitPrice * per;
     const purchaseTotal = unitPrice * quantity;
-    const purchaseBif = purchaseTotal * rate;
+    const purchaseBif = purchaseTotal;
+
     const freight = num('cdiFreight');
     const customs = num('cdiCustoms');
     const other = num('cdiOther');
+
     const landed = purchaseBif + freight + customs + other;
-        const wholesaleSelling = num('cdiWholesale');
-    const retailSelling = num('cdiRetail');
 
-    const wholesaleRevenue = quantity * wholesaleSelling;
-    const wholesaleVat = wholesaleRevenue * 18 / 118;
-    const wholesaleProfit = wholesaleRevenue - wholesaleVat - landed;
+    const retail = num('cdiRetail');
+    const wholesale = num('cdiWholesale');
 
-    const retailRevenue = quantity * retailSelling;
+    const retailRevenue = quantity * retail;
     const retailVat = retailRevenue * 18 / 118;
     const retailProfit = retailRevenue - retailVat - landed;
 
-        return {
-      cartons, per, quantity, currency, rate, unitPrice,
-      cartonPrice, purchaseTotal, purchaseBif, freight,
-      customs, other, landed,
-      wholesaleSelling, wholesaleRevenue, wholesaleVat,
-      wholesaleProfit,
-      retailSelling, retailRevenue, retailVat, retailProfit
+    const wholesaleRevenue = quantity * wholesale;
+    const wholesaleVat = wholesaleRevenue * 18 / 118;
+    const wholesaleProfit = wholesaleRevenue - wholesaleVat - landed;
+
+    return {
+      cartons,
+      per,
+      quantity,
+      currency,
+      rate,
+      unitPrice,
+      cartonPrice,
+      purchaseTotal,
+      purchaseBif,
+      freight,
+      customs,
+      other,
+      landed,
+      retail,
+      wholesale,
+      retailRevenue,
+      retailVat,
+      retailProfit,
+      wholesaleRevenue,
+      wholesaleVat,
+      wholesaleProfit
     };
-  } 
+  }
+
   function calculate() {
     if (!$('cdiQty')) return;
 
     const x = getCalculation();
     const unit = $('cdiUnit').value;
 
-    $('cdiQty').textContent = fmt(x.quantity) + ' ' + unit;
-    $('cdiUnitPrice').textContent =
-      fmt(x.unitPrice) + ' ' + x.currency + ' / unité';
-    $('cdiCartonPrice').textContent =
-      fmt(x.cartonPrice) + ' ' + x.currency;
-    $('cdiPurchase').textContent =
-      fmt(x.purchaseTotal) + ' ' + x.currency;
-    $('cdiPurchaseBif').textContent = fmt(x.purchaseBif) + ' BIF';
+    $('cdiQty').textContent =
+      fmt(x.quantity) + ' ' + unit;
 
-    $('cdiShowFreight').textContent = fmt(x.freight) + ' BIF';
-    $('cdiShowCustoms').textContent = fmt(x.customs) + ' BIF';
-    $('cdiShowOther').textContent = fmt(x.other) + ' BIF';
-    $('cdiLanded').textContent = fmt(x.landed) + ' BIF';
+    $('cdiUnitPrice').textContent =
+      fmt(x.unitPrice) + ' BIF / unité';
+
+    $('cdiCartonPrice').textContent =
+      fmt(x.cartonPrice) + ' BIF';
+
+    $('cdiPurchase').textContent =
+      fmt(x.purchaseTotal) + ' BIF';
+
+    $('cdiPurchaseBif').textContent =
+      fmt(x.purchaseBif) + ' BIF';
+
+    $('cdiShowFreight').textContent =
+      fmt(x.freight) + ' BIF';
+
+    $('cdiShowCustoms').textContent =
+      fmt(x.customs) + ' BIF';
+
+    $('cdiShowOther').textContent =
+      fmt(x.other) + ' BIF';
+
+    $('cdiLanded').textContent =
+      fmt(x.landed) + ' BIF';
+
     $('cdiCostUnit').textContent =
       fmt(x.quantity ? x.landed / x.quantity : 0) + ' BIF';
-        $('cdiWholesaleRevenue').textContent = fmt(x.wholesaleRevenue) + ' BIF';
-    $('cdiWholesaleVat').textContent = fmt(x.wholesaleVat) + ' BIF';
-    $('cdiWholesaleProfit').textContent = fmt(x.wholesaleProfit) + ' BIF';
 
-    $('cdiRetailRevenue').textContent = fmt(x.retailRevenue) + ' BIF';
-    $('cdiRetailVat').textContent = fmt(x.retailVat) + ' BIF';
-    $('cdiRetailProfit').textContent = fmt(x.retailProfit) + ' BIF';
-     }  
+    $('cdiRetailRevenue').textContent =
+      fmt(x.retailRevenue) + ' BIF';
+
+    $('cdiRetailVat').textContent =
+      fmt(x.retailVat) + ' BIF';
+
+    $('cdiRetailProfit').textContent =
+      fmt(x.retailProfit) + ' BIF';
+
+    $('cdiWholesaleRevenue').textContent =
+      fmt(x.wholesaleRevenue) + ' BIF';
+
+    $('cdiWholesaleVat').textContent =
+      fmt(x.wholesaleVat) + ' BIF';
+
+    $('cdiWholesaleProfit').textContent =
+      fmt(x.wholesaleProfit) + ' BIF';
+  }
+
   async function save() {
     const client = db();
 
@@ -593,12 +724,14 @@
 
     const rawCartons = Number($('cdiCartons').value || 0);
     const rawPer = Number($('cdiPerCarton').value || 1);
+
     const x = getCalculation();
 
     if (!Number.isInteger(rawCartons) || rawCartons < 0 ||
-        !Number.isInteger(rawPer) || rawPer < 1 || x.rate <= 0) {
+        !Number.isInteger(rawPer) || rawPer < 1 ||
+        !Number.isFinite(x.unitPrice) || x.unitPrice < 0) {
       message(
-        'Vérifiez les cartons, les unités par carton et le taux de change.',
+        'Vérifiez le nombre de cartons, les unités par carton et le prix en BIF.',
         true
       );
       return;
@@ -614,6 +747,7 @@
 
     const button = $('cdiSave');
     button.disabled = true;
+
     message('Enregistrement en cours…');
 
     let uploadedPath = null;
@@ -643,28 +777,29 @@
         }
       }
 
-      /*
-       * Les colonnes calculées restent générées par Supabase.
-       * Le numéro d'importation est généré par le trigger SQL.
-       */
+      // Le numéro d'importation est généré par le trigger Supabase.
       const row = {
         item_name: name,
-        unit: $('cdiUnit').value,
         category: $('cdiCategory').value.trim() || null,
         source_country: $('cdiOrigin').value,
         supplier_name: $('cdiSupplier').value.trim() || null,
         supplier_reference: $('cdiRef').value.trim() || null,
+
         carton_quantity: x.cartons,
         pieces_per_carton: x.per,
-        purchase_currency: x.currency,
+
+        purchase_currency: 'BIF',
         purchase_unit_price: Number(x.unitPrice.toFixed(2)),
-        exchange_rate_to_bif: x.rate,
+        exchange_rate_to_bif: 1,
+
         transport_cost_bif: x.freight,
         customs_cost_bif: x.customs,
         other_costs_bif: x.other,
-                wholesale_price_bif: x.wholesaleSelling,
-        retail_price_bif: x.retailSelling,
-        selling_price_per_piece_bif: x.retailSelling,
+
+        selling_price_per_piece_bif: x.retail,
+        retail_price_bif: x.retail,
+        wholesale_price_bif: x.wholesale,
+
         photo_path: uploadedPath,
         import_status: $('cdiStatus').value,
         notes: $('cdiNotes').value.trim() || null
@@ -679,6 +814,7 @@
         if (uploadedPath) {
           await client.storage.from(BUCKET).remove([uploadedPath]);
         }
+
         throw new Error('Supabase : ' + result.error.message);
       }
 
@@ -688,6 +824,7 @@
       photoFile = null;
       $('cdiGallery').value = '';
       $('cdiCamera').value = '';
+
       $('cdiPreview').removeAttribute('src');
       $('cdiPreview').style.display = 'none';
 
@@ -714,20 +851,91 @@
     }
   }
 
+  function estimateProfit(item, sellingPrice) {
+    const quantity = Number(item.total_pieces || 0);
+    const revenue = quantity * Number(sellingPrice || 0);
+    const estimatedVat = revenue * 18 / 118;
+    const landed = Number(item.landed_cost_bif || 0);
+
+    return revenue - estimatedVat - landed;
+  }
+
+  async function confirmReceipt(importId, button) {
+    if (!importId) return;
+
+    if (!confirm(
+      'Confirmer la réception de cette importation ? Le stock sera ajouté une seule fois dans Inventory.'
+    )) return;
+
+    const client = db();
+
+    if (!client) {
+      message('Connexion Supabase indisponible.', true);
+      return;
+    }
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = 'Confirmation…';
+    }
+
+    try {
+      const result = await client.rpc('cwb_cd_confirm_receipt', {
+        p_import_id: importId
+      });
+
+      if (result.error) throw result.error;
+
+      const payload = Array.isArray(result.data)
+        ? result.data[0]
+        : result.data;
+
+      if (!payload || payload.success !== true) {
+        throw new Error(
+          payload?.message ||
+          'Supabase n’a pas confirmé l’ajout au stock.'
+        );
+      }
+
+      message(
+        'Réception confirmée. Stock ajouté : ' +
+        fmt(payload.quantity_added) + ' ' +
+        (payload.unit || 'unités') +
+        ' — coût unitaire : ' +
+        fmt(payload.unit_landed_cost_bif) + ' BIF.'
+      );
+
+      await load();
+
+    } catch (error) {
+      message(
+        'Échec de la confirmation de réception : ' +
+        (error.message || error),
+        true
+      );
+
+      if (button) {
+        button.disabled = false;
+        button.textContent = 'Confirmer réception → Stock';
+      }
+    }
+  }
+
   async function load() {
     const body = $('cdiRows');
+
     if (!body) return;
 
     const client = db();
 
     if (!client) {
       body.innerHTML =
-        '<tr><td colspan="15">Connexion Supabase indisponible.</td></tr>';
+        '<tr><td colspan="16">Connexion Supabase indisponible.</td></tr>';
       return;
     }
 
     body.innerHTML =
-      '<tr><td colspan="15">Chargement…</td></tr>';
+      '<tr><td colspan="16">Chargement…</td></tr>';
 
     try {
       const result = await client.from(TABLE)
@@ -737,18 +945,19 @@
 
       if (result.error) {
         body.innerHTML =
-          '<tr><td colspan="15">Erreur Supabase : ' +
+          '<tr><td colspan="16">Erreur Supabase : ' +
           esc(result.error.message) + '</td></tr>';
         return;
       }
 
       if (!result.data || !result.data.length) {
         body.innerHTML =
-          '<tr><td colspan="15">Aucun produit enregistré.</td></tr>';
+          '<tr><td colspan="16">Aucun produit enregistré.</td></tr>';
         return;
       }
 
       const auth = await client.auth.getUser();
+
       const uid = auth.data && auth.data.user
         ? auth.data.user.id
         : '';
@@ -761,7 +970,8 @@
             .createSignedUrl(item.photo_path, 3600);
 
           if (signed.data && signed.data.signedUrl) {
-            image = '<img class="cdi-thumb" src="' +
+            image =
+              '<img class="cdi-thumb" src="' +
               esc(signed.data.signedUrl) +
               '" alt="Photo produit">';
           }
@@ -774,86 +984,67 @@
             esc(item.import_number || '—') +
             '</button>' +
           '</td>' +
+
           '<td>' + image + '</td>' +
           '<td>' + esc(item.item_name) + '</td>' +
           '<td>' + esc(item.source_country) + '</td>' +
           '<td>' + fmt(item.carton_quantity) + '</td>' +
           '<td>' + fmt(item.pieces_per_carton) + '</td>' +
-          '<td>' + esc(item.unit || 'pieces') + '</td>' +
           '<td>' + fmt(item.total_pieces) + '</td>' +
-          '<td>' + fmt(item.purchase_unit_price) + ' ' +
-            esc(item.purchase_currency) + '</td>' +
+
+          '<td>' + fmt(item.purchase_unit_price) + ' BIF</td>' +
           '<td>' + fmt(item.landed_cost_bif) + ' BIF</td>' +
-          '<td>' + fmt(item.selling_price_per_piece_bif) + ' BIF</td>' +
-          '<td>' + fmt(item.expected_profit_bif) + ' BIF</td>' +
+
+          '<td>' +
+            fmt(Number(item.retail_price_bif || 0) ||
+            Number(item.selling_price_per_piece_bif || 0)) +
+            ' BIF</td>' +
+
+          '<td>' + fmt(item.wholesale_price_bif) + ' BIF</td>' +
+
+          '<td>' +
+            fmt(estimateProfit(
+              item,
+              Number(item.retail_price_bif || 0) ||
+              Number(item.selling_price_per_piece_bif || 0)
+            )) +
+            ' BIF</td>' +
+
+          '<td>' +
+            fmt(estimateProfit(
+              item,
+              Number(item.wholesale_price_bif || 0)
+            )) +
+            ' BIF</td>' +
+
           '<td>' + esc(item.import_status) + '</td>' +
-          '<td>' + (
-            item.stock_received_at
-              ? 'Stock ajouté'
-              : item.import_status === 'Arrived'
-                ? '<button type="button" class="cdi-receive-btn" data-id="' +
-                  esc(item.id) + '">Confirmer la réception</button>'
-                : '—'
-          ) + '</td>' +
           '<td>' + esc(burundiTime(item.created_at)) + '</td>' +
+
+          '<td>' +
+            (item.stock_received_at
+              ? '<b>Stock ajouté</b>'
+              : item.import_status === 'Arrived'
+                ? '<button type="button" class="cdi-confirm-receipt" data-import-id="' +
+                  esc(item.id) +
+                  '">Confirmer réception → Stock</button>'
+                : 'En attente de réception') +
+          '</td>' +
+
           '</tr>';
       }));
 
       body.innerHTML = rows.join('');
 
-      body.querySelectorAll('.cdi-receive-btn').forEach(button => {
-        button.addEventListener('click', async () => {
-          const importId = button.dataset.id;
-          if (!importId) return;
-
-          const accepted = window.confirm(
-            'Confirmer que les marchandises sont physiquement arrivées ? ' +
-            'Cette action ajoutera la quantité à l’inventaire une seule fois.'
-          );
-          if (!accepted) return;
-
-          button.disabled = true;
-
-          try {
-            const receipt = await client.rpc('cwb_cd_confirm_receipt', {
-              p_import_id: importId
-            });
-
-            if (receipt.error) throw receipt.error;
-
-            const result = receipt.data;
-
-            if (!result || result.success !== true) {
-              throw new Error(
-                result && result.message
-                  ? result.message
-                  : 'La base de données n’a pas confirmé la réception.'
-              );
-            }
-
-            message(
-              'Réception confirmée : ' + fmt(result.quantity_added) +
-              ' ' + (result.unit || '') +
-              ' ajouté(s) au stock. Coût rendu/unité : ' +
-              fmt(result.unit_landed_cost_bif) + ' BIF.'
-            );
-
-            await load();
-
-          } catch (error) {
-            message(
-              'Réception non effectuée : ' +
-              (error.message || 'erreur inconnue'),
-              true
-            );
-            button.disabled = false;
-          }
-        });
+      body.querySelectorAll('.cdi-confirm-receipt').forEach(button => {
+        button.addEventListener('click', () =>
+          confirmReceipt(button.dataset.importId, button)
+        );
       });
 
       body.querySelectorAll('.cdi-number-btn').forEach(button => {
         button.addEventListener('click', () => {
           const number = button.dataset.number || '';
+
           if (!number || number === '—') return;
 
           $('cdiCustomsNumber').value = number;
@@ -868,7 +1059,7 @@
 
     } catch (error) {
       body.innerHTML =
-        '<tr><td colspan="15">Erreur : ' +
+        '<tr><td colspan="16">Erreur : ' +
         esc(error.message || 'Chargement impossible') +
         '</td></tr>';
     }
@@ -880,6 +1071,7 @@
     const number = input.value.trim().toUpperCase();
 
     customsImport = null;
+
     $('cdiCustomsUpload').disabled = true;
     $('cdiCustomsDocuments').textContent = '';
 
@@ -895,7 +1087,8 @@
       return;
     }
 
-    $('cdiCustomsResult').textContent = 'Recherche en cours…';
+    $('cdiCustomsResult').textContent =
+      'Recherche en cours…';
 
     try {
       const result = await client.from(TABLE)
@@ -912,6 +1105,7 @@
       }
 
       customsImport = result.data;
+
       $('cdiCustomsUpload').disabled = false;
 
       $('cdiCustomsResult').textContent =
@@ -933,7 +1127,8 @@
 
     if (!client || !customsImport) return;
 
-    container.textContent = 'Chargement des documents…';
+    container.textContent =
+      'Chargement des documents…';
 
     const result = await client
       .from(CUSTOMS_TABLE)
@@ -962,8 +1157,10 @@
 
       const link = document.createElement('a');
       link.href = '#';
+
       link.textContent =
-        doc.original_name + ' — ' + burundiTime(doc.created_at);
+        doc.original_name + ' — ' +
+        burundiTime(doc.created_at);
 
       link.addEventListener('click', async event => {
         event.preventDefault();
@@ -1032,6 +1229,7 @@
     }
 
     button.disabled = true;
+
     let saved = 0;
 
     try {
@@ -1040,8 +1238,11 @@
           .replace(/[^a-zA-Z0-9._-]/g, '_')
           .slice(-100);
 
-        const path = user.id + '/' + customsImport.id + '/' +
-          Date.now() + '-' + safeName;
+        const path =
+          user.id + '/' +
+          customsImport.id + '/' +
+          Date.now() + '-' +
+          safeName;
 
         const upload = await client.storage
           .from(CUSTOMS_BUCKET)
@@ -1072,7 +1273,10 @@
         saved++;
       }
 
-      message(saved + ' document(s) de douane enregistré(s).');
+      message(
+        saved + ' document(s) de douane enregistré(s).'
+      );
+
       input.value = '';
 
       await loadCustomsDocuments();
@@ -1090,4 +1294,5 @@
 
   window.cwbInitChinaDubaiImport = init;
   window.cwbChinaDubaiCalculate = calculate;
+
 })();
