@@ -71,11 +71,10 @@
       document.querySelector('.container') ||
       document.querySelector('main') ||
       document.body;
-
     const section = document.createElement('section');
-    section.id = ID;
-    section.className = 'card hidden';
-
+section.id = ID;
+alert('C.W.B China & Dubai panel created');
+section.className = 'card hidden';
     section.innerHTML = `
       <h2>C.W.B China &amp; Dubai Import</h2>
       <p><b>Camel Work and Business company</b></p>
