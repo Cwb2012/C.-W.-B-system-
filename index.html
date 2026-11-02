@@ -14,6 +14,13 @@
 </style>
 </head>
 <body>
+  <div id="cwbInstallBox" style="display:none; text-align:center; padding:12px;">
+  <button id="cwbInstallButton" type="button"
+    style="background:#b91c1c; color:white; padding:12px 20px;
+    border:0; border-radius:8px; font-weight:bold;">
+    INSTALLER C.W.B APP
+  </button>
+</div>
 <header><h1>C.W.B System</h1><p>Camel Work and Business company</p><p><b>Better Quality is our priority</b></p></header>
 <div class="container">
 <div class="card"><h2>Business Dashboard</h2><div class="dashboard">
@@ -2632,6 +2639,30 @@ if ("serviceWorker" in navigator) {
       });
   });
 }
+</script>
+  <script>
+let cwbInstallPrompt = null;
+
+window.addEventListener("beforeinstallprompt", function (event) {
+  event.preventDefault();
+  cwbInstallPrompt = event;
+
+  const box = document.getElementById("cwbInstallBox");
+  if (box) box.style.display = "block";
+});
+
+document.getElementById("cwbInstallButton")
+  ?.addEventListener("click", async function () {
+    if (!cwbInstallPrompt) return;
+
+    cwbInstallPrompt.prompt();
+    await cwbInstallPrompt.userChoice;
+
+    cwbInstallPrompt = null;
+
+    const box = document.getElementById("cwbInstallBox");
+    if (box) box.style.display = "none";
+  });
 </script>
 </body>
 </html>
