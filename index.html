@@ -1624,6 +1624,22 @@ function savePlan(){localStorage.setItem('cwb_plan',document.getElementById('pla
 function loadPlan(){document.getElementById('planText').value=localStorage.getItem('cwb_plan')||''}
 // REPORTS
 function loadReports(){const t=totals();const ids={reportSales:t.sales,reportPurchases:t.purchases,reportExpenses:t.expenses,reportPayroll:t.payroll,reportTotalSales:t.sales,reportTotalPurchases:t.purchases,reportTotalExpenses:t.expenses,reportTotalPayroll:t.payroll,reportOperatingBalance:t.operating,reportFinalBalance:t.final,reportSalesRecords:sales.length,reportPurchaseRecords:purchases.length,reportExpenseRecords:expenses.length,reportPayrollRecords:payroll.length};Object.keys(ids).forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=id.includes('Records')?ids[id]:money(ids[id])});const result=document.getElementById('reportResult');if(!result)return;if(t.final>0){result.textContent='✅ PROFIT — Your final balance is positive.';result.style.background='#ecfdf5';result.style.color='#065f46'}else if(t.final<0){result.textContent='⚠️ LOSS — Your final balance is negative after Payroll.';result.style.background='#fef2f2';result.style.color='#991b1b'}else{result.textContent='ℹ️ BREAK-EVEN — Your final balance is zero.';result.style.background='#f3f4f6';result.style.color='#374151'}}
+// REFRESH FINANCIAL REPORTS FROM DATABASE
+async function refreshFinancialReports(){
+  const button = document.querySelector('#reports button');
+  if(button) button.disabled = true;
+
+  try {
+    await loadSales();
+    await loadPayrollFromSupabase();
+    loadReports();
+  } catch(error) {
+    console.error('Financial report refresh failed:', error);
+    msg('reportResult','Unable to refresh financial data: '+error.message,true);
+  } finally {
+    if(button) button.disabled = false;
+  }
+}
 // WEBSITE
 function saveWebsite(){let url=document.getElementById('website_url').value.trim();if(!url){msg('websiteMessage','Please enter a website address.',true);return}if(!/^https?:\/\//i.test(url))url='https://'+url;localStorage.setItem('cwb_website',url);msg('websiteMessage','Website saved successfully.');loadWebsite()}
 function loadWebsite(){const input=document.getElementById('website_url'),status=document.getElementById('websiteStatus');if(!input||!status)return;const url=localStorage.getItem('cwb_website')||'';if(url){input.value=url;status.innerHTML='Saved website: <b>'+esc(url)+'</b>'}else{status.textContent='No website saved yet.'}}
