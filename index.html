@@ -1718,6 +1718,9 @@ function savePlan(){localStorage.setItem('cwb_plan',document.getElementById('pla
 function loadPlan(){document.getElementById('planText').value=localStorage.getItem('cwb_plan')||''}
 // REPORTS
 function loadReports(){
+  const report = document.getElementById('reports');
+  if(!report) return;
+
   const t = totals();
 
   const ids = {
@@ -1738,29 +1741,33 @@ function loadReports(){
   };
 
   Object.keys(ids).forEach(id=>{
-    const e=document.getElementById(id);
+    const e = report.querySelector('#' + id);
+
     if(e){
-      e.textContent=id.includes('Records')
+      e.textContent = id.includes('Records')
         ? ids[id]
         : money(ids[id]);
     }
   });
 
-  const result=document.getElementById('reportResult');
-  if(!result)return;
+  const result = report.querySelector('#reportResult');
+  if(!result) return;
 
-  if(t.final>0){
-    result.textContent='✅ PROFIT — Your final balance is positive.';
-    result.style.background='#ecfdf5';
-    result.style.color='#065f46';
-  }else if(t.final<0){
-    result.textContent='⚠️ LOSS — Your final balance is negative after Payroll.';
-    result.style.background='#fef2f2';
-    result.style.color='#991b1b';
+  if(t.final > 0){
+    result.textContent =
+      '✅ PROFIT — Your final balance is positive.';
+    result.style.background = '#ecfdf5';
+    result.style.color = '#065f46';
+  }else if(t.final < 0){
+    result.textContent =
+      '⚠️ LOSS — Your final balance is negative after Payroll.';
+    result.style.background = '#fef2f2';
+    result.style.color = '#991b1b';
   }else{
-    result.textContent='ℹ️ BREAK-EVEN — Your final balance is zero.';
-    result.style.background='#f3f4f6';
-    result.style.color='#374151';
+    result.textContent =
+      'ℹ️ BREAK-EVEN — Your final balance is zero.';
+    result.style.background = '#f3f4f6';
+    result.style.color = '#374151';
   }
 }
   
