@@ -92,7 +92,42 @@
 
 <div id="scanpay" class="card hidden"><h2>💳 C.W.B Scan & Pay</h2><p class="small">Create a professional C.W.B payment QR code for your customer.</p><div class="connection-box"><div style="background:linear-gradient(135deg,#111827,#b91c1c);color:#fff;border-radius:12px;padding:14px;text-align:center;margin-bottom:15px"><img src="./file_000000009d80820694001bdae16e2e4b.png" alt="C.W.B Logo" style="width:65px;height:65px;object-fit:contain;background:#fff;border-radius:12px;padding:5px"><div style="font-size:19px;font-weight:bold;margin-top:8px">C.W.B PAYMENT</div><div style="font-size:13px;margin-top:4px">CAMEL WORK AND BUSINESS COMPANY</div><div style="font-size:11px;margin-top:4px">Better Quality is our priority</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px"><div style="background:#111827;color:#fff;border-radius:9px;padding:10px;text-align:center"><div style="font-size:9px;opacity:.75">MERCHANT CODE</div><strong style="font-size:17px">984868</strong></div><div style="background:#111827;color:#fff;border-radius:9px;padding:10px;text-align:center"><div style="font-size:9px;opacity:.75">PAYMENT NUMBER</div><strong style="font-size:16px">06691086015</strong></div></div><form id="scanPayForm" onsubmit="event.preventDefault();generateQR()"><div class="form-grid"><div><label>Customer Name</label><input id="qr_customer" required></div><div><label>Invoice Number</label><input id="qr_invoice" required></div><div><label>Amount</label><input id="qr_amount" type="number" min="0" step="0.01" required></div><div><label>Currency</label><select id="qr_currency"><option>BIF</option><option>USD</option><option>EUR</option></select></div><div><label>Payment Method</label><select id="qr_method"><option>Mobile Money</option><option>Bank</option><option>Cash</option><option>Card</option><option>Other</option></select></div><div><label id="qr_account_label">Payment Account / Number</label><input id="qr_account" value="06691086015"></div><div><label>Payment Name / Account Name</label><input id="qr_account_name" value="CAMEL WORK AND BUSINESS COMPANY"></div><div id="qr_bank_box" class="full" style="display:none;background:#f3f4f6;border-radius:10px;padding:12px"><strong>KCB Bank Burundi</strong><br><span class="small">Company Bank Account: 06691086015</span><br><span class="small">Account Name: CAMEL WORK AND BUSINESS COMPANY</span></div><div class="full"><label>Note</label><textarea id="qr_note"></textarea></div></div><button class="btn" type="submit">Generate Professional QR</button><button class="btn secondary" type="button" onclick="clearQR()">Clear QR</button><button class="btn" type="button" onclick="printQR()">Share / Print QR</button></form><div id="qrMessage" class="message"></div><div id="qrArea" style="border:1px dashed #b91c1c;border-radius:14px;padding:15px;margin-top:15px;background:#fafafa;text-align:center;min-height:80px"><div class="small">Your professional payment QR will appear here.</div></div><div id="qrText" class="small" style="white-space:pre-wrap;margin-top:10px"></div></div></div>
 
-<div id="reports" class="card hidden"><h2>📊 C.W.B Financial Reports</h2><p class="small">Business financial summary from your C.W.B System records.</p><div class="dashboard"><div class="stat">Sales<strong id="reportSales">0</strong></div><div class="stat">Purchases<strong id="reportPurchases">0</strong></div><div class="stat">Expenses<strong id="reportExpenses">0</strong></div><div class="stat">Payroll<strong id="reportPayroll">0</strong></div></div><div class="card" style="margin-top:15px;background:#f9fafb"><h2 style="font-size:18px">Financial Summary</h2><p><b>Total Sales:</b> <span id="reportTotalSales">0</span></p><p><b>Total Purchases:</b> <span id="reportTotalPurchases">0</span></p><p><b>Total Expenses:</b> <span id="reportTotalExpenses">0</span></p><p><b>Total Payroll:</b> <span id="reportTotalPayroll">0</span></p><hr><p style="font-size:17px"><b>Operating Balance:</b> <strong id="reportOperatingBalance">0</strong></p><p style="font-size:18px"><b>Final Balance:</b> <strong id="reportFinalBalance">0</strong></p><div id="reportResult" style="margin-top:12px;padding:12px;border-radius:9px;font-weight:bold">Financial result</div></div><div class="card" style="margin-top:15px;background:#fafafa"><h2 style="font-size:18px">Record Summary</h2><div class="dashboard"><div class="stat">Sales Records<strong id="reportSalesRecords">0</strong></div><div class="stat">Purchase Records<strong id="reportPurchaseRecords">0</strong></div><div class="stat">Expense Records<strong id="reportExpenseRecords">0</strong></div><div class="stat">Payroll Records<strong id="reportPayrollRecords">0</strong></div></div></div><button class="btn" onclick="loadReports()">🔄 Refresh Reports</button></div>
+<div id="reports" class="card hidden">
+  <h2>📊 C.W.B Financial Reports</h2>
+  <p class="small">Business financial summary from your C.W.B System records.</p>
+
+  <div class="dashboard">
+    <div class="stat">Sales<strong id="reportSales">0</strong></div>
+    <div class="stat">Purchases<strong id="reportPurchases">0</strong></div>
+    <div class="stat">Expenses<strong id="reportExpenses">0</strong></div>
+    <div class="stat">Payroll<strong id="reportPayroll">0</strong></div>
+  </div>
+
+  <div class="card" style="margin-top:15px;background:#f9fafb">
+    <h2 style="font-size:18px">Financial Summary</h2>
+    <p><b>Total Sales:</b> <span id="reportTotalSales">0</span></p>
+    <p><b>Total Purchases:</b> <span id="reportTotalPurchases">0</span></p>
+    <p><b>Total Expenses:</b> <span id="reportTotalExpenses">0</span></p>
+    <p><b>Total Payroll:</b> <span id="reportTotalPayroll">0</span></p>
+    <hr>
+    <p style="font-size:17px"><b>Operating Balance:</b> <strong id="reportOperatingBalance">0</strong></p>
+    <p style="font-size:18px"><b>Final Balance:</b> <strong id="reportFinalBalance">0</strong></p>
+    <div id="reportResult" style="margin-top:12px;padding:12px;border-radius:9px;font-weight:bold">Financial result</div>
+  </div>
+
+  <div class="card" style="margin-top:15px;background:#fafafa">
+    <h2 style="font-size:18px">Record Summary</h2>
+    <div class="dashboard">
+      <div class="stat">Sales Records<strong id="reportSalesRecords">0</strong></div>
+      <div class="stat">Purchase Records<strong id="reportPurchaseRecords">0</strong></div>
+      <div class="stat">Expense Records<strong id="reportExpenseRecords">0</strong></div>
+      <div class="stat">Payroll Records<strong id="reportPayrollRecords">0</strong></div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="loadReports()">🔄 Refresh Reports</button>
+  <button class="btn" onclick="window.print()">🖨️ PRINT FINANCIAL REPORT</button>
+</div>
 
 <div id="website" class="card hidden"><h2>🌐 C.W.B Official Website</h2><p>Connect the official C.W.B company website here.</p><div class="connection-box"><div class="social-title">Official Website</div><p class="small">Enter the complete website address.</p><div class="connection-row"><div class="input-area"><label>Website Address</label><input id="website_url" type="url" placeholder="https://example.com"></div><div class="connection-actions"><button class="btn" type="button" onclick="saveWebsite()">Save</button><button class="btn secondary" type="button" onclick="openSavedWebsite()">Open</button></div></div><div id="websiteMessage" class="message"></div><div id="websiteStatus" class="link-status">No website saved yet.</div></div></div>
 
