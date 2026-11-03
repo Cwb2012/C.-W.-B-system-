@@ -824,15 +824,44 @@ function printGarageInvoice() {
           }
 
           @media print {
-            body {
-              margin: 0;
-            }
+  body {
+    margin: 0;
+  }
 
-            .payment {
-              break-inside: avoid;
-            }
-          }
-        </style>
+  .payment {
+    break-inside: avoid;
+  }
+
+  body.print-financial-report * {
+    visibility: hidden !important;
+  }
+
+  body.print-financial-report #reports,
+  body.print-financial-report #reports * {
+    visibility: visible !important;
+  }
+
+  body.print-financial-report #reports {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 15px;
+    background: white;
+    color: black;
+    box-sizing: border-box;
+  }
+
+  body.print-financial-report #reports button {
+    display: none !important;
+  }
+
+  body.print-financial-report #reports .card {
+    break-inside: avoid;
+  }
+}
       </head>
 
       <body>
@@ -1703,6 +1732,16 @@ function loadReports(){
     result.style.background='#f3f4f6';
     result.style.color='#374151';
   }
+}
+  function printFinancialReport(){
+  document.body.classList.add('print-financial-report');
+
+  window.onafterprint = function(){
+    document.body.classList.remove('print-financial-report');
+    window.onafterprint = null;
+  };
+
+  window.print();
 }
 // REFRESH FINANCIAL REPORTS FROM DATABASE
 async function refreshFinancialReports(){
