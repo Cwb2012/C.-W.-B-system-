@@ -150,7 +150,39 @@ function money(v){return num(v).toLocaleString('en-US')}
 function today(){return new Date().toISOString().slice(0,10)}
 function currentMonth(){return new Date().toISOString().slice(0,7)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function totals(){const salesTotal=sales.reduce((a,x)=>a+(num(x.totalAmount)||num(x.amount)),0),purchaseTotal=purchases.reduce((a,x)=>a+num(x.amount),0),expenseTotal=expenses.reduce((a,x)=>a+num(x.amount),0),payrollTotal=payroll.reduce((a,x)=>a+num(x.net),0),operatingBalance=salesTotal-purchaseTotal-expenseTotal;return{sales:salesTotal,purchases:purchaseTotal,expenses:expenseTotal,payroll:payrollTotal,operating:operatingBalance,final:operatingBalance-payrollTotal}}
+function totals(){
+  const salesTotal = sales.reduce(
+    (a,x) => a + num(x.totalAmount),
+    0
+  );
+
+  const purchaseTotal = purchases.reduce(
+    (a,x) => a + num(x.amount),
+    0
+  );
+
+  const expenseTotal = expenses.reduce(
+    (a,x) => a + num(x.amount),
+    0
+  );
+
+  const payrollTotal = payroll.reduce(
+    (a,x) => a + num(x.net),
+    0
+  );
+
+  const operatingBalance =
+    salesTotal - purchaseTotal - expenseTotal;
+
+  return {
+    sales: salesTotal,
+    purchases: purchaseTotal,
+    expenses: expenseTotal,
+    payroll: payrollTotal,
+    operating: operatingBalance,
+    final: operatingBalance - payrollTotal
+  };
+}
 function msg(id,t,error=false){const e=document.getElementById(id);if(!e)return;e.textContent=t;e.classList.toggle('error',error);e.style.display='block';setTimeout(()=>e.style.display='none',4000)}
 function showModule(id) {
     const key = String(id || '').toLowerCase();
