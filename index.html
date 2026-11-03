@@ -1731,16 +1731,94 @@ function loadReports(){
     result.style.color='#374151';
   }
 }
-  function printFinancialReport(){
-  document.body.classList.add('print-financial-report');
+  
+function printFinancialReport(){
+  const report = document.getElementById('reports');
 
-  window.onafterprint = function(){
-    document.body.classList.remove('print-financial-report');
-    window.onafterprint = null;
+  if(!report){
+    alert('Financial Report not found.');
+    return;
+  }
+
+  const w = window.open('', '_blank');
+
+  if(!w){
+    alert('Please allow pop-ups to print the report.');
+    return;
+  }
+
+  const reportHTML = report.innerHTML;
+
+  w.document.open();
+  w.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>C.W.B Financial Report</title>
+      <meta charset="UTF-8">
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          margin: 25px;
+          color: #111;
+          background: white;
+        }
+
+        h2 {
+          color: #111;
+        }
+
+        .dashboard {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 12px;
+        }
+
+        .stat {
+          border: 1px solid #ccc;
+          padding: 12px;
+          border-radius: 6px;
+        }
+
+        .stat strong {
+          display: block;
+          margin-top: 8px;
+          font-size: 18px;
+        }
+
+        .card {
+          border: 1px solid #ddd;
+          padding: 15px;
+          margin-top: 15px;
+          border-radius: 8px;
+          break-inside: avoid;
+        }
+
+        button {
+          display: none !important;
+        }
+
+        @media print {
+          body {
+            margin: 10mm;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      ${reportHTML}
+    </body>
+    </html>
+  `);
+
+  w.document.close();
+
+  w.onload = function(){
+    w.focus();
+    w.print();
   };
-
-  window.print();
 }
+
 // REFRESH FINANCIAL REPORTS FROM DATABASE
 async function refreshFinancialReports(){
   const button = document.querySelector('#reports button');
