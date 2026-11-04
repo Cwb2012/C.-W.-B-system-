@@ -150,9 +150,10 @@ function money(v){return num(v).toLocaleString('en-US')}
 function today(){return new Date().toISOString().slice(0,10)}
 function currentMonth(){return new Date().toISOString().slice(0,7)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
 function totals(){
   const salesTotal = sales.reduce(
-    (a,x) => a + num(x.totalAmount),
+    (a,x) => a + num(x.totalAmount || x.amount),
     0
   );
 
@@ -183,6 +184,7 @@ function totals(){
     final: operatingBalance - payrollTotal
   };
 }
+
 function msg(id,t,error=false){const e=document.getElementById(id);if(!e)return;e.textContent=t;e.classList.toggle('error',error);e.style.display='block';setTimeout(()=>e.style.display='none',4000)}
 function showModule(id) {
     const key = String(id || '').toLowerCase();
