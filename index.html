@@ -1117,14 +1117,18 @@ async function loadSales() {
     );
   }
 }
-
 // SAVE A SALE TO SUPABASE
 if (salesForm) {
   salesForm.addEventListener('submit', async function (e) {
     e.preventDefault();
+
     const submitButton = salesForm.querySelector('button[type="submit"]');
     if (submitButton) submitButton.disabled = true;
-    let stockWasReduced = false, itemName = '', itemQuantity = 0;
+
+    let stockWasReduced = false;
+    let itemName = '';
+    let itemQuantity = 0;
+
     try {
       const customer = document.getElementById('sale_customer').value.trim();
       const product = document.getElementById('sale_product').value.trim();
@@ -1134,33 +1138,128 @@ if (salesForm) {
       const unitPrice = num(document.getElementById('sale_amount').value);
       const payment = document.getElementById('sale_payment').value;
       const date = document.getElementById('sale_date').value || today();
+
       if (!product) throw new Error('Please enter the product or service name.');
-      if (itemType !== 'PRODUCT' && itemType !== 'SERVICE') throw new Error('Please select Product or Service.');
-      if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Quantity must be a whole number of at least 1.');
-      if (!Number.isFinite(unitPrice) || unitPrice <= 0) throw new Error('Please enter a unit price greater than zero.');
-      const invoice = enteredInvoice || ('CWB-S-' + new Date().toISOString().replace(/\D/g, '').slice(0, 14));
-      const { data: existing, error: checkError } = await supabaseClient.from('sales').select('id').eq('Invoice_number', invoice).maybeSingle();
+      if (itemType !== 'PRODUCT' && itemType !== 'SERVICE') {
+        throw new Error('Please select Product or Service.');
+      }
+      if (!Number.isInteger(quantity) || quantity < 1) {
+        throw new Error('Quantity must be a whole number of at least 1.');
+      }
+      if (!Number.isFinite(unitPrice) || unitPrice <= 0) {
+        throw new Error('Please enter a unit price greater than zero.');
+      }
+
+      // Generate a unique-looking invoice number when none is entered.
+      const invoice = enteredInvoice ||
+        ('CWB-S-' + Date.now() + '-' + Math.floor(Math.random() * 1000));
+
+      // Check whether the invoice number already exists.
+      const { data: existing, error: checkError } = await supabaseClient
+        .from('sales')
+        .select('id')
+        .eq('Invoice_number', invoice)
+        .limit(1)
+        .maybeSingle();
+
       if (checkError) throw checkError;
-      if (existing) throw new Error('This invoice number already exists. Please use another number.');
+
+      if (existing) {
+        throw new Error('This invoice number already exists. Please use another number.');
+      }
+
       const baseAmount = unitPrice * quantity;
       const vat = Math.round(baseAmount * 0.18 * 100) / 100;
       const totalIncludingVAT = baseAmount + vat;
+
+      // Reduce Inventory before saving a PRODUCT sale.
       if (itemType === 'PRODUCT') {
         const stockChange = await changeProductStock(product, -quantity);
-        if (!stockChange.tracked) throw new Error('This Product was not found in Inventory. Add it to Inventory first, or select Service if it is not a stock item.');
-        stockWasReduced = true; itemName = product; itemQuantity = quantity;
+
+        if (!stockChange.tracked) {
+          throw new Error(
+            'This Product was not found in Inventory. Add it to Inventory first, or select Service if it is not a stock item.'
+          );
+        }
+
+        stockWasReduced = true;
+        itemName = product;
+        itemQuantity = quantity;
       }
-      const saleRecord = { Customer_name: customer || 'Walk-in Customer', Product_name: product, Product: itemType, quantity, Selling_price: unitPrice, Total_amount: totalIncludingVAT, Payment_status: payment, Invoice_number: invoice, created_at: new Date(date + 'T12:00:00').toISOString() };
-      const { data: insertedSale, error: insertError } = await supabaseClient.from('sales').insert([saleRecord]).select('*').single();
+
+      const saleRecord = {
+        Customer_name: customer || 'Walk-in Customer',
+        Product_name: product,
+        Product: itemType,
+        quantity: quantity,
+        Selling_price: unitPrice,
+        Total_amount: totalIncludingVAT,
+        Payment_status: payment,
+        Invoice_number: invoice,
+        created_at: new Date(date + 'T12:00:00').toISOString()
+      };
+
+      const { data: insertedSale, error: insertError } = await supabaseClient
+        .from('sales')
+        .insert([saleRecord])
+        .select('*')
+        .single();
+
       if (insertError) throw insertError;
-      const savedInvoice = insertedSale?.Invoice_number || insertedSale?.invoice_number || invoice;
-      salesForm.reset(); document.getElementById('sale_quantity').value = 1; document.getElementById('sale_date').value = today();
-      await loadSales(); await loadInventory();
-      msg('salesMessage', 'Sale saved to Supabase. Invoice: ' + savedInvoice + (itemType === 'PRODUCT' ? ' — Inventory reduced by ' + quantity + '.' : ' — Service sale; Inventory unchanged.') + ' Total TTC: ' + money(totalIncludingVAT) + ' BIF.');
+
+      const savedInvoice =
+        insertedSale?.Invoice_number ||
+        insertedSale?.invoice_number ||
+        invoice;
+
+      // Reset the form only after Supabase confirms the sale.
+      salesForm.reset();
+
+      document.getElementById('sale_quantity').value = 1;
+      document.getElementById('sale_date').value = today();
+
+      await loadSales();
+      await loadInventory();
+
+      msg(
+        'salesMessage',
+        'Sale saved to Supabase. Invoice: ' + savedInvoice +
+        (itemType === 'PRODUCT'
+          ? ' — Inventory reduced by ' + quantity + '.'
+          : ' — Service sale; Inventory unchanged.') +
+        ' Total TTC: ' + money(totalIncludingVAT) + ' BIF.'
+      );
+
+      // Stock is now linked to the successfully saved sale.
+      stockWasReduced = false;
+
     } catch (error) {
-      if (stockWasReduced) { try { await changeProductStock(itemName, itemQuantity); } catch (restoreError) { console.error('Stock rollback failed:', restoreError); } }
-      msg('salesMessage', 'Could not save the sale: ' + error.message, true);
-    } finally { if (submitButton) submitButton.disabled = false; }
+
+      // Restore stock if saving the sale failed.
+      if (stockWasReduced) {
+        try {
+          await changeProductStock(itemName, itemQuantity);
+        } catch (restoreError) {
+          console.error('Stock rollback failed:', restoreError);
+
+          msg(
+            'salesMessage',
+            'IMPORTANT: Sale was not confirmed, and Inventory restoration failed. Please check stock for ' +
+            itemName + '.',
+            true
+          );
+        }
+      }
+
+      msg(
+        'salesMessage',
+        'Could not save the sale: ' + error.message,
+        true
+      );
+
+    } finally {
+      if (submitButton) submitButton.disabled = false;
+    }
   });
 }
 
