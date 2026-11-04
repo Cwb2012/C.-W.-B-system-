@@ -990,25 +990,39 @@ async function loadGarage() {
   }
 }
 
-// Update one matching inventory product with an optimistic quantity check.
-// Returns { tracked:false } for services that are not inventory products.
+
+// UPDATE INVENTORY STOCK SAFELY
+// Returns { tracked:false } for services not found in Inventory.
 async function changeProductStock(productName, change) {
-  const { data: product, error: findError } = await supabaseClient
+  const { data: products, error: findError } = await supabaseClient
     .from('products')
     .select('id, name, quantity')
     .eq('name', productName)
-    .limit(1)
-    .maybeSingle();
+    .limit(2);
 
   if (findError) throw findError;
-  if (!product) return { tracked: false };
+
+  if (!products || products.length === 0) {
+    return { tracked: false };
+  }
+
+  if (products.length > 1) {
+    throw new Error(
+      'More than one Inventory product has this name. Please correct the duplicate product names first.'
+    );
+  }
+
+  const product = products[0];
 
   for (let attempt = 0; attempt < 5; attempt++) {
     const currentQuantity = num(product.quantity);
     const nextQuantity = currentQuantity + change;
 
     if (nextQuantity < 0) {
-      throw new Error('Insufficient stock for "' + productName + '". Available quantity: ' + currentQuantity + '.');
+      throw new Error(
+        'Insufficient stock for "' + productName +
+        '". Available quantity: ' + currentQuantity + '.'
+      );
     }
 
     const { data: updated, error: updateError } = await supabaseClient
@@ -1020,7 +1034,14 @@ async function changeProductStock(productName, change) {
       .maybeSingle();
 
     if (updateError) throw updateError;
-    if (updated) return { tracked: true, productId: product.id, quantity: updated.quantity };
+
+    if (updated) {
+      return {
+        tracked: true,
+        productId: product.id,
+        quantity: updated.quantity
+      };
+    }
 
     const { data: refreshed, error: refreshError } = await supabaseClient
       .from('products')
@@ -1030,11 +1051,15 @@ async function changeProductStock(productName, change) {
 
     if (refreshError) throw refreshError;
     if (!refreshed) return { tracked: false };
+
     product.quantity = refreshed.quantity;
   }
 
-  throw new Error('Stock changed repeatedly. Please refresh Inventory and try again.');
+  throw new Error(
+    'Stock changed repeatedly. Please refresh Inventory and try again.'
+  );
 }
+
 
  // SALES - SUPABASE CONNECTED SECTION
 
