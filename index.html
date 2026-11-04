@@ -153,10 +153,9 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 
 function totals(){
   const salesTotal = sales.reduce(
-    (a,x) => a + num(x.totalAmount || x.amount),
+    (a,x) => a + num(x.totalAmount),
     0
   );
-
   const purchaseTotal = purchases.reduce(
     (a,x) => a + num(x.amount),
     0
