@@ -1072,9 +1072,11 @@ async function changeProductStock(productName, change) {
 
 const salesForm = document.getElementById('salesForm');
 
+
 // LOAD SALES FROM SUPABASE
 async function loadSales() {
   const body = document.getElementById('salesTableBody');
+
   if (body) {
     body.innerHTML = '<tr><td colspan="9">Loading sales...</td></tr>';
   }
@@ -1111,6 +1113,9 @@ async function loadSales() {
     if (typeof loadReports === 'function') {
       loadReports();
     }
+
+    return true;
+
   } catch (error) {
     if (body) {
       body.innerHTML =
@@ -1122,8 +1127,11 @@ async function loadSales() {
       'Unable to load sales: ' + error.message,
       true
     );
+
+    return false;
   }
 }
+
 // SAVE A SALE TO SUPABASE
 if (salesForm) {
   salesForm.addEventListener('submit', async function (e) {
@@ -1999,10 +2007,18 @@ async function refreshFinancialReports(){
   }
 
   try {
-    await loadSales();
-    await loadPayrollFromSupabase();
+    const salesLoaded = await loadSales();
 
-    updateDashboard();
+    if(salesLoaded === false){
+      throw new Error('Sales could not be loaded from Supabase.');
+    }
+
+    const payrollLoaded = await loadPayrollFromSupabase();
+
+    if(payrollLoaded === false){
+      throw new Error('Payroll could not be loaded from Supabase.');
+    }
+
     loadReports();
 
     if(button) button.textContent = '✅ REPORT UPDATED';
@@ -2017,7 +2033,6 @@ async function refreshFinancialReports(){
     if(button) button.disabled = false;
   }
 }
-
 // WEBSITE
 function saveWebsite(){let url=document.getElementById('website_url').value.trim();if(!url){msg('websiteMessage','Please enter a website address.',true);return}if(!/^https?:\/\//i.test(url))url='https://'+url;localStorage.setItem('cwb_website',url);msg('websiteMessage','Website saved successfully.');loadWebsite()}
 function loadWebsite(){const input=document.getElementById('website_url'),status=document.getElementById('websiteStatus');if(!input||!status)return;const url=localStorage.getItem('cwb_website')||'';if(url){input.value=url;status.innerHTML='Saved website: <b>'+esc(url)+'</b>'}else{status.textContent='No website saved yet.'}}
