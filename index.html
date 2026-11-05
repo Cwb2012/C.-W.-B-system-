@@ -1862,46 +1862,86 @@ function loadReports(){
 
   const t = totals();
 
-  const ids = {
-    reportSales:t.sales,
-    reportPurchases:t.purchases,
-    reportExpenses:t.expenses,
-    reportPayroll:t.payroll,
-    reportTotalSales:t.sales,
-    reportTotalPurchases:t.purchases,
-    reportTotalExpenses:t.expenses,
-    reportTotalPayroll:t.payroll,
-    reportOperatingBalance:t.operating,
-    reportFinalBalance:t.final,
-    reportSalesRecords:sales.length,
-    reportPurchaseRecords:purchases.length,
-    reportExpenseRecords:expenses.length,
-    reportPayrollRecords:payroll.length
+  // 1. Update the four upper financial cards
+  const upperValues = {
+    reportSales: t.sales,
+    reportPurchases: t.purchases,
+    reportExpenses: t.expenses,
+    reportPayroll: t.payroll
   };
 
-  Object.keys(ids).forEach(id=>{
-    const e = report.querySelector('#' + id);
+  Object.entries(upperValues).forEach(([id, value]) => {
+    const element = report.querySelector('#' + id);
+    if(element) element.textContent = money(value);
+  });
 
-    if(e){
-      e.textContent = id.includes('Records')
-        ? ids[id]
-        : money(ids[id]);
+  // 2. Synchronize the lower summary with the upper cards
+  const synchronizedFields = [
+    ['reportSales', 'reportTotalSales'],
+    ['reportPurchases', 'reportTotalPurchases'],
+    ['reportExpenses', 'reportTotalExpenses'],
+    ['reportPayroll', 'reportTotalPayroll']
+  ];
+
+  synchronizedFields.forEach(([upperId, lowerId]) => {
+    const upper = report.querySelector('#' + upperId);
+    const lower = report.querySelector('#' + lowerId);
+
+    if(upper && lower){
+      lower.textContent = upper.textContent;
     }
   });
 
+  // 3. Calculate and display balances
+  const operatingBalance =
+    t.sales - t.purchases - t.expenses;
+
+  const finalBalance =
+    operatingBalance - t.payroll;
+
+  const operatingElement =
+    report.querySelector('#reportOperatingBalance');
+
+  const finalElement =
+    report.querySelector('#reportFinalBalance');
+
+  if(operatingElement){
+    operatingElement.textContent = money(operatingBalance);
+  }
+
+  if(finalElement){
+    finalElement.textContent = money(finalBalance);
+  }
+
+  // 4. Update record counts
+  const recordCounts = {
+    reportSalesRecords: sales.length,
+    reportPurchaseRecords: purchases.length,
+    reportExpenseRecords: expenses.length,
+    reportPayrollRecords: payroll.length
+  };
+
+  Object.entries(recordCounts).forEach(([id, value]) => {
+    const element = report.querySelector('#' + id);
+    if(element) element.textContent = value;
+  });
+
+  // 5. Display financial result
   const result = report.querySelector('#reportResult');
   if(!result) return;
 
-  if(t.final > 0){
+  if(finalBalance > 0){
     result.textContent =
       '✅ PROFIT — Your final balance is positive.';
     result.style.background = '#ecfdf5';
     result.style.color = '#065f46';
-  }else if(t.final < 0){
+
+  }else if(finalBalance < 0){
     result.textContent =
       '⚠️ LOSS — Your final balance is negative after Payroll.';
     result.style.background = '#fef2f2';
     result.style.color = '#991b1b';
+
   }else{
     result.textContent =
       'ℹ️ BREAK-EVEN — Your final balance is zero.';
@@ -1909,6 +1949,7 @@ function loadReports(){
     result.style.color = '#374151';
   }
 }
+
   
 function printFinancialReport(){
   const report = document.getElementById('reports');
