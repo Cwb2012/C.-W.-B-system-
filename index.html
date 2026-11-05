@@ -102,6 +102,7 @@
     <div class="stat">Expenses<strong id="reportExpenses">0</strong></div>
     <div class="stat">Payroll<strong id="reportPayroll">0</strong></div>
   </div>
+  <button class="btn secondary" id="refreshFinancialReportBtn" type="button" onclick="refreshFinancialReports()">🔄 REFRESH FINANCIAL REPORT</button>
 
   <div class="card" style="margin-top:15px;background:#f9fafb">
     <h2 style="font-size:18px">Financial Summary</h2>
@@ -1988,23 +1989,35 @@ function printFinancialReport(){
     w.print();
   };
 }
-
 // REFRESH FINANCIAL REPORTS FROM DATABASE
 async function refreshFinancialReports(){
-  const button = document.querySelector('#reports button');
-  if(button) button.disabled = true;
+  const button = document.getElementById('refreshFinancialReportBtn');
+
+  if(button){
+    button.disabled = true;
+    button.textContent = 'Refreshing...';
+  }
 
   try {
     await loadSales();
     await loadPayrollFromSupabase();
+
+    updateDashboard();
     loadReports();
+
+    if(button) button.textContent = '✅ REPORT UPDATED';
+
   } catch(error) {
     console.error('Financial report refresh failed:', error);
-    msg('reportResult','Unable to refresh financial data: '+error.message,true);
+    msg('reportResult', 'Unable to refresh financial data: ' + error.message, true);
+
+    if(button) button.textContent = '❌ REFRESH FAILED';
+
   } finally {
     if(button) button.disabled = false;
   }
 }
+
 // WEBSITE
 function saveWebsite(){let url=document.getElementById('website_url').value.trim();if(!url){msg('websiteMessage','Please enter a website address.',true);return}if(!/^https?:\/\//i.test(url))url='https://'+url;localStorage.setItem('cwb_website',url);msg('websiteMessage','Website saved successfully.');loadWebsite()}
 function loadWebsite(){const input=document.getElementById('website_url'),status=document.getElementById('websiteStatus');if(!input||!status)return;const url=localStorage.getItem('cwb_website')||'';if(url){input.value=url;status.innerHTML='Saved website: <b>'+esc(url)+'</b>'}else{status.textContent='No website saved yet.'}}
