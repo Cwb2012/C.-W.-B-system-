@@ -2435,9 +2435,25 @@ document.getElementById("cwbLogout").onclick=async()=>{
 await supabaseClient.auth.signOut();
 location.reload();
 };
-
 screen.style.display="none";
 applyAccess();
+
+// Load current sales from Supabase after secure login
+if(
+  allowed.has("sales") ||
+  allowed.has("reports") ||
+  allowed.has("accounting")
+){
+  if(typeof loadSales === "function"){
+    loadSales().then(loaded=>{
+      if(!loaded){
+        console.error("C.W.B sales could not be refreshed from Supabase.");
+      }
+    }).catch(err=>{
+      console.error("C.W.B sales loading failed:",err);
+    });
+  }
+}
 
 if(window.cwbLoadPayrollSecure){
   window.cwbLoadPayrollSecure().catch(err=>console.error("Payroll load failed",err));
