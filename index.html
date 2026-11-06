@@ -3060,8 +3060,11 @@ if(document.readyState==="loading"){
   function translatePage(language) {
     document.documentElement.lang = language;
 
-    document.querySelectorAll("button, h1, h2, h3, label, p, option").forEach(function (element) {
+        document.querySelectorAll("button, h1, h2, h3, label, p, option").forEach(function (element) {
       if (element.closest("#cwb-language-box")) return;
+
+      // Preserve child elements such as financial report values.
+      if (element.children.length > 0) return;
 
       if (!originalText.has(element)) {
         originalText.set(element, element.textContent.trim());
