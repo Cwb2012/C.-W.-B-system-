@@ -228,7 +228,9 @@ function showModule(id) {
 
     // Load module data
     if (key === 'inventory') loadInventory();
-    if (key === 'garage') loadGarage();
+    if (key === 'garage' && window.cwbGarageInit) {
+    window.cwbGarageInit();
+}
     if (key === 'sales') loadSales();
     if (key === 'purchases') renderPurchases();
     if (key === 'expenses') renderExpenses();
@@ -3098,7 +3100,8 @@ if(document.readyState==="loading"){
 </script>
 <script src="./japan-car-import-module.js"></script>
 <script src="./china-dubai-import-module.js"></script>
-  <script>
+<script src="./garage-module.js"></script>
+<script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function () {
     navigator.serviceWorker.register("./service-worker.js")
