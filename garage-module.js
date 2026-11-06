@@ -177,7 +177,260 @@
       </div>
     `;
   }
+/* =========================================
+   C.W.B GARAGE — IMPRESSION DES DOCUMENTS
+========================================= */
 
+function printGarageDocument(type, r) {
+
+  const documents = {
+
+    intake: {
+      title: "FICHE DE RÉCEPTION DU VÉHICULE",
+      number: r.intake_number,
+      fields: [
+        ["Client", r.customer_name],
+        ["Téléphone", r.customer_phone],
+        ["Adresse", r.customer_address],
+        ["Véhicule", r.vehicle_name],
+        ["Modèle", r.vehicle_model],
+        ["Plaque", r.plate_number],
+        ["VIN", r.vin_number],
+        ["Couleur", r.vehicle_color],
+        ["Kilométrage", r.mileage],
+        ["Carburant", r.fuel_level],
+        ["Plainte du client", r.customer_complaint],
+        ["État carrosserie", r.body_condition],
+        ["État peinture", r.paint_condition],
+        ["Vitres et éclairage", r.glass_condition],
+        ["Dommages visibles", r.visible_damage],
+        ["Accessoires reçus", r.received_items_notes],
+        ["Notes inspection", r.inspection_notes],
+        ["Réceptionnaire", r.receiver_name],
+        ["Date de réception", r.received_at]
+      ]
+    },
+
+    quote: {
+      title: "DEVIS DE RÉPARATION",
+      number: r.quote_number,
+      fields: [
+        ["Client", r.customer_name],
+        ["Téléphone", r.customer_phone],
+        ["Adresse", r.customer_address],
+        ["Véhicule", r.vehicle_name],
+        ["Modèle", r.vehicle_model],
+        ["Plaque", r.plate_number],
+        ["Couleur", r.vehicle_color],
+        ["Description des réparations", r.repair_description],
+        ["Pièces", money(r.parts_amount)],
+        ["Main-d'œuvre", money(r.labour_amount)],
+        ["Sous-total", money(r.subtotal_amount)],
+        ["Remise", money(r.discount_amount)],
+        ["TVA", (r.tax_rate || 0) + " %"],
+        ["Montant TVA", money(r.tax_amount)],
+        ["TOTAL À PAYER", money(r.total_amount)],
+        ["Validité", r.validity],
+        ["Statut", r.status],
+        ["Notes", r.notes]
+      ]
+    },
+
+    invoice: {
+      title: "FACTURE GARAGE",
+      number: r.invoice_number || r.Invoice_number,
+      fields: [
+        ["Client", r.customer_name],
+        ["Téléphone", r.customer_phone || r.Customer_phone],
+        ["Véhicule", r.Vehicle_name],
+        ["Modèle", r.Vehicle_model],
+        ["Plaque", r.Vehicle_plate],
+        ["Travaux", r.Job_description || r.repaire_descrption],
+        ["Mécanicien", r.mechanic_name || r.machanic_name],
+        ["Coût des pièces", money(r.parts_cost)],
+        ["Main-d'œuvre", money(r.labor_cost)],
+        ["TOTAL FACTURE", money(
+          r.final_coast || r.Job_cost || r.cost || r.estimated_cost
+        )],
+        ["Montant payé", money(r.paid_amount)],
+        ["Statut paiement", r.Payment_status],
+        ["Date", r.Job_date],
+        ["Notes", r.Notes]
+      ]
+    }
+
+  };
+
+  const doc = documents[type];
+
+  if (!doc) return;
+
+  const rows = doc.fields
+    .filter(item => item[1] !== null &&
+                    item[1] !== undefined &&
+                    item[1] !== "")
+    .map(item => `
+      <tr>
+        <th>${escapeHTML(item[0])}</th>
+        <td>${escapeHTML(item[1])}</td>
+      </tr>
+    `).join("");
+
+  const win = window.open("", "_blank");
+
+  if (!win) {
+    notify("Autorise les fenêtres pop-up pour imprimer.", true);
+    return;
+  }
+
+  win.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>${escapeHTML(doc.title)}</title>
+
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          padding: 25px;
+          color: #222;
+        }
+
+        .header {
+          text-align: center;
+          border-bottom: 3px solid #173b63;
+          padding-bottom: 15px;
+          margin-bottom: 20px;
+        }
+
+        .header h1 {
+          color: #b51f2a;
+          margin: 0;
+        }
+
+        .header p {
+          margin: 5px;
+        }
+
+        h2 {
+          text-align: center;
+          margin: 25px 0;
+        }
+
+        .number {
+          text-align: center;
+          font-weight: bold;
+          margin-bottom: 20px;
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        th, td {
+          border: 1px solid #aaa;
+          padding: 10px;
+          text-align: left;
+          vertical-align: top;
+        }
+
+        th {
+          width: 35%;
+          background: #eee;
+        }
+
+        .signatures {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 65px;
+          gap: 30px;
+        }
+
+        .signatures div {
+          width: 45%;
+          text-align: center;
+          border-top: 1px solid #222;
+          padding-top: 10px;
+        }
+
+        .footer {
+          text-align: center;
+          margin-top: 40px;
+          font-size: 12px;
+        }
+
+        @media print {
+          button { display: none; }
+          body { padding: 10px; }
+        }
+      </style>
+    </head>
+
+    <body>
+
+      <div class="header">
+        <h1>C.W.B SYSTEM</h1>
+        <p>Camel Work and Business company</p>
+        <strong>Better Quality is our priority</strong>
+        <p>Bujumbura, Chaussée du Peuple Murundi No. 54</p>
+        <p>Tél : 67481564 / 62180032</p>
+        <p>NIF : 4002652933</p>
+      </div>
+
+      <h2>${escapeHTML(doc.title)}</h2>
+
+      <div class="number">
+        N° : ${escapeHTML(doc.number || "Non disponible")}
+      </div>
+
+      <table>
+        ${rows}
+      </table>
+
+      <div class="signatures">
+        <div>Signature du client</div>
+        <div>Signature et cachet C.W.B</div>
+      </div>
+
+      <div class="footer">
+        C.W.B System • Master Version 2
+      </div>
+
+      <button onclick="window.print()">
+        IMPRIMER LE DOCUMENT
+      </button>
+
+    </body>
+    </html>
+  `);
+
+  win.document.close();
+}
+
+
+/* Ajouter les boutons aux documents enregistrés */
+
+function attachGaragePrintButtons(rows, type) {
+
+  const buttons = root.querySelectorAll("[data-garage-print]");
+
+  buttons.forEach(button => {
+
+    button.addEventListener("click", () => {
+
+      const index = Number(button.dataset.garagePrint);
+
+      if (rows[index]) {
+        printGarageDocument(type, rows[index]);
+      }
+
+    });
+
+  });
+}
+   
   function navButton(page, label, icon) {
     return `
       <button class="cwb-g-nav"
@@ -737,36 +990,47 @@ async function showJobs() {
      5. FACTURES
   ===================================================== */
 
-  async function showInvoices() {
-    const rows = await getRows(TABLES.jobs, "Created_at");
+  
+async function showInvoices() {
+  const rows = await getRows(TABLES.jobs, "Created_at");
 
-    const invoices = rows.filter(r =>
-      r.invoice_number || r.Invoice_number
-    );
+  const invoices = rows.filter(r =>
+    r.invoice_number || r.Invoice_number
+  );
 
-    showPage(`
-      ${pageHeader("Factures Garage",
-        "Les numéros officiels sont générés par Supabase.")}
+  showPage(`
+    ${pageHeader("Factures Garage",
+      "Les numéros officiels sont générés par Supabase.")}
 
-      ${tableBox(
-        ["N° facture", "Client", "Véhicule", "Montant", "Paiement"],
-        invoices.map(r => `
-          <tr>
-            <td>${escapeHTML(r.invoice_number || r.Invoice_number)}</td>
-            <td>${escapeHTML(r.customer_name || "")}</td>
-            <td>${escapeHTML(r.Vehicle_name || "")}</td>
-            <td>${money(r.final_coast || r.Job_cost || r.cost)}</td>
-            <td>${escapeHTML(r.Payment_status || "")}</td>
-          </tr>
-        `)
-      )}
+    ${tableBox(
+      ["N° facture", "Client", "Véhicule", "Montant", "Paiement", "Impression"],
+      invoices.map((r, i) => `
+        <tr>
+          <td>${escapeHTML(r.invoice_number || r.Invoice_number)}</td>
+          <td>${escapeHTML(r.customer_name || "")}</td>
+          <td>${escapeHTML(r.Vehicle_name || "")}</td>
+          <td>${money(r.final_coast || r.Job_cost || r.cost)}</td>
+          <td>${escapeHTML(r.Payment_status || "")}</td>
+          <td>
+            <button type="button"
+              class="cwb-g-button"
+              data-garage-print="${i}">
+              🖨️ Imprimer
+            </button>
+          </td>
+        </tr>
+      `)
+    )}
 
-      <p>
-        Pour créer une facture, enregistre d'abord une activité Garage.
-        Supabase génère automatiquement son numéro officiel.
-      </p>
-    `);
-  }
+    <p>
+      Pour créer une facture, enregistre d'abord une activité Garage.
+      Supabase génère automatiquement son numéro officiel.
+    </p>
+  `);
+
+  attachGaragePrintButtons(invoices, "invoice");
+}
+
 
   /* =====================================================
      6. ARCHIVES ET DOCUMENTS
