@@ -572,90 +572,166 @@
   /* =====================================================
      4. ACTIVITES GARAGE
   ===================================================== */
+async function showJobs() {
+  const rows = await getRows(TABLES.jobs, "Created_at");
 
-  async function showJobs() {
-    const rows = await getRows(TABLES.jobs, "Created_at");
+  showPage(`
+    ${pageHeader("Activités du Garage",
+      "Suivre les réparations et les mécaniciens.")}
 
-    showPage(`
-      ${pageHeader("Activités du Garage",
-        "Suivre les réparations et les mécaniciens.")}
+    ${formBox("Nouvelle activité", `
+      ${field("Nom du client", "customer_name", "text", true)}
+      ${field("Téléphone du client", "customer_phone")}
+      ${field("Véhicule", "Vehicle_name")}
+      ${field("Modèle", "Vehicle_model")}
+      ${field("Plaque", "Vehicle_plate")}
+      ${field("Numéro du devis", "quotation_number")}
+      ${area("Description du travail", "Job_description", true)}
+      ${field("Nom du mécanicien", "mechanic_name")}
+      ${field("Coût des pièces (BIF)", "parts_cost", "number")}
+      ${field("Coût main-d'œuvre (BIF)", "labor_cost", "number")}
+      ${field("Coût estimé total (BIF)", "estimated_cost", "number")}
+      ${field("Montant déjà payé (BIF)", "paid_amount", "number")}
+      ${field("Date prévue de livraison", "estimated_completion_date", "date")}
 
-      ${formBox("Nouvelle activité", `
-        ${field("Nom du client", "customer_name", "text", true)}
-        ${field("Téléphone du client", "customer_phone")}
-        ${field("Véhicule", "Vehicle_name")}
-        ${field("Modèle", "Vehicle_model")}
-        ${field("Plaque", "Vehicle_plate")}
-        ${field("Numéro du devis", "quotation_number")}
-        ${area("Description du travail", "Job_description", true)}
-        ${field("Nom du mécanicien", "mechanic_name")}
-        ${field("Coût des pièces (BIF)", "parts_cost", "number")}
-        ${field("Coût main-d'œuvre (BIF)", "labor_cost", "number")}
-        ${field("Coût estimé total (BIF)", "estimated_cost", "number")}
-        ${field("Date prévue de livraison", "estimated_completion_date", "date")}
-        ${selectField("Priorité", "Priority",
-          ["Normale", "Urgente", "Très urgente"])}
-        ${selectField("Statut du travail", "Job_status",
-          ["En attente", "En cours", "Terminé", "Livré"])}
-        ${selectField("Paiement", "Payment_status",
-          ["Unpaid", "Partially paid", "Paid"])}
-        ${area("Notes", "Notes")}
-      `, "Enregistrer l'activité")}
+      ${selectField("Priorité", "Priority",
+        ["Normale", "Urgente", "Très urgente"])}
 
-      <h3>Activités enregistrées</h3>
-      ${tableBox(
-        ["N° activité", "N° facture", "Client", "Véhicule", "Statut"],
-        rows.map(r => `
-          <tr>
-            <td>${escapeHTML(r.job_number || r.Job_number || "")}</td>
-            <td>${escapeHTML(r.invoice_number || r.Invoice_number || "")}</td>
-            <td>${escapeHTML(r.customer_name || "")}</td>
-            <td>${escapeHTML(r.Vehicle_name || "")}</td>
-            <td>${escapeHTML(r.Job_status || r.status || "")}</td>
-          </tr>
-        `)
-      )}
-    `);
+      ${selectField("Statut du travail", "Job_status",
+        ["En attente", "En cours", "Terminé", "Livré"])}
 
-    bindForm(async values => {
-      const parts = Number(values.parts_cost || 0);
-      const labour = Number(values.labor_cost || 0);
-      const estimated = Number(values.estimated_cost || parts + labour);
+      ${selectField("Paiement", "Payment_status",
+        ["Unpaid", "Partially paid", "Paid"])}
 
-      const saved = await saveRow(TABLES.jobs, {
-        customer_name: values.customer_name,
-        customer_phone: values.customer_phone || null,
-        Vehicle_name: values.Vehicle_name || null,
-        Vehicle_model: values.Vehicle_model || null,
-        Vehicle_plate: values.Vehicle_plate || null,
-        quotation_number: values.quotation_number || null,
-        Job_description: values.Job_description,
-        repaire_descrption: values.Job_description,
-        mechanic_name: values.mechanic_name || null,
-        machanic_name: values.mechanic_name || null,
-        parts_cost: parts,
-        labor_cost: labour,
-        estimated_cost: estimated,
-        Job_cost: estimated,
-        cost: estimated,
-        estimated_completion_date:
-          values.estimated_completion_date || null,
-        Priority: values.Priority,
-        Job_status: values.Job_status,
-        status: values.Job_status,
-        Payment_status: values.Payment_status,
-        Notes: values.Notes || null,
-        Job_date: today()
-      });
+      ${area("Notes", "Notes")}
+    `, "Enregistrer l'activité")}
 
-      notify(
-        "Activité enregistrée. Numéro généré par Supabase : " +
-        (saved.job_number || saved.Job_number || "voir la fiche")
-      );
+    <h3>Activités enregistrées</h3>
 
-      await showJobs();
+    ${tableBox(
+      ["N° activité", "N° facture", "Client", "Véhicule", "Statut"],
+      rows.map(r => `
+        <tr>
+          <td>${escapeHTML(r.job_number || r.Job_number || "")}</td>
+          <td>${escapeHTML(r.invoice_number || r.Invoice_number || "")}</td>
+          <td>${escapeHTML(r.customer_name || "")}</td>
+          <td>${escapeHTML(r.Vehicle_name || "")}</td>
+          <td>${escapeHTML(r.Job_status || r.status || "")}</td>
+        </tr>
+      `)
+    )}
+  `);
+
+  bindForm(async values => {
+
+    const parts = Number(values.parts_cost || 0);
+    const labour = Number(values.labor_cost || 0);
+
+    const estimated = Number(
+      values.estimated_cost || parts + labour
+    );
+
+    const paymentStatus = values.Payment_status || "Unpaid";
+
+    let paidAmount = Number(values.paid_amount || 0);
+
+    if (
+      !Number.isFinite(estimated) ||
+      estimated < 0 ||
+      !Number.isFinite(paidAmount)
+    ) {
+      notify("Vérifie les montants saisis.", true);
+      return;
+    }
+
+    // Paid = full invoice amount.
+    if (paymentStatus === "Paid") {
+      paidAmount = estimated;
+    }
+
+    // Unpaid = nothing received.
+    if (paymentStatus === "Unpaid") {
+      paidAmount = 0;
+    }
+
+    // Partial payment = actual amount received.
+    if (paymentStatus === "Partially paid") {
+
+      if (paidAmount <= 0) {
+        notify(
+          "Saisis le montant réellement reçu pour le paiement partiel.",
+          true
+        );
+        return;
+      }
+
+      if (paidAmount > estimated) {
+        notify(
+          "Le montant payé ne peut pas dépasser le coût total.",
+          true
+        );
+        return;
+      }
+    }
+
+    const saved = await saveRow(TABLES.jobs, {
+
+      customer_name: values.customer_name,
+      customer_phone: values.customer_phone || null,
+
+      Vehicle_name: values.Vehicle_name || null,
+      Vehicle_model: values.Vehicle_model || null,
+      Vehicle_plate: values.Vehicle_plate || null,
+
+      quotation_number: values.quotation_number || null,
+
+      Job_description: values.Job_description,
+      repaire_descrption: values.Job_description,
+
+      mechanic_name: values.mechanic_name || null,
+      machanic_name: values.mechanic_name || null,
+
+      parts_cost: parts,
+      labor_cost: labour,
+      estimated_cost: estimated,
+
+      Job_cost: estimated,
+      cost: estimated,
+
+      paid_amount: paidAmount,
+
+      estimated_completion_date:
+        values.estimated_completion_date || null,
+
+      Priority: values.Priority,
+
+      Job_status: values.Job_status,
+      status: values.Job_status,
+
+      Payment_status: paymentStatus,
+
+      Notes: values.Notes || null,
+
+      Job_date: today()
     });
-  }
+
+    notify(
+      "Activité enregistrée. Numéro généré par Supabase : " +
+      (saved.job_number || saved.Job_number || "voir la fiche")
+    );
+
+    // Update Financial Summary after saving the Garage activity.
+    if (typeof window.cwbLoadGarageFinancials === "function") {
+      try {
+        await window.cwbLoadGarageFinancials();
+      } catch (error) {
+        console.error("Garage financial update:", error);
+      }
+    }
+
+    await showJobs();
+  });
+}
 
   /* =====================================================
      5. FACTURES
