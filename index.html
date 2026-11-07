@@ -3101,8 +3101,9 @@ if(document.readyState==="loading"){
 <script src="./japan-car-import-module.js"></script>
 <script src="./china-dubai-import-module.js"></script>
 <script src="./garage-module.js"></script>
-<script>
 <script src="./garage-financial-bridge.js"></script>
+
+<script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function () {
     navigator.serviceWorker.register("./service-worker.js")
@@ -3112,6 +3113,7 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
+
 <script>
 let cwbInstallPrompt = null;
 
