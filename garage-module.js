@@ -1144,8 +1144,165 @@ ${tableBox(
   /* =====================================================
      4. ACTIVITES GARAGE
   ===================================================== */
+
 async function showJobs() {
   const rows = await getRows(TABLES.jobs, "Created_at");
+
+  function printJob(type, r) {
+    const win = window.open("", "_blank");
+
+    if (!win) {
+      notify("Autorise les fenêtres pop-up pour imprimer.", true);
+      return;
+    }
+
+    const jobNumber = r.job_number || r.Job_number || "";
+    const invoiceNumber = r.invoice_number || r.Invoice_number || "";
+
+    const subtotal = Number(
+      r.garage_subtotal_ht ??
+      r.parts_cost + (r.labor_cost || 0) ??
+      r.estimated_cost ?? 0
+    );
+
+    const rate = Number(r.garage_tax_rate ?? 0);
+    const tax = Number(r.garage_tax_amount ?? subtotal * rate / 100);
+    const total = Number(
+      r.garage_total_ttc ?? subtotal + tax
+    );
+
+    const paid = Number(r.paid_amount || 0);
+    const balance = Math.max(0, total - paid);
+
+    const money = amount =>
+      Number(amount || 0).toLocaleString("fr-FR") + " BIF";
+
+    const date = r.Job_date || r.Created_at || "";
+
+    const title = type === "invoice"
+      ? "FACTURE FINALE GARAGE"
+      : "FICHE D'ACTIVITÉ GARAGE";
+
+    const financialDetails = `
+      <h3>DÉTAIL FINANCIER</h3>
+      <p>Sous-total HT : ${money(subtotal)}</p>
+      <p>Taux TVA : ${rate}%</p>
+      <p>Montant TVA : ${money(tax)}</p>
+      <hr>
+      <h2>Total TTC : ${money(total)}</h2>
+      <p>Montant payé : ${money(paid)}</p>
+      <h2>Solde restant : ${money(balance)}</h2>
+      <p>Statut paiement : ${escapeHTML(r.Payment_status || "")}</p>
+    `;
+
+    const details = type === "invoice"
+      ? `
+        <h3>DÉTAIL DE LA FACTURE</h3>
+        <p>Numéro facture : ${escapeHTML(invoiceNumber)}</p>
+        <p>Numéro activité : ${escapeHTML(jobNumber)}</p>
+        <p>Description des travaux :<br>
+          ${escapeHTML(r.Job_description || r.repaire_descrption || "")}
+        </p>
+        ${financialDetails}
+      `
+      : `
+        <h3>DÉTAIL DE L'ACTIVITÉ</h3>
+        <p>Numéro activité : ${escapeHTML(jobNumber)}</p>
+        <p>Numéro facture : ${escapeHTML(invoiceNumber)}</p>
+        <p>Description des travaux :<br>
+          ${escapeHTML(r.Job_description || r.repaire_descrption || "")}
+        </p>
+        <p>Mécanicien : ${escapeHTML(r.mechanic_name || r.machanic_name || "")}</p>
+        <p>Priorité : ${escapeHTML(r.Priority || "")}</p>
+        <p>Statut du travail : ${escapeHTML(r.Job_status || r.status || "")}</p>
+        <p>Date prévue de livraison :
+          ${escapeHTML(r.estimated_completion_date || "")}
+        </p>
+        <p>Notes :<br>${escapeHTML(r.Notes || "")}</p>
+        ${financialDetails}
+      `;
+
+    win.document.write(`
+      <!DOCTYPE html>
+      <html lang="fr">
+      <head>
+        <meta charset="UTF-8">
+        <title>${title}</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            color: #111;
+          }
+          h1 {
+            text-align: center;
+            border-bottom: 2px solid #222;
+            padding-bottom: 12px;
+          }
+          h2 { margin-top: 22px; }
+          .company {
+            text-align: center;
+            margin-bottom: 25px;
+          }
+          .section {
+            margin-top: 20px;
+            line-height: 1.7;
+          }
+          .signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 70px;
+          }
+          .signatures div {
+            width: 40%;
+            border-top: 1px solid #222;
+            padding-top: 8px;
+          }
+          @media print {
+            body { padding: 10px; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="company">
+          <h2>C.W.B System</h2>
+          <p>Camel Work and Business company</p>
+          <p>Better Quality is our priority</p>
+          <p>Bujumbura, Chaussée du Peuple Murundi No. 54</p>
+          <p>Tél : 67481564 / 62180032</p>
+        </div>
+
+        <h1>${title}</h1>
+
+        <div class="section">
+          <p>Client : ${escapeHTML(r.customer_name || "")}</p>
+          <p>Téléphone : ${escapeHTML(r.customer_phone || "")}</p>
+          <p>Véhicule : ${escapeHTML(r.Vehicle_name || "")}</p>
+          <p>Modèle : ${escapeHTML(r.Vehicle_model || "")}</p>
+          <p>Plaque : ${escapeHTML(r.Vehicle_plate || "")}</p>
+          <p>Date : ${escapeHTML(date)}</p>
+        </div>
+
+        <div class="section">
+          ${details}
+        </div>
+
+        <div class="signatures">
+          <div>Signature du client</div>
+          <div>Signature C.W.B Garage</div>
+        </div>
+
+        <script>
+          window.onload = function () {
+            window.print();
+          };
+        <\/script>
+      </body>
+      </html>
+    `);
+
+    win.document.close();
+  }
 
   showPage(`
     ${pageHeader("Activités du Garage",
@@ -1162,7 +1319,9 @@ async function showJobs() {
       ${field("Nom du mécanicien", "mechanic_name")}
       ${field("Coût des pièces (BIF)", "parts_cost", "number")}
       ${field("Coût main-d'œuvre (BIF)", "labor_cost", "number")}
-      ${field("Coût estimé total (BIF)", "estimated_cost", "number")}
+      ${field("Sous-total HT (BIF)", "estimated_cost", "number")}
+      ${selectField("Taux de TVA", "garage_tax_rate",
+        ["0", "18"])}
       ${field("Montant déjà payé (BIF)", "paid_amount", "number")}
       ${field("Date prévue de livraison", "estimated_completion_date", "date")}
 
@@ -1181,54 +1340,95 @@ async function showJobs() {
     <h3>Activités enregistrées</h3>
 
     ${tableBox(
-      ["N° activité", "N° facture", "Client", "Véhicule", "Statut"],
-      rows.map(r => `
+      ["N° activité", "N° facture", "Client", "Véhicule", "Statut", "Impression"],
+      rows.map((r, i) => `
         <tr>
           <td>${escapeHTML(r.job_number || r.Job_number || "")}</td>
           <td>${escapeHTML(r.invoice_number || r.Invoice_number || "")}</td>
           <td>${escapeHTML(r.customer_name || "")}</td>
           <td>${escapeHTML(r.Vehicle_name || "")}</td>
           <td>${escapeHTML(r.Job_status || r.status || "")}</td>
+          <td>
+            <button type="button"
+              data-job-print="activity"
+              data-job-index="${i}">
+              🖨️ Fiche
+            </button>
+            <button type="button"
+              data-job-print="invoice"
+              data-job-index="${i}">
+              🧾 Facture
+            </button>
+          </td>
         </tr>
       `)
     )}
   `);
 
-  bindForm(async values => {
+  document.querySelectorAll("[data-job-print]").forEach(button => {
+    button.addEventListener("click", () => {
+      const index = Number(button.dataset.jobIndex);
+      const type = button.dataset.jobPrint;
+      const row = rows[index];
 
+      if (!row) {
+        notify("Activité introuvable.", true);
+        return;
+      }
+
+      if (type === "invoice" &&
+          !(row.invoice_number || row.Invoice_number)) {
+        notify("Cette activité n'a pas encore de numéro de facture.", true);
+        return;
+      }
+
+      printJob(type, row);
+    });
+  });
+
+  bindForm(async values => {
     const parts = Number(values.parts_cost || 0);
     const labour = Number(values.labor_cost || 0);
-
-    const estimated = Number(
+    const subtotalHT = Number(
       values.estimated_cost || parts + labour
     );
 
-    const paymentStatus = values.Payment_status || "Unpaid";
+    const taxRate = Number(values.garage_tax_rate || 0);
 
-    let paidAmount = Number(values.paid_amount || 0);
+    if (![0, 18].includes(taxRate)) {
+      notify("Choisis un taux de TVA de 0 % ou 18 %.", true);
+      return;
+    }
 
     if (
-      !Number.isFinite(estimated) ||
-      estimated < 0 ||
-      !Number.isFinite(paidAmount)
+      !Number.isFinite(parts) || parts < 0 ||
+      !Number.isFinite(labour) || labour < 0 ||
+      !Number.isFinite(subtotalHT) || subtotalHT < 0
     ) {
       notify("Vérifie les montants saisis.", true);
       return;
     }
 
-    // Paid = full invoice amount.
-    if (paymentStatus === "Paid") {
-      paidAmount = estimated;
+    const taxAmount = Math.round(subtotalHT * taxRate) / 100;
+    const totalTTC = subtotalHT + taxAmount;
+
+    const paymentStatus = values.Payment_status || "Unpaid";
+    let paidAmount = Number(values.paid_amount || 0);
+
+    if (!Number.isFinite(paidAmount) || paidAmount < 0) {
+      notify("Vérifie le montant payé.", true);
+      return;
     }
 
-    // Unpaid = nothing received.
+    if (paymentStatus === "Paid") {
+      paidAmount = totalTTC;
+    }
+
     if (paymentStatus === "Unpaid") {
       paidAmount = 0;
     }
 
-    // Partial payment = actual amount received.
     if (paymentStatus === "Partially paid") {
-
       if (paidAmount <= 0) {
         notify(
           "Saisis le montant réellement reçu pour le paiement partiel.",
@@ -1237,9 +1437,9 @@ async function showJobs() {
         return;
       }
 
-      if (paidAmount > estimated) {
+      if (paidAmount > totalTTC) {
         notify(
-          "Le montant payé ne peut pas dépasser le coût total.",
+          "Le montant payé ne peut pas dépasser le total TTC.",
           true
         );
         return;
@@ -1247,7 +1447,6 @@ async function showJobs() {
     }
 
     const saved = await saveRow(TABLES.jobs, {
-
       customer_name: values.customer_name,
       customer_phone: values.customer_phone || null,
 
@@ -1265,10 +1464,15 @@ async function showJobs() {
 
       parts_cost: parts,
       labor_cost: labour,
-      estimated_cost: estimated,
 
-      Job_cost: estimated,
-      cost: estimated,
+      garage_subtotal_ht: subtotalHT,
+      garage_tax_rate: taxRate,
+      garage_tax_amount: taxAmount,
+      garage_total_ttc: totalTTC,
+
+      estimated_cost: totalTTC,
+      Job_cost: totalTTC,
+      cost: totalTTC,
 
       paid_amount: paidAmount,
 
@@ -1292,7 +1496,6 @@ async function showJobs() {
       (saved.job_number || saved.Job_number || "voir la fiche")
     );
 
-    // Update Financial Summary after saving the Garage activity.
     if (typeof window.cwbLoadGarageFinancials === "function") {
       try {
         await window.cwbLoadGarageFinancials();
@@ -1304,6 +1507,9 @@ async function showJobs() {
     await showJobs();
   });
 }
+
+
+      
 
   /* =====================================================
      5. FACTURES
