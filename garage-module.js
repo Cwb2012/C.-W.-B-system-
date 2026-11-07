@@ -414,7 +414,14 @@ function printGarageDocument(type, r) {
 
 function attachGaragePrintButtons(rows, type) {
 
-  const buttons = root.querySelectorAll("[data-garage-print]");
+  const page = root.querySelector("#cwbGaragePage");
+
+  if (!page) {
+    console.error("C.W.B: Garage page introuvable.");
+    return;
+  }
+
+  const buttons = page.querySelectorAll("[data-garage-print]");
 
   buttons.forEach(button => {
 
@@ -430,7 +437,6 @@ function attachGaragePrintButtons(rows, type) {
 
   });
 }
-   
   function navButton(page, label, icon) {
     return `
       <button class="cwb-g-nav"
