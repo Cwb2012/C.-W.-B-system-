@@ -605,80 +605,387 @@ function attachGaragePrintButtons(rows, type) {
      1. RECEPTION DES VEHICULES
   ===================================================== */
 
-  async function showIntakes() {
-    const rows = await getRows(TABLES.intakes, "created_at");
+  
+async function showIntakes() {
+  const rows = await getRows(TABLES.intakes, "created_at");
 
-    showPage(`
-      ${pageHeader("Réception des véhicules",
-        "Créer une fiche d'arrivée et d'inspection.")}
+  const photoPaths = r => {
+    const list = Array.isArray(r.intake_photos)
+      ? r.intake_photos
+      : (Array.isArray(r.photo_paths) ? r.photo_paths : []);
 
-      ${formBox("Nouvelle fiche de réception", `
-        ${field("Nom du client", "customer_name", "text", true)}
-        ${field("Téléphone", "customer_phone")}
-        ${field("Adresse du client", "customer_address")}
-        ${field("Marque / véhicule", "vehicle_name", "text", true)}
-        ${field("Modèle", "vehicle_model")}
-        ${field("Plaque d'immatriculation", "plate_number")}
-        ${field("Numéro VIN", "vin_number")}
-        ${field("Couleur", "vehicle_color")}
-        ${field("Kilométrage", "mileage", "number")}
-        ${selectField("Niveau de carburant", "fuel_level",
-          ["Vide", "1/4", "1/2", "3/4", "Plein", "Non vérifié"])}
-        ${area("Plainte du client", "customer_complaint")}
-        ${area("État de la carrosserie", "body_condition")}
-        ${area("État de la peinture", "paint_condition")}
-        ${area("Vitres et éclairage", "glass_condition")}
-        ${area("Dommages visibles", "visible_damage")}
-        ${area("Accessoires reçus", "received_items_notes")}
-        ${area("Notes d'inspection", "inspection_notes")}
-        ${field("Nom du réceptionnaire", "receiver_name")}
-      `, "Enregistrer la réception")}
+    return list.map(p =>
+      typeof p === "string" ? p : (p.path || p.storage_path || "")
+    ).filter(Boolean);
+  };
 
-      <h3>Réceptions enregistrées</h3>
-      ${tableBox(
-        ["Numéro", "Client", "Véhicule", "Plaque", "Date"],
-        rows.map(r => `
-          <tr>
-            <td>${escapeHTML(r.intake_number || "En attente")}</td>
-            <td>${escapeHTML(r.customer_name)}</td>
-            <td>${escapeHTML(r.vehicle_name)}</td>
-            <td>${escapeHTML(r.plate_number)}</td>
-            <td>${escapeHTML(r.received_at || "")}</td>
-          </tr>
-        `)
-      )}
+  const getSignedPhotos = async r => {
+    const urls = [];
+
+    for (const path of photoPaths(r)) {
+      const result = await db.storage
+        .from(BUCKET)
+        .createSignedUrl(path, 300);
+
+      if (!result.error && result.data?.signedUrl) {
+        urls.push(result.data.signedUrl);
+      }
+    }
+
+    return urls;
+  };
+
+  const printIntake = async r => {
+    const win = window.open("", "_blank");
+
+    if (!win) {
+      notify("Autorise les fenêtres pop-up pour imprimer.");
+      return;
+    }
+
+    const photos = await getSignedPhotos(r);
+
+    const details = [
+      ["Numéro de réception", r.intake_number],
+      ["Date de réception", r.received_at],
+      ["Client", r.customer_name],
+      ["Téléphone", r.customer_phone],
+      ["Adresse", r.customer_address],
+      ["Véhicule", r.vehicle_name],
+      ["Modèle", r.vehicle_model],
+      ["Plaque", r.plate_number],
+      ["VIN", r.vin_number],
+      ["Couleur", r.vehicle_color],
+      ["Kilométrage", r.mileage],
+      ["Carburant", r.fuel_level],
+      ["Plainte du client", r.customer_complaint],
+      ["État de la carrosserie", r.body_condition],
+      ["État de la peinture", r.paint_condition],
+      ["Vitres et éclairage", r.glass_condition],
+      ["Dommages visibles", r.visible_damage],
+      ["Accessoires reçus", r.received_items_notes],
+      ["Notes d'inspection", r.inspection_notes],
+      ["Réceptionnaire", r.receiver_name]
+    ];
+
+    const content = details.map(item => `
+      <tr>
+        <th>${escapeHTML(item[0])}</th>
+        <td>${escapeHTML(item[1] || "-")}</td>
+      </tr>
+    `).join("");
+
+    const photoHTML = photos.map(url => `
+      <img src="${escapeHTML(url)}"
+        style="width:220px;max-height:180px;object-fit:contain;margin:8px;">
+    `).join("");
+
+    win.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Fiche de réception</title>
+        <style>
+          body { font-family: Arial; padding: 20px; color: #111; }
+          h2, h3 { text-align: center; }
+          table { width: 100%; border-collapse: collapse; }
+          th, td { border: 1px solid #777; padding: 8px; text-align: left; }
+          th { width: 30%; background: #eee; }
+          .photos { margin-top: 20px; }
+          img { page-break-inside: avoid; }
+        </style>
+      </head>
+      <body>
+        <h2>C.W.B SYSTEM</h2>
+        <h3>FICHE DE RÉCEPTION DU VÉHICULE</h3>
+        <table>${content}</table>
+        <h3>Photos du véhicule à son arrivée</h3>
+        <div class="photos">
+          ${photoHTML || "Aucune photo enregistrée."}
+        </div>
+      </body>
+      </html>
     `);
 
-    bindForm(async values => {
-      const payload = {
-        customer_name: values.customer_name,
-        customer_phone: values.customer_phone || null,
-        customer_address: values.customer_address || null,
-        vehicle_name: values.vehicle_name,
-        vehicle_model: values.vehicle_model || null,
-        plate_number: values.plate_number || null,
-        vin_number: values.vin_number || null,
-        vehicle_color: values.vehicle_color || null,
-        mileage: values.mileage ? Number(values.mileage) : null,
-        fuel_level: values.fuel_level,
-        customer_complaint: values.customer_complaint || null,
-        body_condition: values.body_condition || null,
-        paint_condition: values.paint_condition || null,
-        glass_condition: values.glass_condition || null,
-        visible_damage: values.visible_damage || null,
-        received_items_notes: values.received_items_notes || null,
-        inspection_notes: values.inspection_notes || null,
-        receiver_name: values.receiver_name || null
-      };
+    win.document.close();
+    win.onload = () => win.print();
+  };
 
-      const saved = await saveRow(TABLES.intakes, payload);
+  showPage(`
+    ${pageHeader("Réception des véhicules",
+      "Créer, rechercher et consulter les fiches de réception.")}
 
-      notify("Réception enregistrée : " +
-        (saved.intake_number || "numéro généré par Supabase"));
+    ${formBox("Nouvelle fiche de réception", `
+      ${field("Nom du client", "customer_name", "text", true)}
+      ${field("Téléphone", "customer_phone")}
+      ${field("Adresse du client", "customer_address")}
+      ${field("Marque / véhicule", "vehicle_name", "text", true)}
+      ${field("Modèle", "vehicle_model")}
+      ${field("Plaque d'immatriculation", "plate_number")}
+      ${field("Numéro VIN", "vin_number")}
+      ${field("Couleur", "vehicle_color")}
+      ${field("Kilométrage", "mileage", "number")}
+      ${selectField("Niveau de carburant", "fuel_level",
+        ["Vide", "1/4", "1/2", "3/4", "Plein", "Non vérifié"])}
+      ${area("Plainte du client", "customer_complaint")}
+      ${area("État de la carrosserie", "body_condition")}
+      ${area("État de la peinture", "paint_condition")}
+      ${area("Vitres et éclairage", "glass_condition")}
+      ${area("Dommages visibles", "visible_damage")}
+      ${area("Accessoires reçus", "received_items_notes")}
+      ${area("Notes d'inspection", "inspection_notes")}
+      ${field("Nom du réceptionnaire", "receiver_name")}
 
-      await showIntakes();
+      <label style="display:block;margin-top:15px;font-weight:bold;">
+        Photos du véhicule (20 maximum)
+      </label>
+      <input
+        type="file"
+        name="intake_photos"
+        accept="image/*"
+        multiple
+        style="display:block;margin-top:8px;width:100%;"
+      >
+      <small>
+        Sélectionne les photos depuis ton téléphone ou l'appareil photo.
+      </small>
+    `, "Enregistrer la réception")}
+
+    <h3>Archives des réceptions</h3>
+
+    <input
+      type="search"
+      id="intakeSearch"
+      placeholder="Rechercher numéro, client, téléphone, plaque ou véhicule..."
+      style="width:100%;padding:12px;margin:10px 0;"
+    >
+
+    ${tableBox(
+      ["Numéro", "Client", "Véhicule", "Plaque", "Date", "Actions"],
+      rows.map((r, i) => {
+        const searchText = [
+          r.intake_number,
+          r.customer_name,
+          r.customer_phone,
+          r.plate_number,
+          r.vehicle_name,
+          r.vehicle_model
+        ].join(" ").toLowerCase();
+
+        return `
+          <tr data-intake-row
+              data-search="${escapeHTML(searchText)}">
+            <td>${escapeHTML(r.intake_number || "En attente")}</td>
+            <td>${escapeHTML(r.customer_name || "")}</td>
+            <td>${escapeHTML(r.vehicle_name || "")}</td>
+            <td>${escapeHTML(r.plate_number || "")}</td>
+            <td>${escapeHTML(r.received_at || "")}</td>
+            <td>
+              <button type="button"
+                data-intake-open="${escapeHTML(r.id)}">
+                Ouvrir
+              </button>
+              <button type="button"
+                data-intake-print="${i}">
+                Imprimer
+              </button>
+            </td>
+          </tr>
+        `;
+      })
+    )}
+
+    <div id="intakeDetails" style="margin-top:20px;"></div>
+  `);
+
+  const searchInput = document.getElementById("intakeSearch");
+
+  if (searchInput) {
+    searchInput.addEventListener("input", () => {
+      const term = searchInput.value.toLowerCase().trim();
+
+      document.querySelectorAll("[data-intake-row]").forEach(row => {
+        row.style.display =
+          row.dataset.search.includes(term) ? "" : "none";
+      });
     });
   }
+
+  document.querySelectorAll("[data-intake-open]").forEach(button => {
+    button.addEventListener("click", async () => {
+      const r = rows.find(x =>
+        String(x.id) === button.dataset.intakeOpen
+      );
+
+      if (!r) return;
+
+      const photos = await getSignedPhotos(r);
+
+      const details = [
+        ["Numéro", r.intake_number],
+        ["Date", r.received_at],
+        ["Client", r.customer_name],
+        ["Téléphone", r.customer_phone],
+        ["Adresse", r.customer_address],
+        ["Véhicule", r.vehicle_name],
+        ["Modèle", r.vehicle_model],
+        ["Plaque", r.plate_number],
+        ["VIN", r.vin_number],
+        ["Couleur", r.vehicle_color],
+        ["Kilométrage", r.mileage],
+        ["Carburant", r.fuel_level],
+        ["Plainte du client", r.customer_complaint],
+        ["Carrosserie", r.body_condition],
+        ["Peinture", r.paint_condition],
+        ["Vitres et éclairage", r.glass_condition],
+        ["Dommages", r.visible_damage],
+        ["Accessoires reçus", r.received_items_notes],
+        ["Inspection", r.inspection_notes],
+        ["Réceptionnaire", r.receiver_name]
+      ];
+
+      const detailsHTML = details.map(item => `
+        <p><strong>${escapeHTML(item[0])} :</strong>
+        ${escapeHTML(item[1] || "-")}</p>
+      `).join("");
+
+      const photosHTML = photos.map(url => `
+        <img src="${escapeHTML(url)}"
+          style="width:140px;height:110px;object-fit:cover;margin:5px;border-radius:6px;">
+      `).join("");
+
+      const area = document.getElementById("intakeDetails");
+
+      if (area) {
+        area.innerHTML = `
+          <h3>Fiche de réception : ${escapeHTML(r.intake_number || "")}</h3>
+          ${detailsHTML}
+          <h4>Photos enregistrées (${photos.length})</h4>
+          <div>${photosHTML || "Aucune photo disponible."}</div>
+          <button type="button" id="intakeDetailPrint">
+            Imprimer cette fiche et ses photos
+          </button>
+        `;
+
+        document.getElementById("intakeDetailPrint")
+          .addEventListener("click", () => printIntake(r));
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-intake-print]").forEach(button => {
+    button.addEventListener("click", () => {
+      const r = rows[Number(button.dataset.intakePrint)];
+      if (r) printIntake(r);
+    });
+  });
+
+  bindForm(async (values, form) => {
+    const fileInput = form.querySelector(
+      'input[name="intake_photos"]'
+    );
+
+    const files = fileInput
+      ? Array.from(fileInput.files || [])
+      : [];
+
+    if (files.length > 20) {
+      notify("Maximum 20 photos par réception.");
+      return;
+    }
+
+    if (files.some(file => !file.type.startsWith("image/"))) {
+      notify("Sélectionne uniquement des fichiers image.");
+      return;
+    }
+
+    const payload = {
+      customer_name: values.customer_name,
+      customer_phone: values.customer_phone || null,
+      customer_address: values.customer_address || null,
+      vehicle_name: values.vehicle_name,
+      vehicle_model: values.vehicle_model || null,
+      plate_number: values.plate_number || null,
+      vin_number: values.vin_number || null,
+      vehicle_color: values.vehicle_color || null,
+      mileage: values.mileage ? Number(values.mileage) : null,
+      fuel_level: values.fuel_level || null,
+      customer_complaint: values.customer_complaint || null,
+      body_condition: values.body_condition || null,
+      paint_condition: values.paint_condition || null,
+      glass_condition: values.glass_condition || null,
+      visible_damage: values.visible_damage || null,
+      received_items_notes: values.received_items_notes || null,
+      inspection_notes: values.inspection_notes || null,
+      receiver_name: values.receiver_name || null,
+      intake_photos: [],
+      photo_paths: []
+    };
+
+    const saved = await saveRow(TABLES.intakes, payload);
+    const uploadedPaths = [];
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const safeName = file.name.replace(
+          /[^a-zA-Z0-9._-]/g, "_"
+        );
+
+        const path = "garage/intakes/" + saved.id + "/" +
+          Date.now() + "_" + i + "_" + safeName;
+
+        const upload = await db.storage
+          .from(BUCKET)
+          .upload(path, file, {
+            cacheControl: "3600",
+            upsert: false
+          });
+
+        if (upload.error) throw upload.error;
+
+        uploadedPaths.push(path);
+      }
+
+      if (uploadedPaths.length > 0) {
+        const update = await db
+          .from(TABLES.intakes)
+          .update({
+            intake_photos: uploadedPaths,
+            photo_paths: uploadedPaths
+          })
+          .eq("id", saved.id);
+
+        if (update.error) throw update.error;
+      }
+
+      notify(
+        "Réception enregistrée : " +
+        (saved.intake_number || "numéro généré par Supabase") +
+        " — " + uploadedPaths.length + " photo(s)."
+      );
+
+    } catch (photoError) {
+      if (uploadedPaths.length > 0) {
+        await db.from(TABLES.intakes)
+          .update({
+            intake_photos: uploadedPaths,
+            photo_paths: uploadedPaths
+          })
+          .eq("id", saved.id);
+      }
+
+      notify(
+        "Réception enregistrée, mais problème pendant l'envoi des photos. " +
+        uploadedPaths.length + " photo(s) envoyée(s)."
+      );
+    }
+
+    await showIntakes();
+  });
+}
+
 
   /* =====================================================
      2. DEVIS
