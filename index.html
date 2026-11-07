@@ -228,8 +228,17 @@ function showModule(id) {
 
     // Load module data
     if (key === 'inventory') loadInventory();
-    if (key === 'garage' && window.cwbGarageInit) {
-    window.cwbGarageInit();
+    if (key === 'garage') {
+    if (typeof window.cwbGarageInit === 'function') {
+        try {
+            window.cwbGarageInit();
+        } catch (error) {
+            console.error("Erreur C.W.B Garage :", error);
+            alert("Erreur au démarrage du Garage : " + error.message);
+        }
+    } else {
+        alert("Le fichier garage-module.js n'a pas correctement chargé le module.");
+    }
 }
     if (key === 'sales') loadSales();
     if (key === 'purchases') renderPurchases();
