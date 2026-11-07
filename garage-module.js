@@ -1320,8 +1320,17 @@ async function showJobs() {
       ${field("Coût des pièces (BIF)", "parts_cost", "number")}
       ${field("Coût main-d'œuvre (BIF)", "labor_cost", "number")}
       ${field("Sous-total HT (BIF)", "estimated_cost", "number")}
-      ${selectField("Taux de TVA", "garage_tax_rate",
-        ["0", "18"])}
+      <label class="cwb-g-label">
+  Choisir le taux de TVA
+  <select class="cwb-g-input"
+    name="garage_tax_rate" required>
+    <option value="" selected disabled>
+      -- Choisir le taux de TVA --
+    </option>
+    <option value="0">0 % — Sans TVA</option>
+    <option value="18">18 % — TVA normale</option>
+  </select>
+</label>
       ${field("Montant déjà payé (BIF)", "paid_amount", "number")}
       ${field("Date prévue de livraison", "estimated_completion_date", "date")}
 
