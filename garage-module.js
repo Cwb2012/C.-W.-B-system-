@@ -605,7 +605,6 @@ function attachGaragePrintButtons(rows, type) {
      1. RECEPTION DES VEHICULES
   ===================================================== */
 
-  
 async function showIntakes() {
   const rows = await getRows(TABLES.intakes, "created_at");
 
@@ -985,7 +984,6 @@ async function showIntakes() {
     await showIntakes();
   });
 }
-
 
   /* =====================================================
      2. DEVIS
