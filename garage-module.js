@@ -1159,20 +1159,28 @@ async function showJobs() {
     const jobNumber = r.job_number || r.Job_number || "";
     const invoiceNumber = r.invoice_number || r.Invoice_number || "";
 
-    const subtotal = Number(
-      r.garage_subtotal_ht ??
-      r.parts_cost + (r.labor_cost || 0) ??
-      r.estimated_cost ?? 0
-    );
+    
+const subtotal = Number(
+  r.garage_subtotal_ht ??
+  (
+    r.parts_cost != null || r.labor_cost != null
+      ? Number(r.parts_cost || 0) + Number(r.labor_cost || 0)
+      : Number(r.estimated_cost || r.Job_cost || r.cost || 0)
+  )
+);
 
-    const rate = Number(r.garage_tax_rate ?? 0);
-    const tax = Number(r.garage_tax_amount ?? subtotal * rate / 100);
-    const total = Number(
-      r.garage_total_ttc ?? subtotal + tax
-    );
+const rate = Number(r.garage_tax_rate ?? 0);
 
-    const paid = Number(r.paid_amount || 0);
-    const balance = Math.max(0, total - paid);
+const tax = Number(
+  r.garage_tax_amount ?? (subtotal * rate / 100)
+);
+
+const total = Number(
+  r.garage_total_ttc ?? (subtotal + tax)
+);
+
+const paid = Number(r.paid_amount || 0);
+const balance = Math.max(0, total - paid);
 
     const money = amount =>
       Number(amount || 0).toLocaleString("fr-FR") + " BIF";
