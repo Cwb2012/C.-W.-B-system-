@@ -725,6 +725,25 @@ function attachGaragePrintButtons(rows, type) {
     </td>
   </tr>
 `)
+          ${tableBox(
+        ["Numéro", "Client", "Véhicule", "Total", "Statut", "Impression"],
+        rows.map((r, i) => `
+          <tr>
+            <td>${escapeHTML(r.quote_number || "")}</td>
+            <td>${escapeHTML(r.customer_name)}</td>
+            <td>${escapeHTML(r.vehicle_name)}</td>
+            <td>${money(r.total_amount)}</td>
+            <td>${escapeHTML(r.status)}</td>
+            <td>
+              <button type="button" data-garage-print="${i}">
+                🖨️ Imprimer
+              </button>
+            </td>
+          </tr>
+        `)
+      )}
+    `);
+
     attachGaragePrintButtons(rows, "quote");
     bindForm(async values => {
       const parts = Number(values.parts_amount || 0);
