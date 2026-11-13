@@ -706,35 +706,42 @@
     }
   }
 
-  async function searchShipment() {
-    try {
-      const c = requireClient();
-      const q = val('cdiSearchNumber');
+  
+async function searchShipment() {
+  try {
+    const c = requireClient();
 
-      if (!q) {
-        message('Saisis un numéro de dossier.', true);
-        return;
-      }
+    const q = val('cdiSearchNumber')
+      .trim()
+      .replace(/\s+/g, '');
 
-      const r = await c
-        .from(TABLES.shipments)
-        .select('id,shipment_number')
-        .eq('shipment_number', q)
-        .maybeSingle();
-
-      if (r.error) throw r.error;
-
-      if (!r.data) {
-        message('Dossier introuvable.', true);
-        return;
-      }
-
-      await loadShipment(r.data.id);
-
-    } catch (e) {
-      message('Recherche impossible : ' + e.message, true);
+    if (!q) {
+      message('Saisis un numéro de dossier.', true);
+      return;
     }
+
+    message('Recherche du dossier en cours…');
+
+    const r = await c
+      .from(TABLES.shipments)
+      .select('id, shipment_number')
+      .ilike('shipment_number', q)
+      .maybeSingle();
+
+    if (r.error) throw r.error;
+
+    if (!r.data) {
+      message('Dossier introuvable : ' + q, true);
+      return;
+    }
+
+    await loadShipment(r.data.id);
+
+  } catch (e) {
+    message('Recherche impossible : ' + e.message, true);
   }
+}
+
 
   function isImageDocument(doc) {
     const name = String(doc.original_name || '').toLowerCase();
