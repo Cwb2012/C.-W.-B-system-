@@ -194,9 +194,14 @@ function msg(id,t,error=false){const e=document.getElementById(id);if(!e)return;
 function showModule(id) {
     const key = String(id || '').toLowerCase();
 
-    // Initialize import modules
+    
+    // Initialize import modules safely
     if (key === 'chinadubai' && window.cwbInitChinaDubaiImport) {
-        window.cwbInitChinaDubaiImport();
+        try {
+            window.cwbInitChinaDubaiImport();
+        } catch (error) {
+            console.error('CDI initialization error:', error);
+        }
     }
 
     if (key === 'japanimport' && window.cwbJapanCarImportInit) {
