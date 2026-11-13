@@ -430,10 +430,13 @@
 
       <div class="cdi-card">
         <h3>7. 📸 Photos des marchandises</h3>
-        <p>Ajoute les photos des produits de cette expédition.</p>
-<label>Ajouter une photo (caméra ou galerie)
+<p>Prendre directement une photo des produits de cette expédition.</p>
+
+<label>📷 Prendre une photo
   <input id="cdiPhotos" type="file"
-    accept="image/*" multiple>
+    accept="image/*"
+    capture="environment"
+    multiple>
 </label>
         
 
