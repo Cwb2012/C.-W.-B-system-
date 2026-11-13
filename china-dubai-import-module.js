@@ -123,7 +123,8 @@ Aucune photo chargée.
 
     const style=document.createElement('style');style.textContent=`#chinaDubaiImport{color:#172033}#chinaDubaiImport .cdi-card{background:#fff;border:1px solid #dbe1ea;border-radius:12px;padding:14px;margin:12px 0}#chinaDubaiImport .cdi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}#chinaDubaiImport label{display:block;font-weight:600}#chinaDubaiImport input,#chinaDubaiImport select,#chinaDubaiImport textarea{display:block;width:100%;box-sizing:border-box;padding:9px;margin:5px 0 10px;border:1px solid #cbd5e1;border-radius:7px}#chinaDubaiImport button{background:#b91c1c;color:white;border:0;border-radius:8px;padding:10px 14px;margin:5px;cursor:pointer}#chinaDubaiImport .cdi-danger{background:#64748b}#cdiMessage{font-weight:600;margin:10px 0}@media print{body *{visibility:hidden}#chinaDubaiImport,#chinaDubaiImport *{visibility:visible}#chinaDubaiImport{position:absolute;left:0;top:0;width:100%}#chinaDubaiImport button,#chinaDubaiImport input[type=file]{display:none}}`;
     document.head.appendChild(style);parent.appendChild(section);
-    $('cdiAddSupplier').onclick=()=>addSupplier();$('cdiAddItem').onclick=()=>addItem();$('cdiAddCost').onclick=()=>addCost();$('cdiSave').onclick=saveShipment;$('cdiPrint').onclick=()=>window.print();$('cdiSearch').onclick=searchShipment;$('cdiUpload').onclick=uploadDocument;
+$('cdiAddSupplier').onclick=()=>addSupplier();$('cdiAddItem').onclick=()=>addItem();$('cdiAddCost').onclick=()=>addCost();$('cdiSave').onclick=saveShipment;$('cdiPrint').onclick=()=>window.print();$('cdiSearch').onclick=searchShipment;$('cdiUpload').onclick=uploadDocument;$('cdiUploadPhotos').onclick=uploadPhotos;
+
     addSupplier();addItem();
   }
      async function saveShipment(){
@@ -151,6 +152,82 @@ Aucune photo chargée.
   async function setArrived(id){try{const c=requireClient();const r=await c.from(TABLES.items).update({status:'Arrived',updated_at:new Date().toISOString()}).eq('id',id).eq('status','Draft');if(r.error)throw r.error;await loadShipment(currentShipment.id);}catch(e){message('Impossible de changer le statut : '+e.message,true);}}
   async function receiveItem(id){if(!confirm('Confirmer la réception ? Cette action ajoutera la quantité à Inventory.'))return;try{const c=requireClient();const r=await c.rpc('cwb_cd_confirm_item_receipt',{p_item_id:id});if(r.error)throw r.error;message('Réception confirmée. Résultat : '+JSON.stringify(r.data));await loadShipment(currentShipment.id);}catch(e){message('Réception non confirmée : '+e.message,true);}}
   async function uploadDocument(){try{const c=requireClient();if(!currentShipment)throw new Error('Recherche ou enregistre d’abord un dossier.');const file=$('cdiDocument').files[0];if(!file)throw new Error('Choisis un document.');if(file.size>20*1024*1024)throw new Error('Fichier supérieur à 20 MB.');const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,'_');const path=currentShipment.id+'/'+Date.now()+'_'+safe;const up=await c.storage.from(BUCKET).upload(path,file,{upsert:false,contentType:file.type||'application/octet-stream'});if(up.error)throw up.error;const userData=await c.auth.getUser();const row=await c.from(TABLES.docs).insert({shipment_id:currentShipment.id,supplier_id:val('cdiDocumentSupplier')||null,document_type:file.type==='application/pdf'?'PDF':'Image',document_path:path,original_name:file.name,uploaded_by:userData.data.user.id});if(row.error)throw row.error;message('Document archivé.');await loadShipment(currentShipment.id);}catch(e){message('Téléversement impossible : '+e.message,true);}}
+
+async function uploadPhotos(){
+  try {
+    const c = requireClient();
+
+    if(!currentShipment)
+      throw new Error('Recherche ou enregistre d’abord un dossier.');
+
+    const input = $('cdiPhotos');
+    const files = Array.from(input.files || []);
+
+    if(!files.length)
+      throw new Error('Choisis au moins une photo.');
+
+    for(const file of files){
+      if(!file.type.startsWith('image/'))
+        throw new Error('Seules les images sont acceptées.');
+
+      if(file.size > 20*1024*1024)
+        throw new Error('Une photo dépasse 20 MB.');
+    }
+
+    const auth = await c.auth.getUser();
+    const user = auth.data && auth.data.user;
+
+    if(!user)
+      throw new Error('Connecte-toi à C.W.B System.');
+
+    message('Enregistrement des photos en cours…');
+
+    let uploaded = 0;
+
+    for(const file of files){
+      const safe = file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+
+      const path =
+        currentShipment.id +
+        '/photos/' +
+        Date.now() + '_' +
+        Math.random().toString(36).slice(2,8) +
+        '_' + safe;
+
+      const up = await c.storage
+        .from(BUCKET)
+        .upload(path,file,{
+          upsert:false,
+          contentType:file.type
+        });
+
+      if(up.error) throw up.error;
+
+      const row = await c.from(TABLES.docs).insert({
+        shipment_id:currentShipment.id,
+        supplier_id:null,
+        document_type:'Photo marchandise',
+        document_path:path,
+        original_name:file.name,
+        uploaded_by:user.id
+      });
+
+      if(row.error) throw row.error;
+
+      uploaded++;
+    }
+
+    input.value = '';
+
+    message(uploaded + ' photo(s) enregistrée(s) avec succès.');
+
+    await loadShipment(currentShipment.id);
+
+  } catch(e) {
+    message('Erreur photos : '+e.message,true);
+  }
+}
+
   function initialize(){if(initialized)return;buildUI();initialized=true;}
   window.cwbInitChinaDubaiImport=initialize;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initialize);else initialize();
