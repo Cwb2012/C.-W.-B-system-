@@ -638,88 +638,215 @@
     } finally {
       button.disabled = false;
     }
-  }  async function loadImports() {
-    const body = $('cdiImportsBody');
-    if (!body) return;
+  }  
+async function loadImports() {
+  const body = $('cdiImportsBody');
+  if (!body) return;
 
-    body.innerHTML = '<tr><td colspan="10">Chargement...</td></tr>';
+  body.innerHTML = '<tr><td colspan="10">Chargement...</td></tr>';
 
-    try {
-      const client = requireDb();
+  try {
+    const client = requireDb();
 
-      const result = await client
-        .from(TABLE)
-        .select('*')
-        .order('created_at', { ascending: false });
+    const result = await client
+      .from(TABLE)
+      .select('*')
+      .order('created_at', { ascending: false });
 
-      if (result.error) throw result.error;
+    if (result.error) throw result.error;
 
-      if (!result.data || !result.data.length) {
-        body.innerHTML =
-          '<tr><td colspan="10">Aucune importation enregistrée.</td></tr>';
-        return;
+    if (!result.data || !result.data.length) {
+      body.innerHTML =
+        '<tr><td colspan="10">Aucune importation enregistrée.</td></tr>';
+      return;
+    }
+
+    body.innerHTML = result.data.map((item) => {
+      const date = item.created_at
+        ? new Date(item.created_at).toLocaleDateString('fr-FR')
+        : '—';
+
+      const qty =
+        `${money(item.total_pieces)} ${escapeHtml(item.unit || '')}`;
+
+      const status = escapeHtml(item.import_status || '—');
+
+      let action = `
+        <button type="button"
+          class="cdi-primary"
+          data-open="${escapeHtml(item.id)}">
+          📂 Ouvrir le dossier
+        </button>
+      `;
+
+      if (item.import_status === 'Arrived' && !item.stock_received_at) {
+        action += `
+          <button type="button"
+            class="cdi-secondary"
+            data-receive="${escapeHtml(item.id)}">
+            Réceptionner en stock
+          </button>
+        `;
+      } else if (item.stock_received_at) {
+        action += '<span>Stock reçu</span>';
       }
 
-      body.innerHTML = result.data.map((item) => {
-        const date = item.created_at
-          ? new Date(item.created_at).toLocaleDateString('fr-FR')
-          : '—';
-
-        const qty =
-          `${money(item.total_pieces)} ${escapeHtml(item.unit || '')}`;
-
-        const status = escapeHtml(item.import_status || '—');
-
-        let action = '';
-
-        if (item.import_status === 'Arrived' && !item.stock_received_at) {
-          action = `
-            <button type="button"
-              class="cdi-primary"
-              data-receive="${escapeHtml(item.id)}">
-              Réceptionner en stock
-            </button>
-          `;
-        } else if (item.stock_received_at) {
-          action = '<span>Stock reçu</span>';
-        } else {
-          action = '<span>—</span>';
-        }
-
-        return `
-          <tr>
-            <td>${escapeHtml(item.import_number || '—')}</td>
-            <td>${escapeHtml(date)}</td>
-            <td>${escapeHtml(item.item_name || '')}</td>
-            <td>${escapeHtml(item.source_country || '')}</td>
-            <td>${qty}</td>
-            <td>${money(item.landed_cost_bif)}</td>
-            <td>${money(item.wholesale_price_bif)}</td>
-            <td>${money(item.retail_price_bif)}</td>
-            <td>${status}</td>
-            <td>${action}</td>
-          </tr>
-        `;
-      }).join('');
-
-      body.querySelectorAll('[data-receive]').forEach((button) => {
-        button.addEventListener('click', () => {
-          confirmReceipt(button.dataset.receive, button);
-        });
-      });
-
-    } catch (error) {
-      console.error('C.W.B China Dubai load error:', error);
-
-      body.innerHTML = `
+      return `
         <tr>
-          <td colspan="10">
-            ${escapeHtml(error.message || 'Erreur de chargement.')}
-          </td>
+          <td>${escapeHtml(item.import_number || '—')}</td>
+          <td>${escapeHtml(date)}</td>
+          <td>${escapeHtml(item.item_name || '')}</td>
+          <td>${escapeHtml(item.source_country || '')}</td>
+          <td>${qty}</td>
+          <td>${money(item.landed_cost_bif)}</td>
+          <td>${money(item.wholesale_price_bif)}</td>
+          <td>${money(item.retail_price_bif)}</td>
+          <td>${status}</td>
+          <td>${action}</td>
         </tr>
       `;
-    }
+    }).join('');
+
+    body.querySelectorAll('[data-open]').forEach((button) => {
+      button.addEventListener('click', () => {
+        openImportFolder(button.dataset.open, button);
+      });
+    });
+
+    body.querySelectorAll('[data-receive]').forEach((button) => {
+      button.addEventListener('click', () => {
+        confirmReceipt(button.dataset.receive, button);
+      });
+    });
+
+  } catch (error) {
+    console.error('C.W.B China Dubai load error:', error);
+
+    body.innerHTML = `
+      <tr>
+        <td colspan="10">
+          ${escapeHtml(error.message || 'Erreur de chargement.')}
+        </td>
+      </tr>
+    `;
   }
+}
+
+async function openImportFolder(importId, button) {
+  if (button) button.disabled = true;
+
+  const resultBox = $('cdiSearchResult');
+  resultBox.textContent = 'Ouverture du dossier...';
+
+  try {
+    const client = requireDb();
+
+    const result = await client
+      .from(TABLE)
+      .select('*')
+      .eq('id', importId)
+      .single();
+
+    if (result.error) throw result.error;
+
+    const item = result.data;
+    customsImport = item;
+
+    const date = item.created_at
+      ? new Date(item.created_at).toLocaleDateString('fr-FR')
+      : '—';
+
+    let photoHtml = '<p>Aucune photo enregistrée.</p>';
+
+    if (item.photo_path) {
+      const photo = await client.storage
+        .from(PHOTO_BUCKET)
+        .createSignedUrl(item.photo_path, 3600);
+
+      if (!photo.error && photo.data && photo.data.signedUrl) {
+        photoHtml = `
+          <p><strong>Photo du produit :</strong></p>
+          <img src="${escapeHtml(photo.data.signedUrl)}"
+            alt="Photo du produit"
+            style="max-width:220px;max-height:180px;object-fit:contain">
+        `;
+      } else {
+        photoHtml = '<p>Photo enregistrée, mais aperçu indisponible.</p>';
+      }
+    }
+
+    const total = Number(item.total_pieces || 0);
+    const landed = Number(item.landed_cost_bif || 0);
+
+    resultBox.innerHTML = `
+      <div class="cdi-box">
+        <h3>📂 DOSSIER D'IMPORTATION</h3>
+
+        <h4>${escapeHtml(item.import_number || 'Numéro indisponible')}</h4>
+
+        <p><strong>Date :</strong> ${escapeHtml(date)}</p>
+        <p><strong>Produit :</strong> ${escapeHtml(item.item_name || '—')}</p>
+        <p><strong>Catégorie :</strong> ${escapeHtml(item.category || '—')}</p>
+        <p><strong>Pays :</strong> ${escapeHtml(item.source_country || '—')}</p>
+        <p><strong>Fournisseur :</strong> ${escapeHtml(item.supplier_name || '—')}</p>
+        <p><strong>Référence fournisseur :</strong> ${escapeHtml(item.supplier_reference || '—')}</p>
+
+        <hr>
+
+        <h4>Quantités</h4>
+        <p><strong>Nombre de cartons / lots :</strong> ${money(item.carton_quantity)}</p>
+        <p><strong>Unités par carton :</strong> ${money(item.pieces_per_carton)}</p>
+        <p><strong>Quantité totale :</strong> ${money(total)} ${escapeHtml(item.unit || '')}</p>
+
+        <hr>
+
+        <h4>Prix et frais (BIF)</h4>
+        <p><strong>Prix d'achat unitaire :</strong> ${money(item.purchase_unit_price)}</p>
+        <p><strong>Transport :</strong> ${money(item.transport_cost_bif)}</p>
+        <p><strong>Douane :</strong> ${money(item.customs_cost_bif)}</p>
+        <p><strong>Autres frais :</strong> ${money(item.other_costs_bif)}</p>
+        <p><strong>Coût total rendu :</strong> ${money(landed)}</p>
+        <p><strong>Coût rendu unitaire :</strong> ${money(total ? landed / total : 0)}</p>
+        <p><strong>Prix de gros :</strong> ${money(item.wholesale_price_bif)}</p>
+        <p><strong>Prix de détail :</strong> ${money(item.retail_price_bif)}</p>
+
+        <hr>
+
+        <h4>Suivi de l'importation</h4>
+        <p><strong>Statut :</strong> ${escapeHtml(item.import_status || '—')}</p>
+        <p><strong>Notes :</strong> ${escapeHtml(item.notes || 'Aucune note')}</p>
+
+        <hr>
+
+        ${photoHtml}
+      </div>
+    `;
+
+    $('cdiCustomsArea').hidden = false;
+    $('cdiSearchNumber').value = item.import_number || '';
+
+    await loadCustomsDocuments();
+
+    resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    showMessage('Dossier d’importation ouvert.');
+
+  } catch (error) {
+    console.error('C.W.B open import folder error:', error);
+
+    resultBox.textContent =
+      error.message || 'Impossible d’ouvrir ce dossier.';
+
+    showMessage(
+      error.message || 'Erreur pendant l’ouverture du dossier.',
+      true
+    );
+
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+
 
   async function confirmReceipt(importId, button) {
     if (!window.confirm(
