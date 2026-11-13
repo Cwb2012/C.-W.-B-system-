@@ -88,7 +88,39 @@
     <div class="cdi-card"><h3>4. Frais communs</h3><div id="cdiCosts"></div><button type="button" id="cdiAddCost">+ Ajouter frais</button></div>
     <div class="cdi-card"><button type="button" id="cdiSave">Enregistrer le dossier</button><button type="button" id="cdiPrint">Imprimer dossier</button></div>
     <div class="cdi-card"><h3>5. Recherche dossier</h3><div class="cdi-grid"><label>Numéro dossier<input id="cdiSearchNumber" placeholder="CDI-2026-00001"></label><button type="button" id="cdiSearch">Rechercher</button></div><div id="cdiFound"></div></div>
-    <div class="cdi-card"><h3>6. Documents</h3><label>Document PDF / image<input id="cdiDocument" type="file" accept=".pdf,image/jpeg,image/png,image/webp"></label><label>Fournisseur associé<select id="cdiDocumentSupplier"><option value="">Document général du dossier</option></select></label><button type="button" id="cdiUpload">Téléverser document</button><div id="cdiDocuments"></div></div>`;
+    
+<div class="cdi-card">
+<h3>6. Documents et factures</h3>
+<label>Document PDF / image
+<input id="cdiDocument" type="file" accept=".pdf,image/jpeg,image/png,image/webp">
+</label>
+<label>Fournisseur associé
+<select id="cdiDocumentSupplier">
+<option value="">Document général du dossier</option>
+</select>
+</label>
+<button type="button" id="cdiUpload">Téléverser document</button>
+<div id="cdiDocuments"></div>
+</div>
+
+<div class="cdi-card">
+<h3>7. 📸 Photos des marchandises</h3>
+<p>Ajoute les photos des produits de cette expédition.</p>
+
+<label>Prendre une photo ou choisir dans la galerie
+<input id="cdiPhotos" type="file"
+accept="image/*" capture="environment" multiple>
+</label>
+
+<button type="button" id="cdiUploadPhotos">
+📸 Enregistrer les photos
+</button>
+
+<div id="cdiPhotoGallery">
+Aucune photo chargée.
+</div>
+</div>
+
     const style=document.createElement('style');style.textContent=`#chinaDubaiImport{color:#172033}#chinaDubaiImport .cdi-card{background:#fff;border:1px solid #dbe1ea;border-radius:12px;padding:14px;margin:12px 0}#chinaDubaiImport .cdi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}#chinaDubaiImport label{display:block;font-weight:600}#chinaDubaiImport input,#chinaDubaiImport select,#chinaDubaiImport textarea{display:block;width:100%;box-sizing:border-box;padding:9px;margin:5px 0 10px;border:1px solid #cbd5e1;border-radius:7px}#chinaDubaiImport button{background:#b91c1c;color:white;border:0;border-radius:8px;padding:10px 14px;margin:5px;cursor:pointer}#chinaDubaiImport .cdi-danger{background:#64748b}#cdiMessage{font-weight:600;margin:10px 0}@media print{body *{visibility:hidden}#chinaDubaiImport,#chinaDubaiImport *{visibility:visible}#chinaDubaiImport{position:absolute;left:0;top:0;width:100%}#chinaDubaiImport button,#chinaDubaiImport input[type=file]{display:none}}`;
     document.head.appendChild(style);parent.appendChild(section);
     $('cdiAddSupplier').onclick=()=>addSupplier();$('cdiAddItem').onclick=()=>addItem();$('cdiAddCost').onclick=()=>addCost();$('cdiSave').onclick=saveShipment;$('cdiPrint').onclick=()=>window.print();$('cdiSearch').onclick=searchShipment;$('cdiUpload').onclick=uploadDocument;
