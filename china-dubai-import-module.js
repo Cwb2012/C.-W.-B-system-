@@ -1,9 +1,10 @@
 
-/* C.W.B System — China & Dubai Import
- * Uses cwb_cd_* tables only.
- * Preserves existing Supabase data and structures.
- * Receipt: public.cwb_cd_confirm_item_receipt(uuid).
- */
+/* =========================================================
+   C.W.B SYSTEM
+   CHINA & DUBAI IMPORT — CDI
+   VERSION COMPLETE — NOUVELLE STRUCTURE
+   ========================================================= */
+
 (function () {
   'use strict';
 
@@ -16,1018 +17,1697 @@
   };
 
   const BUCKET = 'cwb-china-dubai-customs';
-  const $ = id => document.getElementById(id);
-  const db = () => window.cwbSupabaseClient || window.supabaseClient || null;
-
-  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;'
-  }[c]));
-
-  const val = id => $(id) ? $(id).value.trim() : '';
-  const nval = id => Math.max(0, Number(val(id)) || 0);
-  const money = n => Number(n || 0).toLocaleString('fr-FR', {
-    maximumFractionDigits: 2
-  });
 
   let suppliers = [];
   let items = [];
   let costs = [];
+
   let currentShipment = null;
+  let currentShipmentId = null;
+
   let initialized = false;
+  let isSaving = false;
 
-  function message(text, bad) {
-    const el = $('cdiMessage');
-    if (!el) return;
-    el.textContent = text;
-    el.style.color = bad ? '#b91c1c' : '#166534';
+  const DEFAULT_CURRENCY = 'USD';
+
+  const CURRENCIES = ['USD', 'RMB', 'BIF'];
+
+  const ALLOCATION_METHODS = [
+    'CBM',
+    'CARTONS',
+    'PURCHASE_VALUE'
+  ];
+
+  function val(id) {
+    const element = document.getElementById(id);
+    return element ? String(element.value || '').trim() : '';
   }
 
-  function requireClient() {
-    const c = db();
-    if (!c) {
+  function nval(id) {
+    const value = Number(val(id));
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  function safeNumber(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : 0;
+  }
+
+  function roundMoney(value) {
+    return Math.round(
+      (safeNumber(value) + Number.EPSILON) * 100
+    ) / 100;
+  }
+
+  function roundVolume(value) {
+    return Math.round(
+      (safeNumber(value) + Number.EPSILON) * 1000000
+    ) / 1000000;
+  }
+
+  function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, function (char) {
+      return {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[char];
+    });
+  }
+
+  function showMessage(message, type = 'info') {
+    alert(message);
+  }
+
+  function getCDIDatabase() {
+    const db =
+      window.cwbSupabaseClient ||
+      window.supabaseClient ||
+      window.supabase ||
+      null;
+
+    if (!db) {
       throw new Error(
-        'Connexion Supabase introuvable. Vérifie le client Supabase dans index.html.'
+        'Connexion Supabase introuvable. Vérifiez le client C.W.B.'
       );
     }
-    return c;
+
+    return db;
   }
 
-  function addSupplier(data) {
-    suppliers.push(data || {
-      supplier_name: '',
-      contact_details: '',
-      invoice_reference: '',
-      currency: 'USD',
-      notes: ''
-    });
-    renderSuppliers();
-    renderSupplierOptions();
+let supplierLocalCounter = 0;
+
+function addSupplier(data = {}) {
+  const supplier = {
+    local_id: data.local_id || ++supplierLocalCounter,
+    supplier_name: data.supplier_name || '',
+    contact_details: data.contact_details || '',
+    invoice_reference: data.invoice_reference || '',
+    currency: data.currency || DEFAULT_CURRENCY,
+    notes: data.notes || ''
+  };
+
+  supplierLocalCounter = Math.max(
+    supplierLocalCounter,
+    safeNumber(supplier.local_id)
+  );
+
+  suppliers.push(supplier);
+  return supplier;
+}
+
+function addItem(data = {}) {
+  const item = {
+    supplierIndex: data.supplierIndex !== undefined
+      ? String(data.supplierIndex)
+      : '',
+
+    item_name: data.item_name || '',
+    category: data.category || '',
+    unit: data.unit || 'pieces',
+
+    carton_quantity: safeNumber(data.carton_quantity),
+    pieces_per_carton: safeNumber(data.pieces_per_carton),
+    total_quantity: safeNumber(data.total_quantity),
+
+    cbm_entry_mode: data.cbm_entry_mode || 'per_carton',
+    cbm_per_carton: safeNumber(data.cbm_per_carton),
+    cbm: safeNumber(data.cbm),
+
+    carton_length_cm: safeNumber(data.carton_length_cm),
+    carton_width_cm: safeNumber(data.carton_width_cm),
+    carton_height_cm: safeNumber(data.carton_height_cm),
+
+    net_weight_per_carton_kg: safeNumber(data.net_weight_per_carton_kg),
+    gross_weight_per_carton_kg: safeNumber(data.gross_weight_per_carton_kg),
+    total_net_weight_kg: safeNumber(data.total_net_weight_kg),
+    total_gross_weight_kg: safeNumber(data.total_gross_weight_kg),
+
+    purchase_currency: data.purchase_currency || DEFAULT_CURRENCY,
+    purchase_unit_price: safeNumber(data.purchase_unit_price),
+    exchange_rate_to_bif: safeNumber(data.exchange_rate_to_bif),
+
+    purchase_cost_usd: safeNumber(data.purchase_cost_usd),
+    purchase_cost_bif: safeNumber(data.purchase_cost_bif),
+
+    transport_cost_bif: safeNumber(data.transport_cost_bif),
+    customs_cost_bif: safeNumber(data.customs_cost_bif),
+    other_costs_bif: safeNumber(data.other_costs_bif),
+
+    transport_cost_usd: safeNumber(data.transport_cost_usd),
+    document_cost_usd: safeNumber(data.document_cost_usd),
+
+    landed_cost_usd: safeNumber(data.landed_cost_usd),
+    landed_cost_bif: safeNumber(data.landed_cost_bif),
+
+    wholesale_price_bif: safeNumber(data.wholesale_price_bif),
+    retail_price_bif: safeNumber(data.retail_price_bif),
+
+    notes: data.notes || ''
+  };
+
+  items.push(item);
+  return item;
+}
+
+function getItemSupplier(item) {
+  const index = Number(item.supplierIndex);
+
+  if (!Number.isInteger(index) || index < 0) {
+    return null;
   }
 
-  function renderSuppliers() {
-    const host = $('cdiSuppliers');
-    if (!host) return;
+  return suppliers[index] || null;
+}
 
-    host.innerHTML = suppliers.map((s, i) => `
-      <div class="cdi-card" data-supplier="${i}">
-        <div class="cdi-grid">
-          <label>Nom fournisseur
-            <input data-k="supplier_name"
-              value="${esc(s.supplier_name)}"
-              placeholder="Nom du fournisseur" required>
-          </label>
-          <label>Contact
-            <input data-k="contact_details"
-              value="${esc(s.contact_details)}">
-          </label>
-          <label>Référence facture
-            <input data-k="invoice_reference"
-              value="${esc(s.invoice_reference)}">
-          </label>
-          <label>Devise
-            <select data-k="currency">
-              <option value="USD">USD</option>
-              <option value="RMB">RMB</option>
-              <option value="BIF">BIF</option>
-            </select>
-          </label>
-          <label>Notes
-            <input data-k="notes" value="${esc(s.notes)}">
-          </label>
-        </div>
-        <button type="button" data-remove-supplier="${i}"
-          class="cdi-danger">Retirer fournisseur</button>
-      </div>
-    `).join('');
-
-    host.querySelectorAll('[data-k]').forEach(el => {
-      const i = Number(el.closest('[data-supplier]').dataset.supplier);
-      el.value = suppliers[i][el.dataset.k] ?? '';
-      el.addEventListener('input', () => {
-        suppliers[i][el.dataset.k] = el.value;
-        renderSupplierOptions();
-      });
-    });
-
-    host.querySelectorAll('[data-remove-supplier]').forEach(b => {
-      b.addEventListener('click', () => {
-        suppliers.splice(Number(b.dataset.removeSupplier), 1);
-        renderSuppliers();
-        renderSupplierOptions();
-      });
-    });
+function validateSuppliers() {
+  if (!suppliers.length) {
+    throw new Error('Ajoutez au moins un fournisseur.');
   }
 
-  function renderSupplierOptions() {
-    document.querySelectorAll('.cdi-item-supplier').forEach(sel => {
-      const old = sel.value;
-
-      sel.innerHTML =
-        '<option value="">Choisir fournisseur</option>' +
-        suppliers.map((s, i) =>
-          `<option value="${i}">${esc(s.supplier_name || 'Fournisseur ' + (i + 1))}</option>`
-        ).join('');
-
-      if (old !== '' && suppliers[Number(old)]) {
-        sel.value = old;
-      }
-    });
-  }
-
-  function addItem(data) {
-    items.push(data || {
-      supplierIndex: '',
-      item_name: '',
-      category: '',
-      unit: 'pieces',
-      carton_quantity: 1,
-      pieces_per_carton: 1,
-      total_quantity: 1,
-      purchase_currency: 'USD',
-      purchase_unit_price: 0,
-      exchange_rate_to_bif: 1,
-      transport_cost_bif: 0,
-      customs_cost_bif: 0,
-      other_costs_bif: 0,
-      wholesale_price_bif: 0,
-      retail_price_bif: 0,
-      notes: ''
-    });
-
-    renderItems();
-  }
-
-  function renderItems() {
-    const host = $('cdiItems');
-    if (!host) return;
-
-    host.innerHTML = items.map((it, i) => `
-      <div class="cdi-card" data-item="${i}">
-        <h4>Marchandise ${i + 1}</h4>
-        <div class="cdi-grid">
-          <label>Fournisseur
-            <select class="cdi-item-supplier">
-              <option value="">Choisir fournisseur</option>
-            </select>
-          </label>
-
-          ${field('item_name', 'Nom marchandise', it.item_name, 'text')}
-          ${field('category', 'Catégorie', it.category, 'text')}
-
-          <label>Unité
-            <select data-k="unit">
-              <option value="pieces">Pièces</option>
-              <option value="litres">Litres</option>
-              <option value="rolls">Rouleaux</option>
-              <option value="boxes">Boîtes</option>
-              <option value="kg">Kg</option>
-              <option value="sets">Sets</option>
-              <option value="other">Autre</option>
-            </select>
-          </label>
-
-          ${field('carton_quantity', 'Nombre cartons', it.carton_quantity, 'number')}
-          ${field('pieces_per_carton', 'Unités/carton', it.pieces_per_carton, 'number')}
-          ${field('total_quantity', 'Quantité totale', it.total_quantity, 'number')}
-
-          <label>Devise achat
-            <select data-k="purchase_currency">
-              <option>USD</option>
-              <option>RMB</option>
-              <option>BIF</option>
-            </select>
-          </label>
-
-          ${field('purchase_unit_price', 'Prix achat / unité', it.purchase_unit_price, 'number')}
-          ${field('exchange_rate_to_bif', 'Taux vers BIF', it.exchange_rate_to_bif, 'number')}
-          ${field('transport_cost_bif', 'Transport affecté (BIF)', it.transport_cost_bif, 'number')}
-          ${field('customs_cost_bif', 'Douane affectée (BIF)', it.customs_cost_bif, 'number')}
-          ${field('other_costs_bif', 'Autres coûts (BIF)', it.other_costs_bif, 'number')}
-          ${field('wholesale_price_bif', 'Prix gros (BIF)', it.wholesale_price_bif, 'number')}
-          ${field('retail_price_bif', 'Prix détail (BIF)', it.retail_price_bif, 'number')}
-          ${field('notes', 'Notes', it.notes, 'text')}
-        </div>
-
-        <button type="button" class="cdi-danger"
-          data-remove-item="${i}">Retirer marchandise</button>
-      </div>
-    `).join('');
-
-    host.querySelectorAll('[data-k]').forEach(el => {
-      const i = Number(el.closest('[data-item]').dataset.item);
-      el.value = items[i][el.dataset.k] ?? '';
-
-      el.addEventListener('input', () => {
-        items[i][el.dataset.k] = el.value;
-      });
-
-      el.addEventListener('change', () => {
-        items[i][el.dataset.k] = el.value;
-      });
-    });
-
-    host.querySelectorAll('[data-item] .cdi-item-supplier').forEach(sel => {
-      const i = Number(sel.closest('[data-item]').dataset.item);
-      renderSupplierOptions();
-      sel.value = items[i].supplierIndex ?? '';
-
-      sel.addEventListener('change', () => {
-        items[i].supplierIndex = sel.value;
-      });
-    });
-
-    host.querySelectorAll('[data-remove-item]').forEach(b => {
-      b.addEventListener('click', () => {
-        items.splice(Number(b.dataset.removeItem), 1);
-        renderItems();
-      });
-    });
-  }
-
-  function field(k, label, v, type) {
-    return `
-      <label>${label}
-        <input data-k="${k}" type="${type}"
-          ${type === 'number' ? 'min="0" step="0.01"' : ''}
-          value="${esc(v)}">
-      </label>
-    `;
-  }
-
-  function addCost(data) {
-    costs.push(data || {
-      company_name: '',
-      service_description: '',
-      invoice_reference: '',
-      currency: 'BIF',
-      amount: 0,
-      exchange_rate_to_bif: 1,
-      notes: ''
-    });
-    renderCosts();
-  }
-
-  function renderCosts() {
-    const h = $('cdiCosts');
-    if (!h) return;
-
-    h.innerHTML = costs.map((c, i) => `
-      <div class="cdi-card" data-cost="${i}">
-        <div class="cdi-grid">
-          ${field('company_name', 'Prestataire / société', c.company_name, 'text')}
-          ${field('service_description', 'Description frais', c.service_description, 'text')}
-          ${field('invoice_reference', 'Référence facture', c.invoice_reference, 'text')}
-
-          <label>Devise
-            <select data-k="currency">
-              <option>BIF</option>
-              <option>USD</option>
-              <option>RMB</option>
-            </select>
-          </label>
-
-          ${field('amount', 'Montant', c.amount, 'number')}
-          ${field('exchange_rate_to_bif', 'Taux vers BIF', c.exchange_rate_to_bif, 'number')}
-          ${field('notes', 'Notes', c.notes, 'text')}
-        </div>
-
-        <button type="button" class="cdi-danger"
-          data-remove-cost="${i}">Retirer frais</button>
-      </div>
-    `).join('');
-
-    h.querySelectorAll('[data-k]').forEach(el => {
-      const i = Number(el.closest('[data-cost]').dataset.cost);
-      el.value = costs[i][el.dataset.k] ?? '';
-
-      el.addEventListener('input', () => {
-        costs[i][el.dataset.k] = el.value;
-      });
-
-      el.addEventListener('change', () => {
-        costs[i][el.dataset.k] = el.value;
-      });
-    });
-
-    h.querySelectorAll('[data-remove-cost]').forEach(b => {
-      b.addEventListener('click', () => {
-        costs.splice(Number(b.dataset.removeCost), 1);
-        renderCosts();
-      });
-    });
-  }
-
-  function buildUI() {
-    if ($('chinaDubaiImport')) return;
-
-    const parent =
-      document.querySelector('.container') ||
-      document.querySelector('main') ||
-      document.body;
-
-    const section = document.createElement('section');
-    section.id = 'chinaDubaiImport';
-    section.className = 'card hidden';
-
-    section.innerHTML = `
-      <h2>C.W.B China &amp; Dubai Import</h2>
-      <p>Camel Work and Business company — Better Quality is our priority</p>
-
-      <div id="cdiMessage" role="status"></div>
-
-      <div class="cdi-card">
-        <h3>1. Dossier d'expédition</h3>
-        <div class="cdi-grid">
-          <label>Pays / origine
-            <select id="cdiCountry">
-              <option>China</option>
-              <option>Dubai</option>
-              <option>China &amp; Dubai</option>
-            </select>
-          </label>
-
-          <label>Date expédition
-            <input id="cdiDate" type="date">
-          </label>
-
-          <label>Référence expédition
-            <input id="cdiReference">
-          </label>
-
-          <label>Taux USD vers BIF
-            <input id="cdiUsdRate" type="number" min="0" step="0.01" value="1">
-          </label>
-
-          <label>Taux RMB vers BIF
-            <input id="cdiRmbRate" type="number" min="0" step="0.01" value="1">
-          </label>
-
-          <label>Frais documentaires (USD)
-            <input id="cdiDocFee" type="number" min="0" step="0.01" value="0">
-          </label>
-
-          <label>Notes
-            <textarea id="cdiNotes"></textarea>
-          </label>
-        </div>
-      </div>
-
-      <div class="cdi-card">
-        <h3>2. Fournisseurs et factures</h3>
-        <div id="cdiSuppliers"></div>
-        <button type="button" id="cdiAddSupplier">+ Ajouter fournisseur</button>
-      </div>
-
-      <div class="cdi-card">
-        <h3>3. Marchandises</h3>
-        <div id="cdiItems"></div>
-        <button type="button" id="cdiAddItem">+ Ajouter marchandise</button>
-      </div>
-
-      <div class="cdi-card">
-        <h3>4. Frais communs</h3>
-        <div id="cdiCosts"></div>
-        <button type="button" id="cdiAddCost">+ Ajouter frais</button>
-      </div>
-
-      <div class="cdi-card">
-        <button type="button" id="cdiSave">Enregistrer le dossier</button>
-        <button type="button" id="cdiPrint">Imprimer dossier</button>
-      </div>
-
-      <div class="cdi-card">
-        <h3>5. Recherche dossier</h3>
-        <div class="cdi-grid">
-          <label>Numéro dossier
-            <input id="cdiSearchNumber" placeholder="CDI-2026-00001">
-          </label>
-          <button type="button" id="cdiSearch">Rechercher</button>
-        </div>
-        <div id="cdiFound"></div>
-      </div>
-
-      <div class="cdi-card">
-        <h3>6. Documents et factures</h3>
-
-        <label>Document PDF / image
-          <input id="cdiDocument" type="file"
-            accept=".pdf,image/jpeg,image/png,image/webp">
-        </label>
-
-        <label>Fournisseur associé
-          <select id="cdiDocumentSupplier">
-            <option value="">Document général du dossier</option>
-          </select>
-        </label>
-
-        <button type="button" id="cdiUpload">Téléverser document</button>
-        <div id="cdiDocuments">Aucun document chargé.</div>
-      </div>
-
-      <div class="cdi-card">
-        <h3>7. 📸 Photos des marchandises</h3>
-<p>Prendre directement une photo des produits de cette expédition.</p>
-
-<label>📷 Prendre une photo
-  <input id="cdiPhotos" type="file"
-    accept="image/*"
-    capture="environment"
-    multiple>
-</label>
-        
-
-        <button type="button" id="cdiUploadPhotos">
-          📸 Enregistrer les photos
-        </button>
-
-        <div id="cdiPhotoGallery">Aucune photo chargée.</div>
-      </div>
-    `;
-
-    const style = document.createElement('style');
-
-    style.textContent = `
-      #chinaDubaiImport { color:#172033; }
-
-      #chinaDubaiImport .cdi-card {
-        background:#fff;
-        border:1px solid #dbe1ea;
-        border-radius:12px;
-        padding:14px;
-        margin:12px 0;
-      }
-
-      #chinaDubaiImport .cdi-grid {
-        display:grid;
-        grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-        gap:10px;
-      }
-
-      #chinaDubaiImport label {
-        display:block;
-        font-weight:600;
-      }
-
-      #chinaDubaiImport input,
-      #chinaDubaiImport select,
-      #chinaDubaiImport textarea {
-        display:block;
-        width:100%;
-        box-sizing:border-box;
-        padding:9px;
-        margin:5px 0 10px;
-        border:1px solid #cbd5e1;
-        border-radius:7px;
-      }
-
-      #chinaDubaiImport button {
-        background:#b91c1c;
-        color:white;
-        border:0;
-        border-radius:8px;
-        padding:10px 14px;
-        margin:5px;
-        cursor:pointer;
-      }
-
-      #chinaDubaiImport .cdi-danger {
-        background:#64748b;
-      }
-
-      #cdiMessage {
-        font-weight:600;
-        margin:10px 0;
-      }
-
-      #cdiPhotoGallery {
-        display:grid;
-        grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
-        gap:10px;
-        margin-top:12px;
-      }
-
-      #cdiPhotoGallery img {
-        width:100%;
-        height:150px;
-        object-fit:cover;
-        border-radius:8px;
-        border:1px solid #dbe1ea;
-      }
-
-      @media print {
-        body * { visibility:hidden; }
-        #chinaDubaiImport,
-        #chinaDubaiImport * { visibility:visible; }
-        #chinaDubaiImport {
-          position:absolute;
-          left:0;
-          top:0;
-          width:100%;
-        }
-        #chinaDubaiImport button,
-        #chinaDubaiImport input[type=file] {
-          display:none;
-        }
-      }
-    `;
-
-    document.head.appendChild(style);
-    parent.appendChild(section);
-
-    $('cdiAddSupplier').onclick = () => addSupplier();
-    $('cdiAddItem').onclick = () => addItem();
-    $('cdiAddCost').onclick = () => addCost();
-    $('cdiSave').onclick = saveShipment;
-    $('cdiPrint').onclick = () => window.print();
-    $('cdiSearch').onclick = searchShipment;
-    $('cdiUpload').onclick = uploadDocument;
-    $('cdiUploadPhotos').onclick = uploadPhotos;
-
-    addSupplier();
-    addItem();
-  }
-
-  async function saveShipment() {
-    try {
-      const c = requireClient();
-
-      if (!suppliers.length || !items.length) {
-        throw new Error('Ajoute au moins un fournisseur et une marchandise.');
-      }
-
-      if (suppliers.some(s => !String(s.supplier_name || '').trim())) {
-        throw new Error('Chaque fournisseur doit avoir un nom.');
-      }
-
-      if (items.some(i =>
-        !String(i.item_name || '').trim() ||
-        !(Number(i.total_quantity) > 0)
-      )) {
-        throw new Error('Chaque marchandise doit avoir un nom et une quantité totale positive.');
-      }
-
-      message('Enregistrement en cours…');
-
-      const { data: userData, error: authError } = await c.auth.getUser();
-      if (authError) throw authError;
-
-      const user = userData && userData.user;
-      if (!user) throw new Error('Connecte-toi à C.W.B System.');
-
-      const shipmentPayload = {
-        created_by: user.id,
-        source_country: val('cdiCountry'),
-        shipment_date: val('cdiDate') || null,
-        shipment_reference: val('cdiReference') || null,
-        status: 'Draft',
-        notes: val('cdiNotes') || null,
-        usd_to_bif_rate: nval('cdiUsdRate'),
-        rmb_to_usd_rate: nval('cdiRmbRate'),
-        document_fee_usd: nval('cdiDocFee'),
-        transport_rate_usd_per_cbm: 0
-      };
-
-      const sh = await c
-        .from(TABLES.shipments)
-        .insert(shipmentPayload)
-        .select('*')
-        .single();
-
-      if (sh.error) throw sh.error;
-      currentShipment = sh.data;
-
-      const supplierRows = suppliers.map(s => ({
-        shipment_id: currentShipment.id,
-        supplier_name: s.supplier_name,
-        contact_details: s.contact_details || null,
-        invoice_reference: s.invoice_reference || null,
-        currency: s.currency || 'USD',
-        notes: s.notes || null
-      }));
-
-      const sr = await c
-        .from(TABLES.suppliers)
-        .insert(supplierRows)
-        .select('*');
-
-      if (sr.error) throw sr.error;
-
-      const totalPurchase = items.reduce((sum, i) =>
-        sum +
-        (Number(i.total_quantity) || 0) *
-        (Number(i.purchase_unit_price) || 0) *
-        (Number(i.exchange_rate_to_bif) || 0), 0
-      );
-
-      const commonBif = costs.reduce((sum, x) =>
-        sum +
-        (Number(x.amount) || 0) *
-        (Number(x.exchange_rate_to_bif) || 0), 0
-      );
-
-      const itemRows = items.map(i => {
-        const purchase =
-          Number(i.total_quantity) *
-          Number(i.purchase_unit_price) *
-          Number(i.exchange_rate_to_bif);
-
-        const share = totalPurchase > 0
-          ? commonBif * purchase / totalPurchase
-          : commonBif / items.length;
-
-        const landed =
-          purchase +
-          (Number(i.transport_cost_bif) || 0) +
-          (Number(i.customs_cost_bif) || 0) +
-          (Number(i.other_costs_bif) || 0) +
-          share;
-
-        return {
-          shipment_id: currentShipment.id,
-          supplier_id: sr.data[Number(i.supplierIndex)]?.id || null,
-          item_name: i.item_name,
-          category: i.category || null,
-          unit: i.unit,
-          total_quantity: Number(i.total_quantity),
-          carton_quantity: Number(i.carton_quantity) || 0,
-          pieces_per_carton: Number(i.pieces_per_carton) || 0,
-          purchase_currency: i.purchase_currency,
-          purchase_unit_price: Number(i.purchase_unit_price) || 0,
-          exchange_rate_to_bif: Number(i.exchange_rate_to_bif) || 0,
-          purchase_cost_bif: purchase,
-          transport_cost_bif: (Number(i.transport_cost_bif) || 0) + share,
-          customs_cost_bif: Number(i.customs_cost_bif) || 0,
-          other_costs_bif: Number(i.other_costs_bif) || 0,
-          landed_cost_bif: landed,
-          wholesale_price_bif: Number(i.wholesale_price_bif) || 0,
-          retail_price_bif: Number(i.retail_price_bif) || 0,
-          status: 'Draft',
-          notes: i.notes || null
-        };
-      });
-
-      const ir = await c.from(TABLES.items).insert(itemRows);
-      if (ir.error) throw ir.error;
-
-      if (costs.length) {
-        const costRows = costs.map(x => ({
-          shipment_id: currentShipment.id,
-          company_name: x.company_name || null,
-          service_description: x.service_description || null,
-          invoice_reference: x.invoice_reference || null,
-          currency: x.currency,
-          amount: Number(x.amount) || 0,
-          exchange_rate_to_bif: Number(x.exchange_rate_to_bif) || 0,
-          amount_bif:
-            (Number(x.amount) || 0) *
-            (Number(x.exchange_rate_to_bif) || 0),
-          notes: x.notes || null
-        }));
-
-        const cr = await c.from(TABLES.costs).insert(costRows);
-        if (cr.error) throw cr.error;
-      }
-
-      $('cdiSearchNumber').value = currentShipment.shipment_number;
-
-      message('Dossier enregistré : ' + currentShipment.shipment_number);
-      await loadShipment(currentShipment.id);
-
-    } catch (e) {
-      message(
-        'Erreur : ' + (e.message || e.details || String(e)) +
-        ' — Vérifie le dossier avant de réessayer, car une sauvegarde partielle peut exister.',
-        true
+  suppliers.forEach(function (supplier, index) {
+    if (!supplier.supplier_name.trim()) {
+      throw new Error(
+        'Le nom du fournisseur numéro ' + (index + 1) + ' est obligatoire.'
       );
     }
+  });
+
+  return true;
+}
+
+function validateItems() {
+  if (!items.length) {
+    throw new Error('Ajoutez au moins un article à cette expédition.');
   }
 
-  
-async function searchShipment() {
-  try {
-    const c = requireClient();
+  items.forEach(function (item, index) {
+    const number = index + 1;
 
-    const q = val('cdiSearchNumber')
-      .trim()
-      .replace(/\s+/g, '');
-
-    if (!q) {
-      message('Saisis un numéro de dossier.', true);
-      return;
+    if (!item.item_name.trim()) {
+      throw new Error('Le nom de l’article numéro ' + number + ' est obligatoire.');
     }
 
-    message('Recherche du dossier en cours…');
-
-    const r = await c
-      .from(TABLES.shipments)
-      .select('id, shipment_number')
-      .ilike('shipment_number', q)
-      .maybeSingle();
-
-    if (r.error) throw r.error;
-
-    if (!r.data) {
-      message('Dossier introuvable : ' + q, true);
-      return;
+    if (!getItemSupplier(item)) {
+      throw new Error(
+        'Veuillez sélectionner le fournisseur de l’article : ' + item.item_name
+      );
     }
 
-    await loadShipment(r.data.id);
+    if (safeNumber(item.carton_quantity) <= 0) {
+      throw new Error('Le nombre de cartons est obligatoire pour : ' + item.item_name);
+    }
 
-  } catch (e) {
-    message('Recherche impossible : ' + e.message, true);
+    if (safeNumber(item.pieces_per_carton) <= 0) {
+      throw new Error('Le nombre de pièces par carton est obligatoire pour : ' + item.item_name);
+    }
+
+    if (safeNumber(item.purchase_unit_price) < 0) {
+      throw new Error('Le prix d’achat ne peut pas être négatif : ' + item.item_name);
+    }
+
+    if (!CURRENCIES.includes(item.purchase_currency)) {
+      throw new Error('Devise invalide pour : ' + item.item_name);
+    }
+  });
+
+  return true;
+}
+
+function roundVolume(value) {
+  return Math.round(
+    (safeNumber(value) + Number.EPSILON) * 1000000
+  ) / 1000000;
+}
+
+function calculateCbmPerCarton(item) {
+  let cbm = 0;
+
+  if (item.cbm_entry_mode === 'dimensions') {
+    const length = safeNumber(item.carton_length_cm);
+    const width = safeNumber(item.carton_width_cm);
+    const height = safeNumber(item.carton_height_cm);
+
+    if (length <= 0 || width <= 0 || height <= 0) {
+      throw new Error(
+        'Veuillez entrer les dimensions valides du carton : longueur, largeur et hauteur.'
+      );
+    }
+
+    cbm = (length * width * height) / 1000000;
+  } else {
+    cbm = safeNumber(item.cbm_per_carton);
+  }
+
+  if (cbm <= 0) {
+    throw new Error(
+      'Veuillez entrer le CBM par carton ou les dimensions du carton pour : ' +
+      (item.item_name || 'un article')
+    );
+  }
+
+  return roundVolume(cbm);
+}
+
+function calculateItemCbm(item) {
+  const cartons = safeNumber(item.carton_quantity);
+
+  if (cartons <= 0) {
+    throw new Error('La quantité de cartons doit être supérieure à zéro.');
+  }
+
+  const cbmPerCarton = calculateCbmPerCarton(item);
+  const totalCbm = roundVolume(cartons * cbmPerCarton);
+
+  item.cbm_per_carton = cbmPerCarton;
+  item.cbm = totalCbm;
+
+  return {
+    cbm_per_carton: cbmPerCarton,
+    carton_quantity: cartons,
+    total_cbm: totalCbm
+  };
+}
+
+function calculateItemQuantities(item) {
+  const cartons = safeNumber(item.carton_quantity);
+  const piecesPerCarton = safeNumber(item.pieces_per_carton);
+
+  if (cartons <= 0) {
+    throw new Error(
+      'Veuillez entrer le nombre de cartons pour : ' +
+      (item.item_name || 'un article')
+    );
+  }
+
+  if (piecesPerCarton <= 0) {
+    throw new Error(
+      'Veuillez entrer le nombre de pièces par carton pour : ' +
+      (item.item_name || 'un article')
+    );
+  }
+
+  const totalQuantity = cartons * piecesPerCarton;
+
+  const netPerCarton = safeNumber(item.net_weight_per_carton_kg);
+  const grossPerCarton = safeNumber(item.gross_weight_per_carton_kg);
+
+  item.total_quantity = totalQuantity;
+  item.total_net_weight_kg = roundVolume(cartons * netPerCarton);
+  item.total_gross_weight_kg = roundVolume(cartons * grossPerCarton);
+
+  return {
+    carton_quantity: cartons,
+    pieces_per_carton: piecesPerCarton,
+    total_quantity: totalQuantity,
+    total_net_weight_kg: item.total_net_weight_kg,
+    total_gross_weight_kg: item.total_gross_weight_kg
+  };
+}
+
+function calculateShipmentCbm() {
+  let total = 0;
+
+  items.forEach(function (item) {
+    total += calculateItemCbm(item).total_cbm;
+  });
+
+  return roundVolume(total);
+}
+
+function calculateShipmentCartons() {
+  return items.reduce(function (total, item) {
+    return total + safeNumber(item.carton_quantity);
+  }, 0);
+}
+
+function calculateShipmentWeight() {
+  return items.reduce(function (totals, item) {
+    calculateItemQuantities(item);
+
+    totals.net += safeNumber(item.total_net_weight_kg);
+    totals.gross += safeNumber(item.total_gross_weight_kg);
+
+    return totals;
+  }, { net: 0, gross: 0 });
+}
+
+function calculateShipmentVolumes() {
+  const totalCbm = calculateShipmentCbm();
+  const totalCartons = calculateShipmentCartons();
+  const weight = calculateShipmentWeight();
+
+  return {
+    total_cartons: totalCartons,
+    total_cbm: totalCbm,
+    total_net_weight_kg: roundVolume(weight.net),
+    total_gross_weight_kg: roundVolume(weight.gross)
+  };
+}
+
+function getShipmentExchangeRates() {
+  const usdToBif = nval('cdiUsdRate');
+  const rmbToUsd = nval('cdiRmbRate');
+
+  if (usdToBif <= 0) {
+    throw new Error(
+      'Veuillez entrer un taux USD vers BIF valide.'
+    );
+  }
+
+  if (rmbToUsd <= 0) {
+    throw new Error(
+      'Veuillez entrer un taux RMB vers USD valide.'
+    );
+  }
+
+  return {
+    usd_to_bif: usdToBif,
+    rmb_to_usd: rmbToUsd
+  };
+}
+
+function convertCurrencyToUSD(amount, currency, rates) {
+  const value = safeNumber(amount);
+
+  if (value < 0) {
+    throw new Error('Le montant ne peut pas être négatif.');
+  }
+
+  switch (currency) {
+    case 'USD':
+      return roundMoney(value);
+
+    case 'RMB':
+      return roundMoney(value * rates.rmb_to_usd);
+
+    case 'BIF':
+      return roundMoney(value / rates.usd_to_bif);
+
+    default:
+      throw new Error('Devise non reconnue : ' + currency);
   }
 }
 
+function convertUSDToBIF(amount, rates) {
+  return roundMoney(
+    safeNumber(amount) * rates.usd_to_bif
+  );
+}
 
-  function isImageDocument(doc) {
-    const name = String(doc.original_name || '').toLowerCase();
-    return /\.(jpg|jpeg|png|webp|gif|bmp|heic|heif)$/i.test(name);
+function getPurchaseExchangeRate(currency, rates) {
+  switch (currency) {
+    case 'USD':
+      return rates.usd_to_bif;
+
+    case 'RMB':
+      return rates.rmb_to_usd * rates.usd_to_bif;
+
+    case 'BIF':
+      return 1;
+
+    default:
+      throw new Error('Devise d’achat non reconnue : ' + currency);
+  }
+}
+
+function calculateItemPurchase(item, rates) {
+  calculateItemQuantities(item);
+
+  const quantity = safeNumber(item.total_quantity);
+  const unitPrice = safeNumber(item.purchase_unit_price);
+
+  if (quantity <= 0) {
+    throw new Error(
+      'Quantité invalide pour : ' + (item.item_name || 'un article')
+    );
   }
 
-  async function loadShipment(id) {
-    const c = requireClient();
+  if (unitPrice < 0) {
+    throw new Error(
+      'Le prix d’achat ne peut pas être négatif pour : ' +
+      (item.item_name || 'un article')
+    );
+  }
 
-    const [sh, su, it, co, doq] = await Promise.all([
-      c.from(TABLES.shipments).select('*').eq('id', id).single(),
-      c.from(TABLES.suppliers).select('*').eq('shipment_id', id),
-      c.from(TABLES.items).select('*').eq('shipment_id', id),
-      c.from(TABLES.costs).select('*').eq('shipment_id', id),
-      c.from(TABLES.docs).select('*').eq('shipment_id', id)
-    ]);
+  if (!CURRENCIES.includes(item.purchase_currency)) {
+    throw new Error(
+      'Devise d’achat invalide pour : ' + item.item_name
+    );
+  }
+  const purchaseOriginal = quantity * unitPrice;
 
-    for (const x of [sh, su, it, co, doq]) {
-      if (x.error) throw x.error;
+  const purchaseUSD = convertCurrencyToUSD(
+    purchaseOriginal,
+    item.purchase_currency,
+    rates
+  );
+
+  const purchaseBIF = convertUSDToBIF(
+    purchaseUSD,
+    rates
+  );
+
+  item.exchange_rate_to_bif = getPurchaseExchangeRate(
+    item.purchase_currency,
+    rates
+  );
+
+  item.purchase_cost_usd = purchaseUSD;
+  item.purchase_cost_bif = purchaseBIF;
+
+  return {
+    total_quantity: quantity,
+    purchase_currency: item.purchase_currency,
+    purchase_unit_price: unitPrice,
+    purchase_original: roundMoney(purchaseOriginal),
+    exchange_rate_to_bif: item.exchange_rate_to_bif,
+    purchase_cost_usd: purchaseUSD,
+    purchase_cost_bif: purchaseBIF
+  };
+}
+
+function calculateShipmentPurchases() {
+  const rates = getShipmentExchangeRates();
+
+  return items.reduce(function (totals, item) {
+    const result = calculateItemPurchase(item, rates);
+
+    totals.total_usd += result.purchase_cost_usd;
+    totals.total_bif += result.purchase_cost_bif;
+
+    return totals;
+  }, {
+    total_usd: 0,
+    total_bif: 0
+  });
+}
+
+function addCost(data = {}) {
+  const cost = {
+    company_name: data.company_name || '',
+    service_description: data.service_description || '',
+    invoice_reference: data.invoice_reference || '',
+    currency: data.currency || 'BIF',
+    amount: safeNumber(data.amount),
+    exchange_rate_to_bif: safeNumber(data.exchange_rate_to_bif),
+    notes: data.notes || ''
+  };
+
+  costs.push(cost);
+  return cost;
+}
+
+function calculateShipmentTransport() {
+  const rates = getShipmentExchangeRates();
+  const totalCbm = calculateShipmentCbm();
+  const transportRate = nval('cdiTransportRate');
+
+  if (transportRate < 0) {
+    throw new Error('Le tarif de transport ne peut pas être négatif.');
+  }
+
+  const transportUSD = roundMoney(totalCbm * transportRate);
+
+  return {
+    total_cbm: totalCbm,
+    rate_usd_per_cbm: transportRate,
+    transport_usd: transportUSD,
+    transport_bif: convertUSDToBIF(transportUSD, rates)
+  };
+}
+
+function calculateDocumentFee() {
+  const rates = getShipmentExchangeRates();
+  const documentUSD = nval('cdiDocFee');
+
+  if (documentUSD < 0) {
+    throw new Error('Les frais de documents ne peuvent pas être négatifs.');
+  }
+
+  return {
+    document_usd: roundMoney(documentUSD),
+    document_bif: convertUSDToBIF(documentUSD, rates)
+  };
+}
+
+function calculateCommonCosts() {
+  const rates = getShipmentExchangeRates();
+
+  return costs.reduce(function (totals, cost) {
+    const amount = safeNumber(cost.amount);
+
+    if (amount < 0) {
+      throw new Error(
+        'Une dépense commune ne peut pas être négative.'
+      );
     }
 
-    currentShipment = sh.data;
+    if (!CURRENCIES.includes(cost.currency)) {
+      throw new Error(
+        'Devise invalide pour la dépense : ' +
+        (cost.service_description || cost.company_name)
+      );
+    }
 
-    $('cdiFound').innerHTML = `
-      <h4>${esc(sh.data.shipment_number)} — ${esc(sh.data.status)}</h4>
-      <p>Origine : ${esc(sh.data.source_country)}
-      | Date : ${esc(sh.data.shipment_date || '')}</p>
-    ` + it.data.map(row => `
-      <div class="cdi-card">
-        <b>${esc(row.item_name)}</b> —
-        ${esc(row.total_quantity)} ${esc(row.unit)} —
-        Coût rendu : ${money(row.landed_cost_bif)} BIF —
-        Statut : ${esc(row.status)}
-        <br>
-        ${row.status === 'Draft'
-          ? `<button type="button" data-arrive="${row.id}">Marquer Arrivé</button>`
-          : ''}
-        ${row.status === 'Arrived'
-          ? `<button type="button" data-receive="${row.id}">Confirmer réception → Inventory</button>`
-          : ''}
-      </div>
-    `).join('');
+    const amountUSD = convertCurrencyToUSD(
+      amount,
+      cost.currency,
+      rates
+    );
 
-    $('cdiFound').querySelectorAll('[data-arrive]').forEach(b => {
-      b.onclick = () => setArrived(b.dataset.arrive);
+    const amountBIF = convertUSDToBIF(
+      amountUSD,
+      rates
+    );
+
+    cost.exchange_rate_to_bif = getPurchaseExchangeRate(
+      cost.currency,
+      rates
+    );
+
+    totals.other_expenses_usd += amountUSD;
+    totals.other_expenses_bif += amountBIF;
+
+    return totals;
+  }, {
+    other_expenses_usd: 0,
+    other_expenses_bif: 0
+  });
+}
+
+function calculateDirectItemCosts(item, rates) {
+  const transportBIF = safeNumber(item.transport_cost_bif);
+  const customsBIF = safeNumber(item.customs_cost_bif);
+  const otherBIF = safeNumber(item.other_costs_bif);
+
+  if (transportBIF < 0 || customsBIF < 0 || otherBIF < 0) {
+    throw new Error(
+      'Les dépenses directes ne peuvent pas être négatives pour : ' +
+      (item.item_name || 'un article')
+    );
+  }
+
+  const totalDirectBIF = transportBIF + customsBIF + otherBIF;
+
+  const transportUSD = roundMoney(
+    transportBIF / rates.usd_to_bif
+  );
+
+  const customsUSD = roundMoney(
+    customsBIF / rates.usd_to_bif
+  );
+
+  const otherUSD = roundMoney(
+    otherBIF / rates.usd_to_bif
+  );
+
+  return {
+    direct_transport_bif: transportBIF,
+    direct_customs_bif: customsBIF,
+    direct_other_bif: otherBIF,
+    total_direct_bif: roundMoney(totalDirectBIF),
+
+    direct_transport_usd: transportUSD,
+    direct_customs_usd: customsUSD,
+    direct_other_usd: otherUSD,
+
+    total_direct_usd: roundMoney(
+      transportUSD + customsUSD + otherUSD
+    )
+  };
+}
+
+function calculateShipmentExpenses() {
+  const transport = calculateShipmentTransport();
+  const documents = calculateDocumentFee();
+  const common = calculateCommonCosts();
+
+  const directExpensesUSD = items.reduce(function (total, item) {
+    const rates = getShipmentExchangeRates();
+    const direct = calculateDirectItemCosts(item, rates);
+
+    return total + direct.total_direct_usd;
+  }, 0);
+
+  const totalExpensesUSD =
+    transport.transport_usd +
+    documents.document_usd +
+    common.other_expenses_usd +
+    directExpensesUSD;
+
+  const rates = getShipmentExchangeRates();
+
+  return {
+    transport: transport,
+    documents: documents,
+    common: common,
+
+    direct_expenses_usd: roundMoney(directExpensesUSD),
+
+    total_expenses_usd: roundMoney(totalExpensesUSD),
+    total_expenses_bif: convertUSDToBIF(totalExpensesUSD, rates)
+  };
+}
+
+function getAllocationMethod() {
+  const method = val('cdiAllocationMethod') || 'CBM';
+
+  if (!ALLOCATION_METHODS.includes(method)) {
+    throw new Error('Méthode de répartition des frais invalide.');
+  }
+
+  return method;
+}
+
+function getItemAllocationBase(item, method) {
+  switch (method) {
+    case 'CBM':
+      return safeNumber(item.cbm);
+
+    case 'CARTONS':
+      return safeNumber(item.carton_quantity);
+
+    case 'PURCHASE_VALUE':
+      return safeNumber(item.purchase_cost_usd);
+
+    default:
+      return 0;
+  }
+}
+
+function allocateCommonExpenses(totalExpensesUSD, method) {
+  const total = roundMoney(totalExpensesUSD);
+
+  const bases = items.map(function (item) {
+    return getItemAllocationBase(item, method);
+  });
+
+  const totalBase = bases.reduce(function (sum, value) {
+    return sum + value;
+  }, 0);
+
+  if (total <= 0) {
+    return items.map(function () {
+      return 0;
     });
+  }
 
-    $('cdiFound').querySelectorAll('[data-receive]').forEach(b => {
-      b.onclick = () => receiveItem(b.dataset.receive);
-    });
+  if (totalBase <= 0) {
+    throw new Error(
+      'Impossible de répartir les frais : la base de répartition est nulle.'
+    );
+  }
 
-    const documents = doq.data.filter(d => !isImageDocument(d));
-    const photos = doq.data.filter(d => isImageDocument(d));
+  let allocated = 0;
 
-    $('cdiDocuments').innerHTML = documents.map(d => `
-      <p>${esc(d.original_name)} — ${esc(d.document_type)}</p>
-    `).join('') || 'Aucun document enregistré.';
+  return items.map(function (item, index) {
+    let share;
 
-    const gallery = $('cdiPhotoGallery');
-
-    if (!photos.length) {
-      gallery.textContent = 'Aucune photo enregistrée.';
+    if (index === items.length - 1) {
+      share = roundMoney(total - allocated);
     } else {
-      gallery.innerHTML = 'Chargement des photos…';
-
-      const photoHtml = await Promise.all(photos.map(async d => {
-        const signed = await c.storage
-          .from(BUCKET)
-          .createSignedUrl(d.document_path, 3600);
-
-        if (signed.error || !signed.data?.signedUrl) {
-          return `<div class="cdi-card">${esc(d.original_name)}<br>Prévisualisation indisponible.</div>`;
-        }
-
-        return `
-          <div>
-            <a href="${esc(signed.data.signedUrl)}" target="_blank" rel="noopener">
-              <img src="${esc(signed.data.signedUrl)}"
-                alt="${esc(d.original_name)}">
-            </a>
-            <small>${esc(d.original_name)}</small>
-          </div>
-        `;
-      }));
-
-      gallery.innerHTML = photoHtml.join('');
+      share = roundMoney(
+        total * (bases[index] / totalBase)
+      );
+      allocated += share;
     }
 
-    $('cdiDocumentSupplier').innerHTML =
-      '<option value="">Document général du dossier</option>' +
-      su.data.map(s =>
-        `<option value="${s.id}">${esc(s.supplier_name)}</option>`
-      ).join('');
+    return share;
+  });
+}
 
-    message('Dossier chargé : ' + sh.data.shipment_number);
+function calculateItemLandedCost(
+  item,
+  allocatedTransportUSD,
+  allocatedDocumentUSD,
+  allocatedCommonUSD,
+  rates
+) {
+  calculateItemQuantities(item);
+  calculateItemCbm(item);
+
+  const purchase = calculateItemPurchase(item, rates);
+  const direct = calculateDirectItemCosts(item, rates);
+
+  const transportAllocation = roundMoney(allocatedTransportUSD);
+  const documentAllocation = roundMoney(allocatedDocumentUSD);
+  const commonAllocation = roundMoney(allocatedCommonUSD);
+
+  const totalTransportUSD = roundMoney(
+    direct.direct_transport_usd + transportAllocation
+  );
+
+  const totalDocumentUSD = documentAllocation;
+
+  const totalCustomsUSD = direct.direct_customs_usd;
+
+  const totalOtherUSD = roundMoney(
+    direct.direct_other_usd + commonAllocation
+  );
+
+  const landedUSD = roundMoney(
+    purchase.purchase_cost_usd +
+    totalTransportUSD +
+    totalDocumentUSD +
+    totalCustomsUSD +
+    totalOtherUSD
+  );
+
+  const landedBIF = convertUSDToBIF(landedUSD, rates);
+
+  item.purchase_cost_usd = purchase.purchase_cost_usd;
+  item.purchase_cost_bif = purchase.purchase_cost_bif;
+
+  item.transport_cost_usd = totalTransportUSD;
+  item.document_cost_usd = totalDocumentUSD;
+
+  item.landed_cost_usd = landedUSD;
+  item.landed_cost_bif = landedBIF;
+
+  return {
+    item_name: item.item_name,
+
+    purchase_cost_usd: purchase.purchase_cost_usd,
+    purchase_cost_bif: purchase.purchase_cost_bif,
+
+    direct_transport_usd: direct.direct_transport_usd,
+    direct_customs_usd: direct.direct_customs_usd,
+    direct_other_usd: direct.direct_other_usd,
+
+    allocated_transport_usd: transportAllocation,
+    allocated_document_usd: documentAllocation,
+    allocated_common_usd: commonAllocation,
+
+    total_transport_usd: totalTransportUSD,
+    total_document_usd: totalDocumentUSD,
+    total_customs_usd: totalCustomsUSD,
+    total_other_usd: totalOtherUSD,
+
+    landed_cost_usd: landedUSD,
+    landed_cost_bif: landedBIF,
+
+    total_quantity: safeNumber(item.total_quantity),
+
+    unit_landed_cost_bif: item.total_quantity > 0
+      ? roundMoney(landedBIF / item.total_quantity)
+      : 0
+  };
+}
+
+function calculateShipmentLandedCosts() {
+  if (!items.length) {
+    throw new Error('Aucun article à calculer.');
   }
 
-  async function setArrived(id) {
-    try {
-      const c = requireClient();
+  const rates = getShipmentExchangeRates();
 
-      const r = await c
+  items.forEach(function (item) {
+    calculateItemQuantities(item);
+    calculateItemCbm(item);
+    calculateItemPurchase(item, rates);
+  });
+
+  const transport = calculateShipmentTransport();
+  const documents = calculateDocumentFee();
+  const common = calculateCommonCosts();
+
+  const method = getAllocationMethod();
+
+  const transportShares = allocateCommonExpenses(
+    transport.transport_usd,
+    method
+  );
+
+  const documentShares = allocateCommonExpenses(
+    documents.document_usd,
+    method
+  );
+
+  const commonShares = allocateCommonExpenses(
+    common.other_expenses_usd,
+    method
+  );
+
+  const results = items.map(function (item, index) {
+    return calculateItemLandedCost(
+      item,
+      transportShares[index],
+      documentShares[index],
+      commonShares[index],
+      rates
+    );
+  });
+
+  const totalPurchaseUSD = results.reduce(function (sum, result) {
+    return sum + result.purchase_cost_usd;
+  }, 0);
+
+  const totalLandedUSD = results.reduce(function (sum, result) {
+    return sum + result.landed_cost_usd;
+  }, 0);
+
+  const totalLandedBIF = convertUSDToBIF(
+    totalLandedUSD,
+    rates
+  );
+
+  return {
+    allocation_method: method,
+
+    total_cbm: calculateShipmentCbm(),
+    total_cartons: calculateShipmentCartons(),
+
+    total_purchase_usd: roundMoney(totalPurchaseUSD),
+
+    total_transport_usd: transport.transport_usd,
+    total_document_usd: documents.document_usd,
+    total_common_expenses_usd: common.other_expenses_usd,
+
+    total_landed_usd: roundMoney(totalLandedUSD),
+    total_landed_bif: totalLandedBIF,
+
+    items: results
+  };
+}
+
+function calculateSellingResult(unitCost, sellingPrice) {
+  const cost = safeNumber(unitCost);
+  const price = safeNumber(sellingPrice);
+
+  const profit = roundMoney(price - cost);
+
+  const margin = price > 0
+    ? roundMoney((profit / price) * 100)
+    : 0;
+
+  const markup = cost > 0
+    ? roundMoney((profit / cost) * 100)
+    : 0;
+
+  return {
+    unit_cost_bif: roundMoney(cost),
+    selling_price_bif: roundMoney(price),
+    profit_bif: profit,
+    margin_percent: margin,
+    markup_percent: markup,
+    below_cost: price < cost
+  };
+}
+
+function calculatePotentialProfit(unitCost, sellingPrice, quantity) {
+  const result = calculateSellingResult(unitCost, sellingPrice);
+  const qty = safeNumber(quantity);
+
+  return {
+    profit_per_unit_bif: result.profit_bif,
+    potential_total_profit_bif: roundMoney(
+      result.profit_bif * qty
+    ),
+    margin_percent: result.margin_percent,
+    markup_percent: result.markup_percent,
+    below_cost: result.below_cost
+  };
+}
+
+function calculateItemSellingPrices(item, rates) {
+  calculateItemQuantities(item);
+
+  const quantity = safeNumber(item.total_quantity);
+  const totalLandedCost = safeNumber(item.landed_cost_bif);
+
+  if (quantity <= 0 || totalLandedCost <= 0) {
+    throw new Error(
+      'Le coût de revient doit être calculé avant les prix de vente pour : ' +
+      (item.item_name || 'un article')
+    );
+  }
+
+  const unitCost = totalLandedCost / quantity;
+
+  const wholesalePrice = safeNumber(item.wholesale_price_bif);
+  const retailPrice = safeNumber(item.retail_price_bif);
+
+  const wholesale = calculatePotentialProfit(
+    unitCost,
+    wholesalePrice,
+    quantity
+  );
+
+  const retail = calculatePotentialProfit(
+    unitCost,
+    retailPrice,
+    quantity
+  );
+
+  return {
+    item_name: item.item_name,
+
+    unit_landed_cost_bif: roundMoney(unitCost),
+
+    wholesale_price_bif: roundMoney(wholesalePrice),
+    wholesale_profit_per_unit_bif: wholesale.profit_per_unit_bif,
+    wholesale_potential_profit_bif: wholesale.potential_total_profit_bif,
+    wholesale_margin_percent: wholesale.margin_percent,
+    wholesale_markup_percent: wholesale.markup_percent,
+    wholesale_below_cost: wholesale.below_cost,
+
+    retail_price_bif: roundMoney(retailPrice),
+    retail_profit_per_unit_bif: retail.profit_per_unit_bif,
+    retail_potential_profit_bif: retail.potential_total_profit_bif,
+    retail_margin_percent: retail.margin_percent,
+    retail_markup_percent: retail.markup_percent,
+    retail_below_cost: retail.below_cost
+  };
+}
+
+function calculateShipmentSellingPrices() {
+  const landed = calculateShipmentLandedCosts();
+  const rates = getShipmentExchangeRates();
+
+  const results = items.map(function (item) {
+    return calculateItemSellingPrices(item, rates);
+  });
+
+  const totals = results.reduce(function (sum, result) {
+    sum.wholesale_profit_bif += result.wholesale_potential_profit_bif;
+    sum.retail_profit_bif += result.retail_potential_profit_bif;
+
+    return sum;
+  }, {
+    wholesale_profit_bif: 0,
+    retail_profit_bif: 0
+  });
+
+  return {
+    landed_costs: landed,
+
+    items: results,
+
+    total_potential_wholesale_profit_bif: roundMoney(
+      totals.wholesale_profit_bif
+    ),
+
+    total_potential_retail_profit_bif: roundMoney(
+      totals.retail_profit_bif
+    )
+  };
+}
+
+function getCDIDatabase() {
+  const db =
+    window.cwbSupabaseClient ||
+    window.supabaseClient ||
+    (typeof supabase !== 'undefined' ? supabase : null);
+
+  if (!db || typeof db.from !== 'function') {
+    throw new Error('Connexion Supabase introuvable.');
+  }
+
+  return db;
+}
+
+async function saveShipment() {
+  if (isSaving) {
+    alert('Enregistrement déjà en cours.');
+    return;
+  }
+
+  isSaving = true;
+
+  try {
+    const db = getCDIDatabase();
+
+    validateSuppliers();
+    validateItems();
+
+    const rates = getShipmentExchangeRates();
+    const landed = calculateShipmentLandedCosts();
+
+    const userResult = await db.auth.getUser();
+
+    if (userResult.error) {
+      throw userResult.error;
+    }
+
+    const user = userResult.data.user;
+
+    if (!user) {
+      throw new Error('Veuillez vous connecter avant de sauvegarder.');
+    }
+
+    const shipmentPayload = {
+      created_by: user.id,
+      source_country: val('cdiSourceCountry') || 'China',
+      shipment_date: val('cdiShipmentDate') || null,
+      shipment_reference: val('cdiShipmentReference'),
+      status: 'Draft',
+      notes: val('cdiShipmentNotes'),
+      usd_to_bif_rate: rates.usd_to_bif,
+      rmb_to_usd_rate: rates.rmb_to_usd,
+      transport_rate_usd_per_cbm: nval('cdiTransportRate'),
+      document_fee_usd: nval('cdiDocFee')
+    };
+
+    const shipmentResult = await db
+      .from(TABLES.shipments)
+      .insert(shipmentPayload)
+      .select()
+      .single();
+
+    if (shipmentResult.error) {
+      throw shipmentResult.error;
+    }
+
+    const shipment = shipmentResult.data;
+    currentShipment = shipment;
+    currentShipmentId = shipment.id;
+
+    const supplierIds = new Map();
+
+    for (const supplier of suppliers) {
+      const supplierPayload = {
+        shipment_id: shipment.id,
+        supplier_name: supplier.supplier_name,
+        contact_details: supplier.contact_details,
+        invoice_reference: supplier.invoice_reference,
+        currency: supplier.currency,
+        notes: supplier.notes
+      };
+
+      const supplierResult = await db
+        .from(TABLES.suppliers)
+        .insert(supplierPayload)
+        .select()
+        .single();
+
+      if (supplierResult.error) {
+        throw supplierResult.error;
+      }
+
+      supplierIds.set(supplier, supplierResult.data.id);
+    }
+
+    for (let index = 0; index < items.length; index++) {
+      const item = items[index];
+      const result = landed.items[index];
+      const supplier = getItemSupplier(item);
+
+      if (!supplier || !supplierIds.has(supplier)) {
+        throw new Error(
+          'Fournisseur introuvable pour : ' + item.item_name
+        );
+      }
+
+      const itemPayload = {
+        shipment_id: shipment.id,
+        supplier_id: supplierIds.get(supplier),
+
+        item_name: item.item_name,
+        category: item.category,
+        unit: item.unit,
+
+        carton_quantity: item.carton_quantity,
+        pieces_per_carton: item.pieces_per_carton,
+        total_quantity: item.total_quantity,
+
+        purchase_currency: item.purchase_currency,
+        purchase_unit_price: item.purchase_unit_price,
+        exchange_rate_to_bif: item.exchange_rate_to_bif,
+
+        purchase_cost_usd: result.purchase_cost_usd,
+        purchase_cost_bif: result.purchase_cost_bif,
+
+        cbm_entry_mode: item.cbm_entry_mode,
+        cbm_per_carton: item.cbm_per_carton,
+        cbm: item.cbm,
+
+        net_weight_per_carton_kg: item.net_weight_per_carton_kg,
+        gross_weight_per_carton_kg: item.gross_weight_per_carton_kg,
+        total_net_weight_kg: item.total_net_weight_kg,
+        total_gross_weight_kg: item.total_gross_weight_kg,
+
+        transport_cost_bif: safeNumber(item.transport_cost_bif),
+        customs_cost_bif: safeNumber(item.customs_cost_bif),
+        other_costs_bif: safeNumber(item.other_costs_bif),
+
+        transport_cost_usd: result.total_transport_usd,
+        document_cost_usd: result.total_document_usd,
+
+        landed_cost_usd: result.landed_cost_usd,
+        landed_cost_bif: result.landed_cost_bif,
+
+        wholesale_price_bif: safeNumber(item.wholesale_price_bif),
+        retail_price_bif: safeNumber(item.retail_price_bif),
+
+        status: 'Draft',
+        notes: item.notes
+      };
+
+      const itemResult = await db
         .from(TABLES.items)
-        .update({
-          status: 'Arrived',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id)
-        .eq('status', 'Draft');
+        .insert(itemPayload);
 
-      if (r.error) throw r.error;
-
-      await loadShipment(currentShipment.id);
-
-    } catch (e) {
-      message('Impossible de changer le statut : ' + e.message, true);
+      if (itemResult.error) {
+        throw itemResult.error;
+      }
     }
-  }
 
-  async function receiveItem(id) {
-    if (!confirm(
-      'Confirmer la réception ? Cette action ajoutera la quantité à Inventory.'
-    )) return;
-
-    try {
-      const c = requireClient();
-
-      const r = await c.rpc(
-        'cwb_cd_confirm_item_receipt',
-        { p_item_id: id }
+    for (const cost of costs) {
+      const amountUSD = convertCurrencyToUSD(
+        cost.amount,
+        cost.currency,
+        rates
       );
 
-      if (r.error) throw r.error;
+      const amountBIF = convertUSDToBIF(
+        amountUSD,
+        rates
+      );
 
-      message('Réception confirmée. Résultat : ' + JSON.stringify(r.data));
-      await loadShipment(currentShipment.id);
+      const costPayload = {
+        shipment_id: shipment.id,
+        company_name: cost.company_name,
+        service_description: cost.service_description,
+        invoice_reference: cost.invoice_reference,
+        currency: cost.currency,
+        amount: cost.amount,
+        exchange_rate_to_bif: getPurchaseExchangeRate(
+          cost.currency,
+          rates
+        ),
+        amount_bif: amountBIF,
+        notes: cost.notes
+      };
 
-    } catch (e) {
-      message('Réception non confirmée : ' + e.message, true);
+      const costResult = await db
+        .from(TABLES.costs)
+        .insert(costPayload);
+
+      if (costResult.error) {
+        throw costResult.error;
+      }
     }
+
+    alert(
+      'Expédition enregistrée avec succès.\n' +
+      'Numéro : ' + (shipment.shipment_number || shipment.id) +
+      '\nCoût total : ' +
+      landed.total_landed_usd.toFixed(2) + ' USD' +
+      '\nÉquivalent : ' +
+      landed.total_landed_bif.toLocaleString() + ' BIF'
+    );
+
+    return shipment;
+
+  } catch (error) {
+    console.error('CDI saveShipment error:', error);
+
+    alert(
+      'Erreur pendant l’enregistrement :\n' +
+      (error.message || 'Erreur inconnue') +
+      '\n\nSi le dossier a déjà été créé dans Supabase, vérifiez-le avant de recommencer afin d’éviter les doublons.'
+    );
+
+    return null;
+
+  } finally {
+    isSaving = false;
   }
+}
 
-  async function uploadDocument() {
-    try {
-      const c = requireClient();
+async function setArrived(itemId) {
+  try {
+    const db = getCDIDatabase();
 
-      if (!currentShipment) {
-        throw new Error('Recherche ou enregistre d’abord un dossier.');
-      }
+    const itemResult = await db
+      .from(TABLES.items)
+      .select('*')
+      .eq('id', itemId)
+      .single();
 
-      const file = $('cdiDocument').files[0];
-      if (!file) throw new Error('Choisis un document.');
+    if (itemResult.error) {
+      throw itemResult.error;
+    }
 
-      if (file.size > 20 * 1024 * 1024) {
-        throw new Error('Fichier supérieur à 20 MB.');
-      }
+    const item = itemResult.data;
 
-      const auth = await c.auth.getUser();
-      if (auth.error) throw auth.error;
+    if (item.status === 'Received' || item.stock_received_at) {
+      throw new Error('Cet article a déjà été réceptionné.');
+    }
 
-      const user = auth.data && auth.data.user;
-      if (!user) throw new Error('Connecte-toi à C.W.B System.');
+    if (safeNumber(item.total_quantity) <= 0) {
+      throw new Error('La quantité totale de l’article est invalide.');
+    }
 
-      const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-      const path = currentShipment.id + '/' + Date.now() + '_' + safe;
+    if (safeNumber(item.landed_cost_bif) <= 0) {
+      throw new Error('Le coût total de revient doit être calculé.');
+    }
 
-      const up = await c.storage
-        .from(BUCKET)
-        .upload(path, file, {
-          upsert: false,
-          contentType: file.type || 'application/octet-stream'
-        });
+    if (
+      safeNumber(item.wholesale_price_bif) <= 0 ||
+      safeNumber(item.retail_price_bif) <= 0
+    ) {
+      throw new Error(
+        'Veuillez fixer le prix de gros et le prix de détail avant de confirmer l’arrivée.'
+      );
+    }
 
-      if (up.error) throw up.error;
+    const updateResult = await db
+      .from(TABLES.items)
+      .update({
+        status: 'Arrived',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', itemId)
+      .eq('status', 'Draft');
 
-      const row = await c.from(TABLES.docs).insert({
-        shipment_id: currentShipment.id,
-        supplier_id: val('cdiDocumentSupplier') || null,
-        document_type: file.type === 'application/pdf' ? 'PDF' : 'Image',
-        document_path: path,
-        original_name: file.name,
-        uploaded_by: user.id
+    if (updateResult.error) {
+      throw updateResult.error;
+    }
+
+    alert('Article marqué comme arrivé. Il peut maintenant être réceptionné dans l’Inventaire.');
+
+    return true;
+
+  } catch (error) {
+    console.error('CDI setArrived error:', error);
+    alert(error.message || 'Impossible de confirmer l’arrivée.');
+    return false;
+  }
+}
+
+async function receiveItem(itemId) {
+  try {
+    const db = getCDIDatabase();
+
+    const result = await db.rpc(
+      'cwb_cd_confirm_item_receipt',
+      { p_item_id: itemId }
+    );
+
+    if (result.error) {
+      throw result.error;
+    }
+
+    alert(
+      'Réception confirmée !\n' +
+      'L’article a été ajouté ou mis à jour dans l’Inventaire.'
+    );
+
+    return result.data;
+
+  } catch (error) {
+    console.error('CDI receiveItem error:', error);
+
+    alert(
+      'Erreur pendant la réception :\n' +
+      (error.message || 'Erreur inconnue')
+    );
+
+    return null;
+  }
+}
+async function searchShipment(shipmentNumber) {
+  try {
+    const db = getCDIDatabase();
+    const query = String(shipmentNumber || '').trim();
+
+    if (!query) {
+      throw new Error('Entrez un numéro d’expédition à rechercher.');
+    }
+
+    const result = await db
+      .from(TABLES.shipments)
+      .select('*')
+      .ilike('shipment_number', '%' + query + '%')
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    if (result.error) {
+      throw result.error;
+    }
+
+    return result.data || [];
+
+  } catch (error) {
+    console.error('CDI search error:', error);
+    alert(error.message || 'Erreur pendant la recherche.');
+    return [];
+  }
+}
+
+async function loadShipment(shipmentId) {
+  try {
+    const db = getCDIDatabase();
+
+    const shipmentResult = await db
+      .from(TABLES.shipments)
+      .select('*')
+      .eq('id', shipmentId)
+      .single();
+
+    if (shipmentResult.error) {
+      throw shipmentResult.error;
+    }
+
+    const shipment = shipmentResult.data;
+
+    const [
+      supplierResult,
+      itemResult,
+      costResult,
+      documentResult
+    ] = await Promise.all([
+      db.from(TABLES.suppliers)
+        .select('*')
+        .eq('shipment_id', shipmentId),
+
+      db.from(TABLES.items)
+        .select('*')
+        .eq('shipment_id', shipmentId),
+
+      db.from(TABLES.costs)
+        .select('*')
+        .eq('shipment_id', shipmentId),
+
+      db.from(TABLES.docs)
+        .select('*')
+        .eq('shipment_id', shipmentId)
+        .order('created_at', { ascending: false })
+    ]);
+
+    if (supplierResult.error) throw supplierResult.error;
+    if (itemResult.error) throw itemResult.error;
+    if (costResult.error) throw costResult.error;
+    if (documentResult.error) throw documentResult.error;
+
+    currentShipment = shipment;
+    currentShipmentId = shipment.id;
+
+    suppliers = [];
+    items = [];
+    costs = [];
+
+    const supplierIndexById = new Map();
+
+    (supplierResult.data || []).forEach(function (row) {
+      const supplier = addSupplier(row);
+      supplier.db_id = row.id;
+      supplierIndexById.set(row.id, suppliers.length - 1);
+    });
+
+    (itemResult.data || []).forEach(function (row) {
+      const item = addItem({
+        ...row,
+        supplierIndex: supplierIndexById.has(row.supplier_id)
+          ? String(supplierIndexById.get(row.supplier_id))
+          : ''
       });
 
-      if (row.error) throw row.error;
+      item.db_id = row.id;
+    });
 
-      $('cdiDocument').value = '';
-      message('Document archivé.');
-      await loadShipment(currentShipment.id);
+    (costResult.data || []).forEach(function (row) {
+      addCost(row);
+    });
+    const usdRate = document.getElementById('cdiUsdRate');
+    const rmbRate = document.getElementById('cdiRmbRate');
+    const transportRate = document.getElementById('cdiTransportRate');
+    const documentFee = document.getElementById('cdiDocFee');
 
-    } catch (e) {
-      message('Téléversement impossible : ' + e.message, true);
+    if (usdRate) usdRate.value = shipment.usd_to_bif_rate || '';
+    if (rmbRate) rmbRate.value = shipment.rmb_to_usd_rate || '';
+    if (transportRate) {
+      transportRate.value = shipment.transport_rate_usd_per_cbm || 0;
+    }
+    if (documentFee) {
+      documentFee.value = shipment.document_fee_usd || 0;
+    }
+    if (typeof renderSuppliers === 'function') renderSuppliers();
+    if (typeof renderItems === 'function') renderItems();
+    if (typeof renderCosts === 'function') renderCosts();
+
+    return {
+      shipment: shipment,
+      suppliers: supplierResult.data || [],
+      items: itemResult.data || [],
+      costs: costResult.data || [],
+      documents: documentResult.data || []
+    };
+
+  } catch (error) {
+    console.error('CDI load error:', error);
+    alert(error.message || 'Impossible de charger cette expédition.');
+    return null;
+  }
+}
+
+async function uploadShipmentDocument(
+  file,
+  documentType = 'Document',
+  supplierId = null
+) {
+  try {
+    if (!currentShipmentId) {
+      throw new Error('Ouvrez ou enregistrez une expédition avant d’ajouter un document.');
+    }
+
+    if (!file) {
+      throw new Error('Aucun fichier sélectionné.');
+    }
+
+    const db = getCDIDatabase();
+
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const filePath =
+      currentShipmentId + '/' +
+      Date.now() + '_' + safeName;
+
+    const uploadResult = await db.storage
+      .from(BUCKET)
+      .upload(filePath, file, {
+        upsert: false,
+        contentType: file.type || 'application/octet-stream'
+      });
+
+    if (uploadResult.error) {
+      throw uploadResult.error;
+    }
+
+    const documentPayload = {
+      shipment_id: currentShipmentId,
+      supplier_id: supplierId,
+      company_cost_id: null,
+      document_type: documentType,
+      document_path: uploadResult.data.path,
+      original_name: file.name,
+      uploaded_by: (
+        await db.auth.getUser()
+      ).data.user?.id || null
+    };
+
+    const saveResult = await db
+      .from(TABLES.docs)
+      .insert(documentPayload)
+      .select()
+      .single();
+
+    if (saveResult.error) {
+      throw saveResult.error;
+    }
+
+    alert('Document archivé avec succès.');
+
+    return saveResult.data;
+
+  } catch (error) {
+    console.error('CDI document upload error:', error);
+    alert(error.message || 'Impossible d’archiver le document.');
+    return null;
+  }
+}
+
+async function uploadShipmentPhotos(files) {
+  const uploaded = [];
+
+  for (const file of Array.from(files || [])) {
+    if (!file.type || !file.type.startsWith('image/')) {
+      continue;
+    }
+
+    const result = await uploadShipmentDocument(file, 'Image');
+
+    if (result) {
+      uploaded.push(result);
     }
   }
 
-  async function uploadPhotos() {
-    try {
-      const c = requireClient();
+  return uploaded;
+}
 
-      if (!currentShipment) {
-        throw new Error('Recherche ou enregistre d’abord un dossier.');
-      }
+async function getShipmentDocumentUrl(documentPath) {
+  const db = getCDIDatabase();
 
-      const input = $('cdiPhotos');
-      const files = Array.from(input.files || []);
+  const result = await db.storage
+    .from(BUCKET)
+    .createSignedUrl(documentPath, 3600);
 
-      if (!files.length) {
-        throw new Error('Choisis au moins une photo.');
-      }
+  if (result.error) {
+    throw result.error;
+  }
 
-      for (const file of files) {
-        if (!file.type.startsWith('image/')) {
-          throw new Error('Seules les images sont acceptées.');
-        }
+  return result.data.signedUrl;
+}
 
-        if (file.size > 20 * 1024 * 1024) {
-          throw new Error('Une photo dépasse 20 MB.');
-        }
-      }
+async function openShipmentDocument(documentPath) {
+  try {
+    const url = await getShipmentDocumentUrl(documentPath);
+    window.open(url, '_blank', 'noopener');
 
-      const auth = await c.auth.getUser();
-      if (auth.error) throw auth.error;
+  } catch (error) {
+    console.error('CDI document open error:', error);
+    alert(error.message || 'Impossible d’ouvrir ce document.');
+  }
+}
 
-      const user = auth.data && auth.data.user;
-      if (!user) throw new Error('Connecte-toi à C.W.B System.');
+function printShipment() {
+  if (!currentShipment) {
+    alert('Aucune expédition chargée à imprimer.');
+    return;
+  }
 
-      message('Enregistrement des photos en cours…');
+  try {
+    const rates = getShipmentExchangeRates();
+    const landed = calculateShipmentLandedCosts();
 
-      let uploaded = 0;
+    const escape = function (value) {
+      return escapeHTML(value ?? '');
+    };
 
-      for (const file of files) {
-        const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const rows = landed.items.map(function (result, index) {
+      const item = items[index];
 
-        const path =
-          currentShipment.id +
-          '/photos/' +
-          Date.now() + '_' +
-          Math.random().toString(36).slice(2, 8) +
-          '_' + safe;
+      return `
+        <tr>
+          <td>${escape(item.item_name)}</td>
+          <td>${escape(item.carton_quantity)}</td>
+          <td>${escape(item.total_quantity)}</td>
+          <td>${escape(item.cbm)}</td>
+          <td>${escape(result.purchase_cost_usd.toFixed(2))}</td>
+          <td>${escape(result.total_transport_usd.toFixed(2))}</td>
+          <td>${escape(result.total_document_usd.toFixed(2))}</td>
+          <td>${escape(result.landed_cost_usd.toFixed(2))}</td>
+          <td>${escape(result.landed_cost_bif.toLocaleString())}</td>
+        </tr>
+      `;
+    }).join('');
 
-        const up = await c.storage
-          .from(BUCKET)
-          .upload(path, file, {
-            upsert: false,
-            contentType: file.type
-          });
+    const supplierRows = suppliers.map(function (supplier) {
+      return `
+        <tr>
+          <td>${escape(supplier.supplier_name)}</td>
+          <td>${escape(supplier.invoice_reference)}</td>
+          <td>${escape(supplier.currency)}</td>
+          <td>${escape(supplier.contact_details)}</td>
+        </tr>
+      `;
+    }).join('');
 
-        if (up.error) throw up.error;
+    const printWindow = window.open('', '_blank');
 
-        const row = await c.from(TABLES.docs).insert({
-          shipment_id: currentShipment.id,
-          supplier_id: null,
-          document_type: 'Image',
-          document_path: path,
-          original_name: file.name,
-          uploaded_by: user.id
-        });
-
-        if (row.error) throw row.error;
-
-        uploaded++;
-      }
-
-      input.value = '';
-
-      message(uploaded + ' photo(s) enregistrée(s) avec succès.');
-      await loadShipment(currentShipment.id);
-
-    } catch (e) {
-      message('Erreur photos : ' + e.message, true);
+    if (!printWindow) {
+      throw new Error('Autorisez les fenêtres pop-up pour imprimer le dossier.');
     }
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>${escape(currentShipment.shipment_number || 'CDI')}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 25px; color: #222; }
+          h1, h2 { color: #17365d; }
+          table { width: 100%; border-collapse: collapse; margin: 15px 0 25px; }
+          th, td { border: 1px solid #bbb; padding: 7px; text-align: left; font-size: 11px; }
+          th { background: #eee; }
+          .summary { margin: 20px 0; padding: 12px; border: 1px solid #bbb; }
+          @media print { button { display: none; } }
+        </style>
+      </head>
+      <body>
+        <h1>C.W.B SYSTEM — CHINA & DUBAI IMPORT</h1>
+        <h2>Rapport d'expédition</h2>
+
+        <p><strong>Numéro :</strong>
+          ${escape(currentShipment.shipment_number)}</p>
+        <p><strong>Référence :</strong>
+          ${escape(currentShipment.shipment_reference)}</p>
+        <p><strong>Pays :</strong>
+          ${escape(currentShipment.source_country)}</p>
+        <p><strong>Date :</strong>
+          ${escape(currentShipment.shipment_date)}</p>
+        <p><strong>Statut :</strong>
+          ${escape(currentShipment.status)}</p>
+
+        <h2>Fournisseurs et factures</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Fournisseur</th>
+              <th>Référence facture</th>
+              <th>Devise</th>
+              <th>Contact</th>
+            </tr>
+          </thead>
+          <tbody>${supplierRows}</tbody>
+        </table>
+
+        <h2>Détail des marchandises et coûts</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Article</th>
+              <th>Cartons</th>
+              <th>Quantité</th>
+              <th>CBM</th>
+              <th>Achat USD</th>
+              <th>Transport USD</th>
+              <th>Documents USD</th>
+              <th>Coût total USD</th>
+              <th>Coût total BIF</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+
+        <div class="summary">
+          <h2>Résumé financier</h2>
+          <p>Total CBM : ${landed.total_cbm}</p>
+          <p>Total cartons : ${landed.total_cartons}</p>
+          <p>Total achats : ${landed.total_purchase_usd.toFixed(2)} USD</p>
+          <p>Total transport : ${landed.total_transport_usd.toFixed(2)} USD</p>
+          <p>Total documents : ${landed.total_document_usd.toFixed(2)} USD</p>
+          <p>Autres dépenses communes : ${landed.total_common_expenses_usd.toFixed(2)} USD</p>
+          <h3>Coût total : ${landed.total_landed_usd.toFixed(2)} USD</h3>
+          <h3>Équivalent : ${landed.total_landed_bif.toLocaleString()} BIF</h3>
+          <p>Taux USD/BIF : ${rates.usd_to_bif}</p>
+          <p>Taux RMB/USD : ${rates.rmb_to_usd}</p>
+        </div>
+
+        <p><strong>Notes :</strong> ${escape(currentShipment.notes)}</p>
+        <button onclick="window.print()">Imprimer le rapport</button>
+      </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+
+  } catch (error) {
+    console.error('CDI print error:', error);
+    alert(error.message || 'Impossible de préparer le rapport.');
   }
-
-  function initialize() {
-    if (initialized) return;
-
-    buildUI();
-    initialized = true;
-  }
-
-  window.cwbInitChinaDubaiImport = initialize;
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initialize);
-  } else {
-    initialize();
-  }
-
-})();
+}
