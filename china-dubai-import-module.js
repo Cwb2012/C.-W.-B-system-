@@ -667,20 +667,8 @@ function getAllocationMethod() {
   return 'CBM';
 }
 
-function getItemAllocationBase(item, method) {
-  switch (method) {
-    case 'CBM':
-      return safeNumber(item.cbm);
-
-    case 'CARTONS':
-      return safeNumber(item.carton_quantity);
-
-    case 'PURCHASE_VALUE':
-      return safeNumber(item.purchase_cost_usd);
-
-    default:
-      return 0;
-  }
+function getItemAllocationBase(item) {
+  return safeNumber(item.cbm);
 }
 
 function allocateCommonExpenses(totalExpensesUSD, method) {
