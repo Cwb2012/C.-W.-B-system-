@@ -1713,7 +1713,7 @@ function printShipment() {
           <h3>Coût total : ${landed.total_landed_usd.toFixed(2)} USD</h3>
           <h3>Équivalent : ${landed.total_landed_bif.toLocaleString()} BIF</h3>
           <p>Taux USD/BIF : ${rates.usd_to_bif}</p>
-          <p>Taux RMB/USD : ${rates.rmb_to_usd}</p>
+<p>Taux USD/RMB : ${(1 / rates.rmb_to_usd).toFixed(6)}</p>
         </div>
 
         <p><strong>Notes :</strong> ${escape(currentShipment.notes)}</p>
