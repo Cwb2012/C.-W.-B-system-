@@ -1325,6 +1325,7 @@ async function receiveItem(itemId) {
     return null;
   }
 }
+
 async function searchShipment(shipmentNumber) {
   try {
     const db = getCDIDatabase();
@@ -1334,18 +1335,35 @@ async function searchShipment(shipmentNumber) {
       throw new Error('Entrez un numéro d’expédition à rechercher.');
     }
 
+    const normalize = function (value) {
+      return String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, '');
+    };
+
+    const normalizedQuery = normalize(query);
+
+    if (!normalizedQuery) {
+      throw new Error('Entrez un numéro ou une référence valide.');
+    }
+
     const result = await db
       .from(TABLES.shipments)
       .select('*')
-      .ilike('shipment_number', '%' + query + '%')
       .order('created_at', { ascending: false })
-      .limit(10);
+      .limit(500);
 
-    if (result.error) {
-      throw result.error;
-    }
+    if (result.error) throw result.error;
 
-    return result.data || [];
+    return (result.data || []).filter(function (shipment) {
+      const number = normalize(shipment.shipment_number);
+      const reference = normalize(shipment.shipment_reference);
+
+      return number.includes(normalizedQuery) ||
+        reference.includes(normalizedQuery);
+    }).slice(0, 10);
 
   } catch (error) {
     console.error('CDI search error:', error);
