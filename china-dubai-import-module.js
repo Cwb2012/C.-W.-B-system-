@@ -1452,7 +1452,12 @@ async function loadShipment(shipmentId) {
     const documentFee = document.getElementById('cdiDocFee');
 
     if (usdRate) usdRate.value = shipment.usd_to_bif_rate || '';
-    if (rmbRate) rmbRate.value = shipment.rmb_to_usd_rate || '';
+    if (rmbRate) {
+  const savedRate = Number(shipment.rmb_to_usd_rate);
+  rmbRate.value = savedRate > 0
+    ? (1 / savedRate).toFixed(6)
+    : '';
+}
     if (transportRate) {
       transportRate.value = shipment.transport_rate_usd_per_cbm || 0;
     }
