@@ -1304,6 +1304,94 @@ async function receiveItem(itemId) {
   }
 }
 
+  async function loadAndRenderShipmentList() {
+  const container = document.getElementById('cdiShipmentList');
+  if (!container) return;
+
+  container.innerHTML = '<p>Chargement des importations...</p>';
+
+  try {
+    const db = getCDIDatabase();
+
+    const [shipments, itemResult, supplierResult] = await Promise.all([
+      db.from(TABLES.shipments)
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(500),
+
+      db.from(TABLES.items).select('*'),
+
+      db.from(TABLES.suppliers).select('*')
+    ]);
+
+    if (shipments.error) throw shipments.error;
+    if (itemResult.error) throw itemResult.error;
+    if (supplierResult.error) throw supplierResult.error;
+
+    const allItems = itemResult.data || [];
+    const allSuppliers = supplierResult.data || [];
+
+    if (!shipments.data || !shipments.data.length) {
+      container.innerHTML = '<p>Aucune importation enregistrée.</p>';
+      return;
+    }
+
+    container.innerHTML = shipments.data.map(function (shipment) {
+      const shipmentItems = allItems.filter(
+        item => item.shipment_id === shipment.id
+      );
+
+      const names = shipmentItems.map(
+        item => item.item_name
+      ).filter(Boolean);
+
+      const supplierNames = [...new Set(
+        shipmentItems.map(function (item) {
+          const supplier = allSuppliers.find(
+            row => row.id === item.supplier_id
+          );
+          return supplier ? supplier.supplier_name : '';
+        }).filter(Boolean)
+      )];
+
+      const quantity = shipmentItems.reduce(
+        (sum, item) => sum + safeNumber(item.total_quantity), 0
+      );
+
+      const cbm = shipmentItems.reduce(
+        (sum, item) => sum + safeNumber(item.cbm), 0
+      );
+
+      const cost = shipmentItems.reduce(
+        (sum, item) => sum + safeNumber(item.landed_cost_bif), 0
+      );
+
+      return `
+        <div style="border:1px solid #aaa;border-radius:8px;padding:10px;margin:9px 0;overflow-wrap:anywhere">
+          <strong>${escapeHTML(shipment.shipment_number || shipment.id)}</strong>
+          <p>Date : ${escapeHTML(shipment.shipment_date || '')}</p>
+          <p>Origine : ${escapeHTML(shipment.source_country || '')}</p>
+          <p>Fournisseur : ${escapeHTML(supplierNames.join(', ') || 'Non renseigné')}</p>
+          <p>Marchandises : ${escapeHTML(names.join(', ') || 'Aucun article')}</p>
+          <p>Quantité : ${cdiFormat(quantity)}</p>
+          <p>CBM total : ${cdiFormat(cbm)}</p>
+          <p>Coût enregistré : ${cdiFormat(cost)} BIF</p>
+          <p><strong>Statut : ${escapeHTML(shipment.status || 'Draft')}</strong></p>
+          <button type="button" data-action="load"
+            data-id="${escapeHTML(shipment.id)}">
+            OUVRIR CE DOSSIER
+          </button>
+        </div>
+      `;
+    }).join('');
+
+  } catch (error) {
+    console.error('CDI shipment list error:', error);
+    container.innerHTML =
+      '<p>Erreur de chargement : ' +
+      escapeHTML(error.message || 'Erreur inconnue') + '</p>';
+  }
+} 
 async function searchShipment(shipmentNumber) {
   try {
     const db = getCDIDatabase();
@@ -2658,7 +2746,17 @@ function buildCDIInterface() {
 
   root.innerHTML = `
     <h2>🌏 C.W.B — CHINA & DUBAI IMPORT</h2>
-
+    
+<section style="border:1px solid #999;padding:12px;margin-bottom:15px;border-radius:8px">
+  <h3>📋 Liste des importations</h3>
+  <p>Tous les dossiers d'importation enregistrés.</p>
+  <button type="button" data-action="refresh-list">
+    🔄 ACTUALISER LA LISTE
+  </button>
+  <div id="cdiShipmentList" aria-live="polite">
+    Chargement des importations...
+  </div>
+</section>
     <section style="border:1px solid #999;padding:12px;margin-bottom:15px;border-radius:8px">
       <h3>🔎 Rechercher une expédition</h3>
       <input id="cdiSearchNumber" placeholder="Numéro d'expédition">
@@ -3079,6 +3177,9 @@ async function handleCDIClick(event) {
     if (action === 'search') {
       await performCDISearch();
     }
+     if (action === 'refresh-list') {
+  await loadAndRenderShipmentList();
+}
 
     if (action === 'add-supplier') {
       addSupplier({
@@ -3297,8 +3398,9 @@ function initializeChinaDubaiImport() {
     root.dataset.cdiEvents = 'ready';
   }
 
-  initialized = true;
+    initialized = true;
   clearCDIForm();
+  loadAndRenderShipmentList();
 }
 
 window.cwbInitChinaDubaiImport = initializeChinaDubaiImport;
