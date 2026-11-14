@@ -364,7 +364,7 @@ function calculateShipmentVolumes() {
 
 function getShipmentExchangeRates() {
   const usdToBif = nval('cdiUsdRate');
-  const rmbToUsd = nval('cdiRmbRate');
+  const rmbPerUsd = nval('cdiRmbRate');
 
   if (usdToBif <= 0) {
     throw new Error(
@@ -372,15 +372,15 @@ function getShipmentExchangeRates() {
     );
   }
 
-  if (rmbToUsd <= 0) {
+  if (rmbPerUsd <= 0) {
     throw new Error(
-      'Veuillez entrer un taux RMB vers USD valide.'
+      'Veuillez entrer le nombre de RMB pour 1 USD.'
     );
   }
 
   return {
     usd_to_bif: usdToBif,
-    rmb_to_usd: rmbToUsd
+    rmb_to_usd: 1 / rmbPerUsd
   };
 }
 
