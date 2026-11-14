@@ -3118,35 +3118,45 @@ async function handleCDIClick(event) {
       renderSuppliers();
     }
 
+    
     if (action === 'add-item') {
-      const item = addItem({
-        supplierIndex: val('cdiItemSupplier'),
-        item_name: val('cdiItemName'),
-        category: val('cdiItemCategory'),
-        unit: val('cdiItemUnit') || 'pieces',
-        carton_quantity: nval('cdiItemCartons'),
-        pieces_per_carton: nval('cdiItemPieces'),
-        cbm_entry_mode: val('cdiItemCbmMode'),
-        cbm_per_carton: nval('cdiItemCbmPerCarton'),
-        carton_length_cm: nval('cdiItemLength'),
-        carton_width_cm: nval('cdiItemWidth'),
-        carton_height_cm: nval('cdiItemHeight'),
-        net_weight_per_carton_kg: nval('cdiItemNetWeight'),
-        gross_weight_per_carton_kg: nval('cdiItemGrossWeight'),
-        purchase_currency: val('cdiItemCurrency'),
-        purchase_unit_price: nval('cdiItemPurchasePrice'),
-        transport_cost_bif: nval('cdiItemTransport'),
-        customs_cost_bif: nval('cdiItemCustoms'),
-        other_costs_bif: nval('cdiItemOther'),
-        wholesale_price_bif: nval('cdiItemWholesale'),
-        retail_price_bif: nval('cdiItemRetail'),
-        notes: val('cdiItemNotes')
-      });
+      const previousItemCount = items.length;
 
-      calculateItemQuantities(item);
-      calculateItemCbm(item);
-      renderItems();
+      try {
+        const item = addItem({
+          supplierIndex: val('cdiItemSupplier'),
+          item_name: val('cdiItemName'),
+          category: val('cdiItemCategory'),
+          unit: val('cdiItemUnit') || 'pieces',
+          carton_quantity: nval('cdiItemCartons'),
+          pieces_per_carton: nval('cdiItemPieces'),
+          cbm_entry_mode: val('cdiItemCbmMode'),
+          cbm_per_carton: nval('cdiItemCbmPerCarton'),
+          carton_length_cm: nval('cdiItemLength'),
+          carton_width_cm: nval('cdiItemWidth'),
+          carton_height_cm: nval('cdiItemHeight'),
+          net_weight_per_carton_kg: nval('cdiItemNetWeight'),
+          gross_weight_per_carton_kg: nval('cdiItemGrossWeight'),
+          purchase_currency: val('cdiItemCurrency'),
+          purchase_unit_price: nval('cdiItemPurchasePrice'),
+          transport_cost_bif: nval('cdiItemTransport'),
+          customs_cost_bif: nval('cdiItemCustoms'),
+          other_costs_bif: nval('cdiItemOther'),
+          wholesale_price_bif: nval('cdiItemWholesale'),
+          retail_price_bif: nval('cdiItemRetail'),
+          notes: val('cdiItemNotes')
+        });
+
+        calculateItemQuantities(item);
+        calculateItemCbm(item);
+        renderItems();
+
+      } catch (error) {
+        items.splice(previousItemCount);
+        throw error;
+      }
     }
+
 
     if (action === 'add-cost') {
       addCost({
