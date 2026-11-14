@@ -2402,9 +2402,10 @@ async function cdiSearchAndRender() {
             <p>${escapeHTML(shipment.source_country || '')}
               — ${escapeHTML(shipment.shipment_date || '')}</p>
             <p>Statut : ${escapeHTML(shipment.status || '')}</p>
-            <button type="button" data-cdi-load="${escapeHTML(shipment.id)}">
-              OUVRIR CE DOSSIER
-            </button>
+          <button type="button"
+  data-cdi-load="${escapeHTML(shipment.id)}">
+  OUVRIR CE DOSSIER
+</button>
           </div>
         `;
       }).join('')
