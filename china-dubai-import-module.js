@@ -1923,8 +1923,7 @@ function buildUI() {
     <div class="cdi-section">
       <h2>2. Taux de change et transport</h2>
       <div class="cdi-grid">
-        ${cdiField('1 USD = BIF', 'cdiUsdRate', '', 'number', 'step="any" min="0"')}
-        ${cdiField('1 RMB = USD', 'cdiRmbRate', '0.14', 'number', 'step="any" min="0"')}
+        ${cdiField('1 USD = RMB', 'cdiRmbRate', '', 'number', 'step="any" min="0"')}
         ${cdiField('Transport USD / CBM', 'cdiTransportRate', '0', 'number', 'step="any" min="0"')}
         ${cdiField('Frais documents USD', 'cdiDocFee', '0', 'number', 'step="any" min="0"')}
         ${cdiSelect('Répartition des frais communs', 'cdiAllocationMethod', [
@@ -2711,8 +2710,8 @@ function buildCDIInterface() {
       <label>Taux USD vers BIF</label>
       <input type="number" id="cdiUsdRate" min="0" step="any" placeholder="Exemple : 2900">
 
-      <label>Taux RMB vers USD</label>
-      <input type="number" id="cdiRmbRate" min="0" step="any" placeholder="Exemple : 0.14">
+      <label>1 USD = RMB</label>
+<input type="number" id="cdiRmbRate" min="0" step="any" placeholder="Saisir le taux actuel">🏢 
 
       <label>Transport USD par CBM</label>
       <input type="number" id="cdiTransportRate" min="0" step="any" value="0">
