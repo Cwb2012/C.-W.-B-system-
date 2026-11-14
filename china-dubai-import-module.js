@@ -32,11 +32,7 @@
 
   const CURRENCIES = ['USD', 'RMB', 'BIF'];
 
-  const ALLOCATION_METHODS = [
-    'CBM',
-    'CARTONS',
-    'PURCHASE_VALUE'
-  ];
+  const ALLOCATION_METHODS = ['CBM'];
 
   function val(id) {
     const element = document.getElementById(id);
@@ -668,13 +664,7 @@ function calculateShipmentExpenses() {
 }
 
 function getAllocationMethod() {
-  const method = val('cdiAllocationMethod') || 'CBM';
-
-  if (!ALLOCATION_METHODS.includes(method)) {
-    throw new Error('Méthode de répartition des frais invalide.');
-  }
-
-  return method;
+  return 'CBM';
 }
 
 function getItemAllocationBase(item, method) {
@@ -1932,10 +1922,8 @@ function buildUI() {
         ${cdiField('Transport USD / CBM', 'cdiTransportRate', '0', 'number', 'step="any" min="0"')}
         ${cdiField('Frais documents USD', 'cdiDocFee', '0', 'number', 'step="any" min="0"')}
         ${cdiSelect('Répartition des frais communs', 'cdiAllocationMethod', [
-          {value:'CBM',label:'Selon CBM'},
-          {value:'CARTONS',label:'Selon cartons'},
-          {value:'PURCHASE_VALUE',label:'Selon valeur d’achat'}
-        ], 'CBM')}
+  {value:'CBM',label:'Selon CBM uniquement'}
+], 'CBM')}
       </div>
       <p class="cdi-muted">
         Le taux RMB est exprimé en USD pour 1 RMB.
@@ -2724,12 +2712,10 @@ function buildCDIInterface() {
       <label>Frais de documents USD</label>
       <input type="number" id="cdiDocFee" min="0" step="any" value="0">
 
-      <label>Méthode de répartition des frais</label>
-      <select id="cdiAllocationMethod">
-        <option value="CBM">Selon CBM</option>
-        <option value="CARTONS">Selon nombre de cartons</option>
-        <option value="PURCHASE_VALUE">Selon valeur d'achat</option>
-      </select>
+      <label>Répartition des frais</label>
+<select id="cdiAllocationMethod">
+  <option value="CBM">Selon CBM uniquement</option>
+</select>
 
       <hr>
       <h3>3. Fournisseurs et factures fournisseurs</h3>
