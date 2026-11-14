@@ -1914,7 +1914,7 @@ function buildUI() {
 ], 'CBM')}
       </div>
       <p class="cdi-muted">
-        Le taux RMB est exprimé en USD pour 1 RMB.
+        Le taux RMB indique combien de RMB correspondent à 1 USD.
         Le transport est calculé selon le CBM total.
       </p>
     </div>
