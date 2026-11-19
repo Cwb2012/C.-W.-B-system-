@@ -3312,7 +3312,29 @@ if (action === 'load') {
     renderItems();
     renderCosts();
     renderDocuments(result.documents || []);
-    renderCalculation();
+
+    const usdRate = Number(
+      document.getElementById('cdiUsdRate')?.value || 0
+    );
+
+    const rmbRate = Number(
+      document.getElementById('cdiRmbRate')?.value || 0
+    );
+
+    const calculation = document.getElementById(
+      'cdiCalculationResult'
+    );
+
+    if (usdRate > 0 && rmbRate > 0) {
+      renderCalculation();
+    } else if (calculation) {
+      calculation.innerHTML =
+        '<p class="cdi-warning">' +
+        'Dossier ouvert. Le calcul financier sera disponible ' +
+        'après vérification des taux de change.' +
+        '</p>';
+    }
+
     setCDILocked(true);
 
     alert(
@@ -3325,6 +3347,7 @@ if (action === 'load') {
     button.textContent = originalText;
   }
 }
+
 
 
     if (action === 'arrived') {
