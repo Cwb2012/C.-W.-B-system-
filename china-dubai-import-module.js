@@ -368,17 +368,22 @@ function getShipmentExchangeRates() {
     );
   }
 
-  if (rmbPerUsd <= 0) {
+  const rmbIsUsed =
+    items.some(item => item.purchase_currency === 'RMB') ||
+    costs.some(cost => cost.currency === 'RMB');
+
+  if (rmbIsUsed && rmbPerUsd <= 0) {
     throw new Error(
-      'Veuillez entrer le nombre de RMB pour 1 USD.'
+      'Ce dossier contient un achat en RMB. Veuillez entrer le nombre de RMB pour 1 USD.'
     );
   }
 
   return {
     usd_to_bif: usdToBif,
-    rmb_to_usd: 1 / rmbPerUsd
+    rmb_to_usd: rmbPerUsd > 0 ? 1 / rmbPerUsd : 0
   };
 }
+
 
 function convertCurrencyToUSD(amount, currency, rates) {
   const value = safeNumber(amount);
@@ -1995,15 +2000,14 @@ function buildUI() {
     <div class="cdi-section">
       <h2>2. Taux de change et transport</h2>
       <div class="cdi-grid">
-        ${cdiField('1 USD = RMB', 'cdiRmbRate', '', 'number', 'step="any" min="0"')}
-        ${cdiField('Transport USD / CBM', 'cdiTransportRate', '0', 'number', 'step="any" min="0"')}
-        ${cdiField('Frais documents USD', 'cdiDocFee', '0', 'number', 'step="any" min="0"')}
-        ${cdiSelect('Répartition des frais communs', 'cdiAllocationMethod', [
+      ${cdiField('1 USD = RMB (facultatif)', 'cdiRmbRate', '', 'number', 'step="any" min="0"')}
+      ${cdiSelect('Répartition des frais communs', 'cdiAllocationMethod', [
   {value:'CBM',label:'Selon CBM uniquement'}
 ], 'CBM')}
       </div>
       <p class="cdi-muted">
-        Le taux RMB indique combien de RMB correspondent à 1 USD.
+                Le taux RMB est nécessaire uniquement si un achat ou une dépense est payé en RMB.
+        Pour les dossiers en USD, laissez ce champ vide.
         Le transport est calculé selon le CBM total.
       </p>
     </div>
@@ -3050,11 +3054,7 @@ function renderCalculation() {
     document.getElementById('cdiUsdRate')?.value || 0
   );
 
-  const rmbRate = Number(
-    document.getElementById('cdiRmbRate')?.value || 0
-  );
-
-  if (usdRate <= 0 || rmbRate <= 0) {
+    if (usdRate <= 0) {
     target.innerHTML =
       '<p class="cdi-warning">' +
       'Dossier ouvert. Le calcul financier sera disponible ' +
@@ -3334,16 +3334,12 @@ if (action === 'load') {
     const usdRate = Number(
       document.getElementById('cdiUsdRate')?.value || 0
     );
-
-    const rmbRate = Number(
-      document.getElementById('cdiRmbRate')?.value || 0
-    );
-
     const calculation = document.getElementById(
       'cdiCalculationResult'
     );
 
-    if (usdRate > 0 && rmbRate > 0) {
+    if (usdRate > 0) {
+    
       renderCalculation();
     } else if (calculation) {
       calculation.innerHTML =
