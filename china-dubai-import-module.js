@@ -3273,27 +3273,59 @@ async function handleCDIClick(event) {
       }
     }
 
-    if (action === 'load') {
-      const result = await loadShipment(button.dataset.id);
+    
+if (action === 'load') {
+  const shipmentId = button.dataset.id;
 
-      if (result) {
-        document.getElementById('cdiSourceCountry').value =
-          result.shipment.source_country || 'China';
-        document.getElementById('cdiShipmentDate').value =
-          result.shipment.shipment_date || '';
-        document.getElementById('cdiShipmentReference').value =
-          result.shipment.shipment_reference || '';
-        document.getElementById('cdiShipmentNotes').value =
-          result.shipment.notes || '';
+  if (!shipmentId) {
+    alert('Erreur : identifiant du dossier introuvable.');
+    return;
+  }
 
-        renderSuppliers();
-        renderItems();
-        renderCosts();
-        renderDocuments(result.documents);
-        renderCalculation();
-        setCDILocked(true);
-      }
+  const originalText = button.textContent;
+  button.disabled = true;
+  button.textContent = 'CHARGEMENT...';
+
+  try {
+    const result = await loadShipment(shipmentId);
+
+    if (!result || !result.shipment) {
+      alert('Le dossier n’a pas pu être chargé.');
+      return;
     }
+
+    const shipment = result.shipment;
+
+    const fields = {
+      cdiSourceCountry: shipment.source_country || 'China',
+      cdiShipmentDate: shipment.shipment_date || '',
+      cdiShipmentReference: shipment.shipment_reference || '',
+      cdiShipmentNotes: shipment.notes || ''
+    };
+
+    Object.entries(fields).forEach(([id, value]) => {
+      const field = document.getElementById(id);
+      if (field) field.value = value;
+    });
+
+    renderSuppliers();
+    renderItems();
+    renderCosts();
+    renderDocuments(result.documents || []);
+    renderCalculation();
+    setCDILocked(true);
+
+    alert(
+      'Dossier chargé avec succès : ' +
+      (shipment.shipment_number || shipment.id)
+    );
+
+  } finally {
+    button.disabled = false;
+    button.textContent = originalText;
+  }
+}
+
 
     if (action === 'arrived') {
       const item = items[Number(button.dataset.index)];
