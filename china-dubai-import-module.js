@@ -3046,6 +3046,23 @@ function renderCalculation() {
   const target = document.getElementById('cdiCalculationResult');
   if (!target) return;
 
+  const usdRate = Number(
+    document.getElementById('cdiUsdRate')?.value || 0
+  );
+
+  const rmbRate = Number(
+    document.getElementById('cdiRmbRate')?.value || 0
+  );
+
+  if (usdRate <= 0 || rmbRate <= 0) {
+    target.innerHTML =
+      '<p class="cdi-warning">' +
+      'Dossier ouvert. Le calcul financier sera disponible ' +
+      'après vérification des taux de change.' +
+      '</p>';
+    return;
+  }
+
   try {
     const result = calculateShipmentSellingPrices();
     const landed = result.landed_costs;
@@ -3074,6 +3091,7 @@ function renderCalculation() {
       `<p style="color:#b00020">${escapeHTML(error.message)}</p>`;
   }
 }
+
 
 function renderDocuments(documents) {
   const list = document.getElementById('cdiDocumentsList');
