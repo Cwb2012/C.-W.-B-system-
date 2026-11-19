@@ -1378,9 +1378,10 @@ async function receiveItem(itemId) {
           <p>Coût enregistré : ${cdiFormat(cost)} BIF</p>
           <p><strong>Statut : ${escapeHTML(shipment.status || 'Draft')}</strong></p>
           <button type="button"
-  data-cdi-load="${escapeHTML(shipment.id)}">
-  OUVRIR CE DOSSIER
-          </button>
+   data-action="load"
+   data-id="${escapeHTML(shipment.id)}">
+   OUVRIR CE DOSSIER
+</button>
         </div>
       `;
     }).join('');
