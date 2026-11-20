@@ -3166,9 +3166,9 @@ async function performCDISearch() {
     `;
   }).join('');
 }
-
- function handleCDIClick(event) {
-  const basyncutton = event.target.closest('[data-action]');
+async function handleCDIClick(event) {
+  const button = event.target.closest('[data-action]');
+ 
   if (!button) return;
 
   const action = button.dataset.action;
