@@ -2788,8 +2788,15 @@ function buildCDIInterface() {
       <label>Transport USD par CBM</label>
       <input type="number" id="cdiTransportRate" min="0" step="any" value="0">
 
-      <label>Frais de documents USD</label>
-      <input type="number" id="cdiDocFee" min="0" step="any" value="0">
+      <label>Total des droits et taxes payés à l'OBR (BIF)</label>
+<input
+  type="number"
+  id="cdiObrTotalTaxes"
+  min="0"
+  step="any"
+  value="0"
+  placeholder="Montant total selon la liquidation OBR"
+>
 
       <label>Répartition des frais</label>
 <select id="cdiAllocationMethod">
