@@ -145,9 +145,11 @@ function addItem(data = {}) {
     total_gross_weight_kg: safeNumber(data.total_gross_weight_kg),
 
     purchase_currency: data.purchase_currency || DEFAULT_CURRENCY,
-    purchase_unit_price: safeNumber(data.purchase_unit_price),
-    exchange_rate_to_bif: safeNumber(data.exchange_rate_to_bif),
+purchase_unit_price: safeNumber(data.purchase_unit_price),
+exchange_rate_to_bif: safeNumber(data.exchange_rate_to_bif),
 
+obr_customs_value: safeNumber(data.obr_customs_value),
+obr_customs_currency: data.obr_customs_currency || 'USD',
     purchase_cost_usd: safeNumber(data.purchase_cost_usd),
     purchase_cost_bif: safeNumber(data.purchase_cost_bif),
 
@@ -2861,7 +2863,23 @@ function buildCDIInterface() {
       </select>
 
       <label>Prix d'achat par pièce</label>
-      <input type="number" id="cdiItemPurchasePrice" min="0" step="any">
+<input type="number" id="cdiItemPurchasePrice" min="0" step="any">
+
+<h4>Valeur douanière déclarée à l'OBR pour cet article</h4>
+<input
+  type="number"
+  id="cdiItemObrCustomsValue"
+  min="0"
+  step="any"
+  placeholder="Valeur déclarée à la douane"
+>
+
+<label>Devise de la valeur douanière</label>
+<select id="cdiItemObrCustomsCurrency">
+  <option value="USD">USD</option>
+  <option value="RMB">RMB</option>
+  <option value="BIF">BIF</option>
+</select>
 
       <h4>Frais directs de cet article (BIF)</h4>
       <input type="number" id="cdiItemTransport" min="0" step="any" placeholder="Transport direct BIF">
