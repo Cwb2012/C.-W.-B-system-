@@ -2997,8 +2997,8 @@ function renderItems() {
         <p>Cartons : ${cdiFormat(item.carton_quantity)}</p>
         <p>Pièces par carton : ${cdiFormat(item.pieces_per_carton)}</p>
         <p>Quantité totale : ${cdiFormat(item.total_quantity)}</p>
-        <p>CBM par carton : ${cdiFormat(item.cbm_per_carton)}</p>
-        <p>CBM total : ${cdiFormat(cbm)}</p>
+        <p>CBM total de tous les cartons : ${cdiFormat(item.cbm)}</p>
+   
         <p>Prix d'achat : ${cdiFormat(item.purchase_unit_price)} ${escapeHTML(item.purchase_currency)}</p>
         <p>Coût total de revient : ${cdiFormat(item.landed_cost_bif)} BIF</p>
         <p>Prix de gros : ${cdiFormat(item.wholesale_price_bif)} BIF</p>
@@ -3112,8 +3112,7 @@ function clearCDIForm() {
     'cdiSupplierName', 'cdiSupplierContact',
     'cdiSupplierInvoice', 'cdiSupplierNotes',
     'cdiItemName', 'cdiItemCategory', 'cdiItemUnit',
-    'cdiItemCartons', 'cdiItemPieces', 'cdiItemCbmPerCarton',
-    'cdiItemLength', 'cdiItemWidth', 'cdiItemHeight',
+        'cdiItemCartons', 'cdiItemPieces', 'cdiItemCbmTotal',
     'cdiItemNetWeight', 'cdiItemGrossWeight',
     'cdiItemPurchasePrice', 'cdiItemTransport',
     'cdiItemCustoms', 'cdiItemOther',
@@ -3134,7 +3133,7 @@ function clearCDIForm() {
   document.getElementById('cdiItemCurrency').value = 'USD';
   document.getElementById('cdiCostCurrency').value = 'BIF';
   document.getElementById('cdiItemUnit').value = 'pieces';
-  document.getElementById('cdiItemCbmMode').value = 'per_carton';
+  
 
   document.getElementById('cdiCalculationResult').innerHTML = '';
   document.getElementById('cdiDocumentsList').innerHTML = '';
@@ -3449,10 +3448,7 @@ function initializeChinaDubaiImport() {
 
     initialized = true;
   clearCDIForm();
-  loadAndRenderShipmentList();
-}
-
-window.cwbInitChinaDubaiImport = initializeChinaDubaiImport;
+  initializeChinaDubaiImport;
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeChinaDubaiImport);
