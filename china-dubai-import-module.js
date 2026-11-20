@@ -3011,6 +3011,7 @@ function renderItems() {
   }).join('');
 }
 
+
 function renderCosts() {
   const list = document.getElementById('cdiCostsList');
   if (!list) return;
@@ -3022,10 +3023,18 @@ function renderCosts() {
         <p>${escapeHTML(cost.service_description)}</p>
         <p>Facture : ${escapeHTML(cost.invoice_reference)}</p>
         <p>Montant : ${cdiFormat(cost.amount)} ${escapeHTML(cost.currency)}</p>
+        ${!currentShipmentId ? `
+          <button type="button" class="danger"
+            data-action="remove-cost"
+            data-index="${index}">
+            SUPPRIMER
+          </button>
+        ` : ''}
       </div>
     `;
   }).join('');
 }
+
 
 function renderCalculation() {
   const target = document.getElementById('cdiCalculationResult');
