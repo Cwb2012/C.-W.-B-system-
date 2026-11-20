@@ -2159,10 +2159,14 @@ function renderItems() {
         <div class="cdi-grid">
           ${cdiField('Nombre de cartons', 'cdiCartons' + index, item.carton_quantity, 'number', `min="0" step="any" data-cdi-list="items" data-cdi-index="${index}" data-cdi-field="carton_quantity" ${readOnly ? 'disabled' : ''}`)}
           ${cdiField('Pièces par carton', 'cdiPieces' + index, item.pieces_per_carton, 'number', `min="0" step="any" data-cdi-list="items" data-cdi-index="${index}" data-cdi-field="pieces_per_carton" ${readOnly ? 'disabled' : ''}`)}
+          
           ${cdiField('Prix d’achat par pièce/unité', 'cdiPurchasePrice' + index, item.purchase_unit_price, 'number', `min="0" step="any" data-cdi-list="items" data-cdi-index="${index}" data-cdi-field="purchase_unit_price" ${readOnly ? 'disabled' : ''}`)}
           ${cdiSelect('Devise d’achat', 'cdiPurchaseCurrency' + index, CURRENCIES.map(v => ({value:v,label:v})), item.purchase_currency)}
         </div>
 
+        <h3>Valeur douanière déclarée à l'OBR</h3>
+        ${cdiField('Valeur douanière de cet article', 'cdiObrCustomsValue' + index, item.obr_customs_value, 'number', `min="0" step="any" data-cdi-list="items" data-cdi-index="${index}" data-cdi-field="obr_customs_value" ${readOnly ? 'disabled' : ''}`)}
+        ${cdiSelect('Devise de la valeur douanière', 'cdiObrCustomsCurrency' + index, CURRENCIES.map(v => ({value:v,label:v})), item.obr_customs_currency || 'USD')}
         <h3>Volume du carton</h3>
         ${cdiSelect('Mode de saisie CBM', 'cdiCbmMode' + index, [
           {value:'per_carton',label:'CBM par carton'},
