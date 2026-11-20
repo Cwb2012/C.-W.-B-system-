@@ -3448,9 +3448,11 @@ function initializeChinaDubaiImport() {
 
       initialized = true;
   clearCDIForm();
-}
-
+} 
+window.cwbInitChinaDubaiImport = initializeChinaDubaiImport;
+   
 if (document.readyState === 'loading') {
+   6
   document.addEventListener('DOMContentLoaded', initializeChinaDubaiImport);
 } else {
   initializeChinaDubaiImport();
