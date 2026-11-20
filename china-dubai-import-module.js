@@ -233,34 +233,6 @@ function validateItems() {
     }
   });
 }
-function calculateCbmPerCarton(item) {
-  let cbm = 0;
-
-  if (item.cbm_entry_mode === 'dimensions') {
-    const length = safeNumber(item.carton_length_cm);
-    const width = safeNumber(item.carton_width_cm);
-    const height = safeNumber(item.carton_height_cm);
-
-    if (length <= 0 || width <= 0 || height <= 0) {
-      throw new Error(
-        'Veuillez entrer les dimensions valides du carton : longueur, largeur et hauteur.'
-      );
-    }
-
-    cbm = (length * width * height) / 1000000;
-  } else {
-    cbm = safeNumber(item.cbm_per_carton);
-  }
-
-  if (cbm <= 0) {
-    throw new Error(
-      'Veuillez entrer le CBM par carton ou les dimensions du carton pour : ' +
-      (item.item_name || 'un article')
-    );
-  }
-
-  return roundVolume(cbm);
-}
 
 function calculateItemCbm(item) {
   const cartons = safeNumber(item.carton_quantity);
@@ -269,14 +241,27 @@ function calculateItemCbm(item) {
     throw new Error('La quantité de cartons doit être supérieure à zéro.');
   }
 
-  const cbmPerCarton = calculateCbmPerCarton(item);
-  const totalCbm = roundVolume(cartons * cbmPerCarton);
+  let totalCbm = 0;
 
-  item.cbm_per_carton = cbmPerCarton;
+  if (item.cbm_entry_mode === 'total') {
+    totalCbm = roundVolume(safeNumber(item.cbm));
+
+    if (totalCbm <= 0) {
+      throw new Error(
+        'Veuillez entrer le CBM total de tous les cartons pour : ' +
+        (item.item_name || 'un article')
+      );
+    }
+  } else {
+    const cbmPerCarton = calculateCbmPerCarton(item);
+    totalCbm = roundVolume(cartons * cbmPerCarton);
+    item.cbm_per_carton = cbmPerCarton;
+  }
+
   item.cbm = totalCbm;
 
   return {
-    cbm_per_carton: cbmPerCarton,
+    cbm_per_carton: roundVolume(totalCbm / cartons),
     carton_quantity: cartons,
     total_cbm: totalCbm
   };
