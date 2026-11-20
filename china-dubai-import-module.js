@@ -3256,6 +3256,28 @@ async function handleCDIClick(event) {
       renderCosts();
     }
 
+     
+    if (action === 'remove-cost') {
+      if (currentShipmentId) {
+        throw new Error('Une expédition déjà enregistrée ne peut pas être modifiée ici.');
+      }
+
+      const index = Number(button.dataset.index);
+
+      if (!Number.isInteger(index) || index < 0 || index >= costs.length) {
+        throw new Error('Dépense introuvable.');
+      }
+
+      if (!window.confirm('Voulez-vous vraiment supprimer cette dépense commune ?')) {
+        return;
+      }
+
+      costs.splice(index, 1);
+      renderCosts();
+      renderCalculation();
+    }
+
+
     if (action === 'calculate') {
       renderCalculation();
     }
