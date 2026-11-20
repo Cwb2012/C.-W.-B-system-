@@ -1033,7 +1033,8 @@ async function saveShipment() {
       usd_to_bif_rate: rates.usd_to_bif,
       rmb_to_usd_rate: rates.rmb_to_usd,
       transport_rate_usd_per_cbm: nval('cdiTransportRate'),
-      document_fee_usd: nval('cdiDocFee')
+document_fee_usd: nval('cdiDocFee'),
+obr_total_taxes_bif: nval('cdiObrTotalTaxes')
     };
 
     const shipmentResult = await db
