@@ -2829,20 +2829,16 @@ function buildCDIInterface() {
       <input type="number" id="cdiItemCartons" min="1" step="1">
 
       <label>Pièces par carton</label>
-      <input type="number" id="cdiItemPieces" min="1" step="1">
-
-      <label>Mode de calcul du CBM</label>
-      <select id="cdiItemCbmMode">
-        <option value="per_carton">CBM par carton</option>
-        <option value="dimensions">Dimensions du carton en cm</option>
-      </select>
-
-      <div id="cdiCbmPerCartonField">
-        <label>CBM pour un carton</label>
-        <input type="number" id="cdiItemCbmPerCarton" min="0" step="any">
-      </div>
-
-      <div id="cdiCbmDimensionsField" hidden>
+      <input type="number" id="cdiItemPieces" min="1" step="1">    
+<label>CBM total de tous les cartons de cet article</label>
+<input
+  type="number"
+  id="cdiItemCbmTotal"
+  min="0"
+  step="any"
+  placeholder="Exemple : 0.60"
+>
+     <div id="cdiCbmDimensionsField" hidden>
         <label>Longueur du carton (cm)</label>
         <input type="number" id="cdiItemLength" min="0" step="any">
         <label>Largeur du carton (cm)</label>
@@ -3172,8 +3168,8 @@ async function performCDISearch() {
   }).join('');
 }
 
-async function handleCDIClick(event) {
-  const button = event.target.closest('[data-action]');
+ function handleCDIClick(event) {
+  const basyncutton = event.target.closest('[data-action]');
   if (!button) return;
 
   const action = button.dataset.action;
@@ -3214,11 +3210,8 @@ async function handleCDIClick(event) {
           unit: val('cdiItemUnit') || 'pieces',
           carton_quantity: nval('cdiItemCartons'),
           pieces_per_carton: nval('cdiItemPieces'),
-          cbm_entry_mode: val('cdiItemCbmMode'),
-          cbm_per_carton: nval('cdiItemCbmPerCarton'),
-          carton_length_cm: nval('cdiItemLength'),
-          carton_width_cm: nval('cdiItemWidth'),
-          carton_height_cm: nval('cdiItemHeight'),
+                    cbm_entry_mode: 'total',
+          cbm: nval('cdiItemCbmTotal'),
           net_weight_per_carton_kg: nval('cdiItemNetWeight'),
           gross_weight_per_carton_kg: nval('cdiItemGrossWeight'),
           purchase_currency: val('cdiItemCurrency'),
