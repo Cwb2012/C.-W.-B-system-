@@ -862,8 +862,10 @@ const obrShares = allocateCommonExpenses(
     total_purchase_usd: roundMoney(totalPurchaseUSD),
 
     total_transport_usd: transport.transport_usd,
-    total_document_usd: documents.document_usd,
-    total_common_expenses_usd: common.other_expenses_usd,
+total_document_usd: documents.document_usd,
+total_obr_taxes_bif: obrTaxesBIF,
+total_obr_taxes_usd: obrTaxesUSD,
+total_common_expenses_usd: common.other_expenses_usd,
 
     total_landed_usd: roundMoney(totalLandedUSD),
     total_landed_bif: totalLandedBIF,
@@ -2361,6 +2363,7 @@ function renderCalculation() {
         <div class="cdi-total"><strong>Achats</strong><br>${cdiMoney(landed.total_purchase_usd, 'USD')}</div>
         <div class="cdi-total"><strong>Transport</strong><br>${cdiMoney(landed.total_transport_usd, 'USD')}</div>
         <div class="cdi-total"><strong>Documents</strong><br>${cdiMoney(landed.total_document_usd, 'USD')}</div>
+        <div class="cdi-total"><strong>Droits et taxes OBR</strong><br>${cdiMoney(landed.total_obr_taxes_bif)} BIF</div>
         <div class="cdi-total"><strong>Autres frais communs</strong><br>${cdiMoney(landed.total_common_expenses_usd, 'USD')}</div>
         <div class="cdi-total"><strong>Coût total USD</strong><br>${cdiMoney(landed.total_landed_usd, 'USD')}</div>
         <div class="cdi-total"><strong>Coût total BIF</strong><br>${cdiMoney(landed.total_landed_bif)}</div>
@@ -3123,6 +3126,7 @@ function renderCalculation() {
         <p>Total achats : <strong>${cdiFormat(landed.total_purchase_usd)} USD</strong></p>
         <p>Total transport : <strong>${cdiFormat(landed.total_transport_usd)} USD</strong></p>
         <p>Total documents : <strong>${cdiFormat(landed.total_document_usd)} USD</strong></p>
+        <p>Droits et taxes OBR : <strong>${cdiFormat(landed.total_obr_taxes_bif)} BIF</strong></p>
         <p>Autres frais communs : <strong>${cdiFormat(landed.total_common_expenses_usd)} USD</strong></p>
         <h3>Coût total : ${cdiFormat(landed.total_landed_usd)} USD</h3>
         <h3>Équivalent : ${cdiFormat(landed.total_landed_bif)} BIF</h3>
