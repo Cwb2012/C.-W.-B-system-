@@ -627,6 +627,7 @@ function calculateShipmentExpenses() {
   const transport = calculateShipmentTransport();
   const documents = calculateDocumentFee();
   const common = calculateCommonCosts();
+   
 
   const directExpensesUSD = items.reduce(function (total, item) {
     const rates = getShipmentExchangeRates();
@@ -703,14 +704,15 @@ function allocateCommonExpenses(totalExpensesUSD, method) {
     return share;
   });
 }
-
 function calculateItemLandedCost(
   item,
   allocatedTransportUSD,
   allocatedDocumentUSD,
   allocatedCommonUSD,
+  allocatedObrUSD,
   rates
 ) {
+
   calculateItemQuantities(item);
   calculateItemCbm(item);
 
@@ -727,8 +729,9 @@ function calculateItemLandedCost(
 
   const totalDocumentUSD = documentAllocation;
 
-  const totalCustomsUSD = direct.direct_customs_usd;
-
+  const totalCustomsUSD = roundMoney(
+  direct.direct_customs_usd + allocatedObrUSD
+);
   const totalOtherUSD = roundMoney(
     direct.direct_other_usd + commonAllocation
   );
@@ -800,6 +803,16 @@ function calculateShipmentLandedCosts() {
   const common = calculateCommonCosts();
 
   const method = getAllocationMethod();
+   const obrTaxesBIF = nval('cdiObrTotalTaxes');
+
+const obrTaxesUSD = roundMoney(
+  obrTaxesBIF / rates.usd_to_bif
+);
+
+const obrShares = allocateCommonExpenses(
+  obrTaxesUSD,
+  method
+);
 
   const transportShares = allocateCommonExpenses(
     transport.transport_usd,
@@ -817,14 +830,15 @@ function calculateShipmentLandedCosts() {
   );
 
   const results = items.map(function (item, index) {
-    return calculateItemLandedCost(
-      item,
-      transportShares[index],
-      documentShares[index],
-      commonShares[index],
-      rates
-    );
-  });
+  return calculateItemLandedCost(
+    item,
+    transportShares[index],
+    documentShares[index],
+    commonShares[index],
+    obrShares[index],
+    rates
+  );
+});
 
   const totalPurchaseUSD = results.reduce(function (sum, result) {
     return sum + result.purchase_cost_usd;
