@@ -1524,6 +1524,7 @@ async function loadShipment(shipmentId) {
     const rmbRate = document.getElementById('cdiRmbRate');
     const transportRate = document.getElementById('cdiTransportRate');
     const documentFee = document.getElementById('cdiDocFee');
+     const obrTaxes = document.getElementById('cdiObrTotalTaxes');
 
     if (usdRate) usdRate.value = shipment.usd_to_bif_rate || '';
     if (rmbRate) {
@@ -1537,7 +1538,11 @@ async function loadShipment(shipmentId) {
     }
     if (documentFee) {
       documentFee.value = shipment.document_fee_usd || 0;
-    }
+    } 
+     if (obrTaxes) {
+  obrTaxes.value = shipment.obr_total_taxes_bif || 0;
+}
+    
     if (typeof renderSuppliers === 'function') renderSuppliers();
     if (typeof renderItems === 'function') renderItems();
     if (typeof renderCosts === 'function') renderCosts();
@@ -2806,6 +2811,15 @@ function buildCDIInterface() {
 
       <label>Transport USD par CBM</label>
       <input type="number" id="cdiTransportRate" min="0" step="any" value="0">
+      <label>Frais de documents (USD)</label>
+<input
+  type="number"
+  id="cdiDocFee"
+  min="0"
+  step="any"
+  value="0"
+  placeholder="Montant total des documents"
+>
 
       <label>Total des droits et taxes payés à l'OBR (BIF)</label>
 <input
