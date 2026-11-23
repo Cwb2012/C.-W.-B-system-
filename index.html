@@ -76,7 +76,75 @@
   <div id="devisSavedList" style="margin-top:15px"></div>
 </section><div class="table-wrap"><table><thead><tr><th>Customer</th><th>Vehicle</th><th>Mechanic</th><th>Status</th><th>Job Cost</th><th>Payment</th></tr></thead><tbody id="garageTableBody"></tbody></table></div></div>
 
-<div id="sales" class="card hidden"><h2>Sales & Invoice</h2><p class="small">Sales are saved in Supabase. Product sales reduce Inventory; Service sales do not change stock. VAT: 18%.</p><form id="salesForm"><div class="form-grid"><div><label>Customer</label><input id="sale_customer"></div><div><label>Item Type</label><select id="sale_item_type" required><option value="PRODUCT">Product (deduct from stock)</option><option value="SERVICE">Service (no stock deduction)</option></select></div><div><label>Product / Service Name</label><input id="sale_product" required></div><div><label>Quantity</label><input id="sale_quantity" type="number" min="1" step="1" value="1" required></div><div><label>Invoice Number (leave blank for automatic number)</label><input id="sale_invoice"></div><div><label>Unit Price Before VAT (BIF)</label><input id="sale_amount" type="number" min="0" step="0.01" required></div><div><label>Payment Status</label><select id="sale_payment"><option>Paid</option><option>Partially Paid</option><option>Unpaid</option></select></div><div><label>Date</label><input id="sale_date" type="date"></div></div><button class="btn" type="submit">Save Sale & Generate Invoice</button></form><div id="salesMessage" class="message"></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Invoice</th><th>Customer</th><th>Product / Service</th><th>Qty</th><th>Unit Price Before VAT</th><th>Total TTC</th><th>Status</th><th>Action</th></tr></thead><tbody id="salesTableBody"></tbody></table></div></div>
+<div id="sales" class="card hidden"><h2>Sales & Invoice</h2><p class="small">Sales are saved in Supabase. Product sales reduce Inventory; Service sales do not change stock. VAT: 18%.</p>   
+<form id="salesForm">
+  <div class="form-grid">
+    <div>
+      <label>Customer</label>
+      <input id="sale_customer">
+    </div>
+    <div>
+      <label>Invoice Number (leave blank for automatic number)</label>
+      <input id="sale_invoice">
+    </div>
+    <div>
+      <label>Payment Status</label>
+      <select id="sale_payment">
+        <option>Paid</option>
+        <option>Partially Paid</option>
+        <option>Unpaid</option>
+      </select>
+    </div>
+    <div>
+      <label>Date</label>
+      <input id="sale_date" type="date">
+    </div>
+  </div>
+
+  <h3>Invoice Items</h3>
+  <div id="saleItemsContainer">
+    <div class="sale-item-row form-grid">
+      <div>
+        <label>Item Type</label>
+        <select id="sale_item_type" class="sale-item-type">
+          <option value="PRODUCT">Product</option>
+          <option value="SERVICE">Service</option>
+        </select>
+      </div>
+      <div>
+        <label>Product / Service Name</label>
+        <input id="sale_product" class="sale-product" required>
+      </div>
+      <div>
+        <label>Quantity</label>
+        <input id="sale_quantity" class="sale-quantity" type="number" min="1" step="1" value="1" required>
+      </div>
+      <div>
+        <label>Price Type</label>
+        <select class="sale-price-type">
+          <option value="RETAIL">Retail</option>
+          <option value="WHOLESALE">Wholesale</option>
+          <option value="CUSTOM">Custom / Service</option>
+        </select>
+      </div>
+      <div>
+        <label>Unit Price Before VAT (BIF)</label>
+        <input id="sale_amount" class="sale-amount" type="number" min="0" step="0.01" required>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn secondary" type="button" onclick="addSaleItemRow()">
+    + Add Another Item
+  </button>
+
+  <div id="saleInvoicePreview" class="stat" style="margin-top:15px">
+    Invoice total will appear here.
+  </div>
+
+  <button class="btn" type="submit">Save Sale & Generate Invoice</button>
+</form>
+               <div id="salesMessage" class="message"></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Invoice</th><th>Customer</th><th>Product / Service</th><th>Qty</th><th>Unit Price Before VAT</th><th>Total TTC</th><th>Status</th><th>Action</th></tr></thead><tbody id="salesTableBody"></tbody></table></div></div>
 
 <div id="purchases" class="card hidden"><h2>Purchases & Suppliers</h2><form id="purchaseForm"><div class="form-grid"><div><label>Supplier</label><input id="purchase_supplier"></div><div><label>Product</label><input id="purchase_product" required></div><div><label>Amount</label><input id="purchase_amount" type="number" min="0" step="0.01" required></div><div><label>Payment Status</label><select id="purchase_payment"><option>Paid</option><option>Partially Paid</option><option>Unpaid</option></select></div><div><label>Date</label><input id="purchase_date" type="date"></div></div><button class="btn" type="submit">Save Purchase</button></form><div id="purchaseMessage" class="message"></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Supplier</th><th>Product</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody id="purchaseTableBody"></tbody></table></div></div>
 
@@ -1147,7 +1215,17 @@ async function loadSales() {
   }
 }
 
-// SAVE A SALE TO SUPABASE
+        
+      }
+
+      msg(
+        'salesMessage',
+        'Could not save the sale: ' + error.message,
+        true
+      );
+
+    
+// SAVE MULTIPLE ITEMS IN ONE INVOICE
 if (salesForm) {
   salesForm.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -1155,36 +1233,65 @@ if (salesForm) {
     const submitButton = salesForm.querySelector('button[type="submit"]');
     if (submitButton) submitButton.disabled = true;
 
-    let stockWasReduced = false;
-    let itemName = '';
-    let itemQuantity = 0;
+    const stockChangesApplied = [];
+    let saleSaved = false;
 
     try {
-      const customer = document.getElementById('sale_customer').value.trim();
-      const product = document.getElementById('sale_product').value.trim();
-      const itemType = document.getElementById('sale_item_type').value;
-      const quantity = Number(document.getElementById('sale_quantity').value);
-      const enteredInvoice = document.getElementById('sale_invoice').value.trim();
-      const unitPrice = num(document.getElementById('sale_amount').value);
+      const customer =
+        document.getElementById('sale_customer').value.trim() ||
+        'Walk-in Customer';
+
+      const enteredInvoice =
+        document.getElementById('sale_invoice').value.trim();
+
       const payment = document.getElementById('sale_payment').value;
       const date = document.getElementById('sale_date').value || today();
 
-      if (!product) throw new Error('Please enter the product or service name.');
-      if (itemType !== 'PRODUCT' && itemType !== 'SERVICE') {
-        throw new Error('Please select Product or Service.');
-      }
-      if (!Number.isInteger(quantity) || quantity < 1) {
-        throw new Error('Quantity must be a whole number of at least 1.');
-      }
-      if (!Number.isFinite(unitPrice) || unitPrice <= 0) {
-        throw new Error('Please enter a unit price greater than zero.');
+      const rows = Array.from(
+        document.querySelectorAll('#saleItemsContainer .sale-item-row')
+      );
+
+      if (!rows.length) {
+        throw new Error('Please add at least one invoice item.');
       }
 
-      // Generate a unique-looking invoice number when none is entered.
+      const items = rows.map((row, index) => {
+        const product = row.querySelector('.sale-product').value.trim();
+        const itemType = row.querySelector('.sale-item-type').value;
+        const quantity = Number(row.querySelector('.sale-quantity').value);
+        const unitPrice = num(row.querySelector('.sale-amount').value);
+
+        if (!product) {
+          throw new Error('Please enter the name of item ' + (index + 1) + '.');
+        }
+
+        if (!['PRODUCT', 'SERVICE'].includes(itemType)) {
+          throw new Error('Invalid item type on line ' + (index + 1) + '.');
+        }
+
+        if (!Number.isInteger(quantity) || quantity < 1) {
+          throw new Error('Invalid quantity on line ' + (index + 1) + '.');
+        }
+
+        if (!Number.isFinite(unitPrice) || unitPrice <= 0) {
+          throw new Error('Invalid unit price on line ' + (index + 1) + '.');
+        }
+
+        const subtotal = unitPrice * quantity;
+        const vat = Math.round(subtotal * 0.18 * 100) / 100;
+
+        return {
+          product,
+          itemType,
+          quantity,
+          unitPrice,
+          total: subtotal + vat
+        };
+      });
+
       const invoice = enteredInvoice ||
         ('CWB-S-' + Date.now() + '-' + Math.floor(Math.random() * 1000));
 
-      // Check whether the invoice number already exists.
       const { data: existing, error: checkError } = await supabaseClient
         .from('sales')
         .select('id')
@@ -1195,95 +1302,119 @@ if (salesForm) {
       if (checkError) throw checkError;
 
       if (existing) {
-        throw new Error('This invoice number already exists. Please use another number.');
+        throw new Error('This invoice number already exists.');
       }
 
-      const baseAmount = unitPrice * quantity;
-      const vat = Math.round(baseAmount * 0.18 * 100) / 100;
-      const totalIncludingVAT = baseAmount + vat;
+      // Add product quantities together before changing stock.
+      const stockTotals = new Map();
 
-      // Reduce Inventory before saving a PRODUCT sale.
-      if (itemType === 'PRODUCT') {
-        const stockChange = await changeProductStock(product, -quantity);
+      items.forEach(item => {
+        if (item.itemType === 'PRODUCT') {
+          stockTotals.set(
+            item.product,
+            (stockTotals.get(item.product) || 0) + item.quantity
+          );
+        }
+      });
 
-        if (!stockChange.tracked) {
+      // Reduce stock for products only. Services do not affect stock.
+      for (const [productName, quantity] of stockTotals) {
+        const result = await changeProductStock(productName, -quantity);
+
+        if (!result || !result.tracked) {
           throw new Error(
-            'This Product was not found in Inventory. Add it to Inventory first, or select Service if it is not a stock item.'
+            'Product "' + productName +
+            '" was not found in Inventory. No invoice was saved.'
           );
         }
 
-        stockWasReduced = true;
-        itemName = product;
-        itemQuantity = quantity;
+        stockChangesApplied.push({
+          product: productName,
+          quantity
+        });
       }
 
-      const saleRecord = {
-        Customer_name: customer || 'Walk-in Customer',
-        Product_name: product,
-        Product: itemType,
-        quantity: quantity,
-        Selling_price: unitPrice,
-        Total_amount: totalIncludingVAT,
+      // Save all invoice lines using the same invoice number.
+      const saleRecords = items.map(item => ({
+        Customer_name: customer,
+        Product_name: item.product,
+        Product: item.itemType,
+        quantity: item.quantity,
+        Selling_price: item.unitPrice,
+        Total_amount: item.total,
         Payment_status: payment,
         Invoice_number: invoice,
         created_at: new Date(date + 'T12:00:00').toISOString()
-      };
+      }));
 
-      const { data: insertedSale, error: insertError } = await supabaseClient
+      const { error: insertError } = await supabaseClient
         .from('sales')
-        .insert([saleRecord])
-        .select('*')
-        .single();
+        .insert(saleRecords);
 
       if (insertError) throw insertError;
 
-      const savedInvoice =
-        insertedSale?.Invoice_number ||
-        insertedSale?.invoice_number ||
-        invoice;
+      // The database confirmed the insert.
+      saleSaved = true;
 
-      // Reset the form only after Supabase confirms the sale.
+      const subtotal = items.reduce(
+        (sum, item) => sum + item.unitPrice * item.quantity,
+        0
+      );
+
+      const vat = Math.round(subtotal * 0.18 * 100) / 100;
+      const total = subtotal + vat;
+
+      // Reset the form and keep only the first item row.
       salesForm.reset();
+
+      const container = document.getElementById('saleItemsContainer');
+      const allRows = container.querySelectorAll('.sale-item-row');
+
+      allRows.forEach((row, index) => {
+        if (index > 0) row.remove();
+      });
 
       document.getElementById('sale_quantity').value = 1;
       document.getElementById('sale_date').value = today();
+
+      updateSaleInvoicePreview();
 
       await loadSales();
       await loadInventory();
 
       msg(
         'salesMessage',
-        'Sale saved to Supabase. Invoice: ' + savedInvoice +
-        (itemType === 'PRODUCT'
-          ? ' — Inventory reduced by ' + quantity + '.'
-          : ' — Service sale; Inventory unchanged.') +
-        ' Total TTC: ' + money(totalIncludingVAT) + ' BIF.'
+        'Invoice saved successfully: ' + invoice +
+        '. Items: ' + items.length +
+        '. Total TTC: ' + money(total) + ' BIF.'
       );
-
-      // Stock is now linked to the successfully saved sale.
-      stockWasReduced = false;
 
     } catch (error) {
 
-      // Restore stock if saving the sale failed.
-      if (stockWasReduced) {
-        try {
-          await changeProductStock(itemName, itemQuantity);
-        } catch (restoreError) {
-          console.error('Stock rollback failed:', restoreError);
+      // Restore stock if the invoice was not saved.
+      if (!saleSaved) {
+        for (const change of stockChangesApplied.reverse()) {
+          try {
+            await changeProductStock(change.product, change.quantity);
+          } catch (restoreError) {
+            console.error(
+              'Stock restoration failed for ' + change.product,
+              restoreError
+            );
 
-          msg(
-            'salesMessage',
-            'IMPORTANT: Sale was not confirmed, and Inventory restoration failed. Please check stock for ' +
-            itemName + '.',
-            true
-          );
+            msg(
+              'salesMessage',
+              'IMPORTANT: Stock restoration failed for ' +
+              change.product + '. Please check Inventory manually.',
+              true
+            );
+          }
         }
       }
 
       msg(
         'salesMessage',
-        'Could not save the sale: ' + error.message,
+        'Could not save invoice: ' + error.message,
         true
       );
 
@@ -1333,7 +1464,7 @@ async function deleteSale(id) {
 window.deleteSale = deleteSale;
 
 
-// OPEN AND GENERATE A PROFESSIONAL SALES INVOICE
+// OPEN AND GENERATE A PROFESSIONAL MULTI-ITEM SALES INVOICE
 
 function viewSalesInvoice(index) {
   const sale = sales[index];
@@ -1343,10 +1474,53 @@ function viewSalesInvoice(index) {
     return;
   }
 
-  const quantity = num(sale.quantity) || 1;
-  const baseAmount = num(sale.amount) * quantity;
-  const vat = baseAmount * 0.18;
-  const total = num(sale.totalAmount) || (baseAmount + vat);
+  // Get every sale line belonging to the same invoice.
+  const invoiceNumber = sale.invoice || '';
+
+  const invoiceRows = invoiceNumber
+    ? sales.filter(item => item.invoice === invoiceNumber)
+    : [sale];
+
+  const customer = sale.customer || 'Walk-in Customer';
+  const saleDate = sale.date || today();
+  const paymentStatus = sale.payment || 'Unpaid';
+
+  // Calculate invoice totals.
+  let subtotal = 0;
+  let total = 0;
+
+  const itemsHTML = invoiceRows.map((item, i) => {
+    const quantity = num(item.quantity) || 1;
+    const unitPrice = num(item.amount);
+    const lineSubtotal = unitPrice * quantity;
+
+    const lineTotal = num(item.totalAmount) > 0
+      ? num(item.totalAmount)
+      : lineSubtotal * 1.18;
+
+    subtotal += lineSubtotal;
+    total += lineTotal;
+
+    return `
+      <tr>
+        <td>${i + 1}</td>
+        <td>
+          <strong>${esc(item.product || '')}</strong>
+          <br>
+          <small>${esc(item.itemType || 'PRODUCT')}</small>
+        </td>
+        <td>${quantity}</td>
+        <td>${money(unitPrice)} BIF</td>
+        <td>${money(lineSubtotal)} BIF</td>
+        <td><strong>${money(lineTotal)} BIF</strong></td>
+      </tr>
+    `;
+  }).join('');
+
+  subtotal = Math.round(subtotal * 100) / 100;
+  total = Math.round(total * 100) / 100;
+
+  const vat = Math.round((total - subtotal) * 100) / 100;
 
   const w = window.open('', '_blank', 'width=900,height=850');
 
@@ -1358,12 +1532,6 @@ function viewSalesInvoice(index) {
     );
     return;
   }
-
-  const customer = sale.customer || 'Walk-in Customer';
-  const invoiceNumber = sale.invoice || '';
-  const saleDate = sale.date || today();
-  const paymentStatus = sale.payment || 'Unpaid';
-  const product = sale.product || '';
 
   const logoURL =
     'https://cwb2012.github.io/C.-W.-B-system-/file_000000009d80820694001bdae16e2e4b.png';
@@ -1380,7 +1548,6 @@ function viewSalesInvoice(index) {
     '|Amount:' + total + ' BIF' +
     '|Payment Status:' + paymentStatus;
 
-  // Create QR code using the QR library already included in index.html.
   const qrBox = document.createElement('div');
 
   qrBox.style.cssText =
@@ -1431,25 +1598,17 @@ function viewSalesInvoice(index) {
         <section class="payment">
           <h2>C.W.B SCAN &amp; PAY</h2>
 
-          <p><strong>CAMEL WORK AND BUSINESS COMPANY</strong></p>
-
-          <img
-            class="qr"
+          <img class="qr"
             src="${qrImage}"
             alt="C.W.B Payment QR Code">
 
           <p><strong>Merchant Code:</strong> 984868</p>
-
           <p><strong>Mobile Money:</strong> 06691086015</p>
-
           <p><strong>Account Name:</strong>
             CAMEL WORK AND BUSINESS COMPANY
           </p>
-
           <p><strong>Invoice:</strong> ${esc(invoiceNumber)}</p>
-
           <p><strong>Amount Due:</strong> ${money(total)} BIF</p>
-
           <p><strong>Payment Status:</strong> ${esc(paymentStatus)}</p>
 
           <small>
@@ -1461,8 +1620,7 @@ function viewSalesInvoice(index) {
       : `
         <section class="payment">
           <h2>C.W.B SCAN &amp; PAY</h2>
-          <p>QR code is unavailable. Please check your internet connection
-          and reload the C.W.B System.</p>
+          <p>QR code is unavailable.</p>
           <p><strong>Merchant Code:</strong> 984868</p>
           <p><strong>Mobile Money:</strong> 06691086015</p>
           <p><strong>Amount Due:</strong> ${money(total)} BIF</p>
@@ -1477,6 +1635,7 @@ function viewSalesInvoice(index) {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+
         <title>C.W.B Sales Invoice - ${esc(invoiceNumber)}</title>
 
         <style>
@@ -1486,17 +1645,17 @@ function viewSalesInvoice(index) {
 
           body {
             font-family: Arial, sans-serif;
-            margin: 25px;
+            margin: 20px;
             color: #111827;
             background: #fff;
           }
 
           .invoice {
-            max-width: 800px;
+            max-width: 850px;
             margin: auto;
             border: 2px solid #b91c1c;
-            border-radius: 14px;
-            padding: 24px;
+            border-radius: 12px;
+            padding: 25px;
           }
 
           .header {
@@ -1512,14 +1671,14 @@ function viewSalesInvoice(index) {
           }
 
           .title {
-            font-size: 26px;
+            font-size: 27px;
             font-weight: bold;
             color: #b91c1c;
             margin-top: 8px;
           }
 
           .company {
-            font-size: 18px;
+            font-size: 19px;
             font-weight: bold;
             margin-top: 7px;
           }
@@ -1527,6 +1686,7 @@ function viewSalesInvoice(index) {
           .slogan {
             font-size: 13px;
             margin-top: 5px;
+            font-style: italic;
           }
 
           .company-details {
@@ -1542,108 +1702,99 @@ function viewSalesInvoice(index) {
             gap: 12px;
           }
 
-          .box {
-            background: #f3f4f6;
+          .detail-box {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
             padding: 12px;
-            border-radius: 8px;
-            overflow-wrap: anywhere;
+            border-radius: 7px;
+            font-size: 13px;
+            line-height: 1.8;
+          }
+
+          h2 {
+            color: #b91c1c;
+            font-size: 17px;
           }
 
           table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 24px;
-          }
-
-          th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
+            margin-top: 25px;
+            font-size: 12px;
           }
 
           th {
-            background: #111827;
-            color: #fff;
+            background: #b91c1c;
+            color: white;
+            padding: 11px 6px;
+            text-align: left;
           }
 
-          .amount {
-            text-align: right;
-            white-space: nowrap;
+          td {
+            border-bottom: 1px solid #e5e7eb;
+            padding: 11px 6px;
           }
 
-          .total {
-            text-align: right;
-            font-size: 20px;
+          .totals {
+            margin: 22px 0 0 auto;
+            width: 300px;
+            font-size: 14px;
+          }
+
+          .total-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 7px;
+            border-bottom: 1px solid #e5e7eb;
+          }
+
+          .grand-total {
+            background: #b91c1c;
+            color: white;
             font-weight: bold;
-            color: #b91c1c;
-            margin-top: 12px;
+            font-size: 17px;
+            padding: 12px;
           }
 
           .payment {
             text-align: center;
-            margin: 25px auto 0;
+            border: 1px dashed #b91c1c;
+            border-radius: 10px;
             padding: 18px;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            max-width: 430px;
-            page-break-inside: avoid;
+            margin-top: 30px;
+            font-size: 13px;
           }
 
           .qr {
-            display: block;
             width: 180px;
             height: 180px;
+            display: block;
             margin: 15px auto;
           }
 
           .payment p {
-            margin: 8px 0;
-            overflow-wrap: anywhere;
+            margin: 7px;
           }
 
           .footer {
             text-align: center;
-            margin-top: 25px;
-            padding-top: 15px;
             border-top: 1px solid #ddd;
+            margin-top: 30px;
+            padding-top: 15px;
             font-size: 12px;
-            color: #555;
+            line-height: 1.8;
           }
 
           .print {
             display: block;
-            margin: 20px auto;
-            padding: 12px 22px;
+            margin: 25px auto 0;
             background: #b91c1c;
             color: white;
-            border: 0;
-            border-radius: 8px;
-            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 25px;
+            font-size: 15px;
             cursor: pointer;
-          }
-
-          @media(max-width:600px) {
-            body {
-              margin: 8px;
-            }
-
-            .invoice {
-              padding: 12px;
-            }
-
-            .details {
-              grid-template-columns: 1fr;
-            }
-
-            th, td {
-              padding: 7px;
-              font-size: 12px;
-            }
-          }
-
-          @page {
-            size: A4;
-            margin: 12mm;
           }
 
           @media print {
@@ -1652,15 +1803,34 @@ function viewSalesInvoice(index) {
             }
 
             .invoice {
-              border: 1px solid #b91c1c;
+              border: none;
+              padding: 10px;
             }
 
             .print {
               display: none;
             }
 
-            .payment {
-              break-inside: avoid;
+            tr {
+              page-break-inside: avoid;
+            }
+          }
+
+          @media (max-width: 600px) {
+            body {
+              margin: 5px;
+            }
+
+            .invoice {
+              padding: 10px;
+            }
+
+            table {
+              font-size: 10px;
+            }
+
+            th, td {
+              padding: 7px 3px;
             }
           }
         </style>
@@ -1671,15 +1841,15 @@ function viewSalesInvoice(index) {
         <div class="invoice">
 
           <div class="header">
-            <img
-              class="logo"
+
+            <img class="logo"
               src="${logoURL}"
               alt="C.W.B Logo">
 
-            <div class="title">C.W.B SALES INVOICE</div>
+            <div class="title">SALES INVOICE</div>
 
             <div class="company">
-              Camel Work and Business company
+              CAMEL WORK AND BUSINESS COMPANY
             </div>
 
             <div class="slogan">
@@ -1688,85 +1858,82 @@ function viewSalesInvoice(index) {
 
             <div class="company-details">
               Bujumbura, Chaussée du Peuple Murundi No. 54<br>
-              <strong>Phone:</strong> 67481564 / 62180032<br>
-              <strong>NIF:</strong> 4002652933<br>
-              <strong>RC:</strong> 0056983/24
+              Phone: 67481564 / 62180032<br>
+              NIF: 4002652933<br>
+              RC: 0056983/24
             </div>
+
           </div>
 
           <div class="details">
 
-            <div class="box">
-              <strong>Customer</strong><br>
-              ${esc(customer)}
+            <div class="detail-box">
+              <strong>INVOICE INFORMATION</strong><br>
+              Invoice No: ${esc(invoiceNumber)}<br>
+              Date: ${esc(saleDate)}<br>
+              Items: ${invoiceRows.length}
             </div>
 
-            <div class="box">
-              <strong>Invoice Number</strong><br>
-              ${esc(invoiceNumber)}
-            </div>
-
-            <div class="box">
-              <strong>Date</strong><br>
-              ${esc(saleDate)}
-            </div>
-
-            <div class="box">
-              <strong>Payment Status</strong><br>
-              ${esc(paymentStatus)}
+            <div class="detail-box">
+              <strong>CUSTOMER INFORMATION</strong><br>
+              Customer: ${esc(customer)}<br>
+              Payment: ${esc(paymentStatus)}<br>
+              Currency: BIF
             </div>
 
           </div>
 
+          <h2>INVOICE ITEMS</h2>
+
           <table>
             <thead>
               <tr>
+                <th>No.</th>
                 <th>Product / Service</th>
-                <th>Quantity</th>
-                <th class="amount">Unit Price (BIF)</th>
-                <th class="amount">Subtotal (BIF)</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Subtotal</th>
+                <th>Total TTC</th>
               </tr>
             </thead>
 
             <tbody>
-              <tr>
-                <td>${esc(product)}</td>
-                <td>${quantity}</td>
-                <td class="amount">${money(sale.amount)}</td>
-                <td class="amount">${money(baseAmount)}</td>
-              </tr>
+              ${itemsHTML}
             </tbody>
           </table>
 
-          <div style="margin-top:20px;text-align:right;line-height:2">
-            <div>
-              Price before VAT:
-              <strong>${money(baseAmount)} BIF</strong>
+          <div class="totals">
+
+            <div class="total-line">
+              <span>Subtotal HT</span>
+              <strong>${money(subtotal)} BIF</strong>
             </div>
 
-            <div>
-              VAT 18%:
+            <div class="total-line">
+              <span>VAT 18%</span>
               <strong>${money(vat)} BIF</strong>
             </div>
 
-            <div class="total">
-              TOTAL CUSTOMER PRICE: ${money(total)} BIF
+            <div class="total-line grand-total">
+              <span>TOTAL TTC</span>
+              <strong>${money(total)} BIF</strong>
             </div>
+
           </div>
 
           ${qrSection}
 
           <div class="footer">
-            <strong>Thank you for doing business with C.W.B.</strong><br>
-            Better Quality is our priority<br>
-            C.W.B System • Sales Invoice
+            Thank you for choosing C.W.B System.<br>
+            CAMEL WORK AND BUSINESS COMPANY<br>
+            Better Quality is our priority.
           </div>
 
-        </div>
+          <button class="print" onclick="window.print()">
+            🖨 Print Invoice
+          </button>
 
-        <button class="print" onclick="window.print()">
-          🖨 Print Invoice
-        </button>
+        </div>
 
       </body>
       </html>
@@ -1777,6 +1944,14 @@ function viewSalesInvoice(index) {
   }, 400);
 }
 
+window.viewSalesInvoice = viewSalesInvoice;
+
+
+
+
+          
+
+        
 
 // PURCHASES
 
