@@ -23,7 +23,8 @@
   let costs = [];
 
   let currentShipment = null;
-  let currentShipmentId = null;
+let currentShipmentId = null;
+let cdiEditMode = false;
 
   let initialized = false;
   let isSaving = false;
@@ -488,8 +489,10 @@ function calculateShipmentPurchases() {
   });
 }
 
+
 function addCost(data = {}) {
   const cost = {
+    db_id: data.db_id || data.id || null,
     company_name: data.company_name || '',
     service_description: data.service_description || '',
     invoice_reference: data.invoice_reference || '',
@@ -2958,7 +2961,8 @@ function buildCDIInterface() {
       <hr>
       <button type="button" data-action="calculate">CALCULER LES COÛTS</button>
       <div id="cdiCalculationResult"></div>
-
+      
+<button type="button" data-action="edit">✏️ MODIFIER LE DOSSIER</button>
       <hr>
       <button type="button" data-action="save" data-edit>💾 ENREGISTRER L'EXPÉDITION</button>
     </div>
@@ -3243,7 +3247,21 @@ async function handleCDIClick(event) {
   if (!button) return;
 
   const action = button.dataset.action;
+  if (action === 'edit') {
+    if (!currentShipmentId) {
+      alert('Ouvrez d’abord un dossier enregistré.');
+      return;
+    }
 
+    cdiEditMode = true;
+    setCDILocked(false);
+
+    alert(
+      'Mode modification activé. Vous pouvez modifier les informations autorisées.'
+    );
+
+    return;
+  }
   try {
     if (action === 'search') {
       await performCDISearch();
