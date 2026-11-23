@@ -1012,11 +1012,17 @@ function getCDIDatabase() {
 
   return db;
 }
-
 async function saveShipment() {
   if (isSaving) {
     alert('Enregistrement déjà en cours.');
-    return;
+    return null;
+  }
+
+  const isEditing = Boolean(currentShipmentId);
+
+  if (isEditing && !cdiEditMode) {
+    alert('Cliquez d’abord sur MODIFIER LE DOSSIER.');
+    return null;
   }
 
   isSaving = true;
@@ -1032,9 +1038,7 @@ async function saveShipment() {
 
     const userResult = await db.auth.getUser();
 
-    if (userResult.error) {
-      throw userResult.error;
-    }
+    if (userResult.error) throw userResult.error;
 
     const user = userResult.data.user;
 
@@ -1043,33 +1047,67 @@ async function saveShipment() {
     }
 
     const shipmentPayload = {
-      created_by: user.id,
       source_country: val('cdiSourceCountry') || 'China',
       shipment_date: val('cdiShipmentDate') || null,
       shipment_reference: val('cdiShipmentReference'),
-      status: 'Draft',
       notes: val('cdiShipmentNotes'),
       usd_to_bif_rate: rates.usd_to_bif,
       rmb_to_usd_rate: rates.rmb_to_usd,
       transport_rate_usd_per_cbm: nval('cdiTransportRate'),
-document_fee_usd: nval('cdiDocFee'),
-obr_total_taxes_bif: nval('cdiObrTotalTaxes')
+      document_fee_usd: nval('cdiDocFee'),
+      obr_total_taxes_bif: nval('cdiObrTotalTaxes')
     };
 
-    const shipmentResult = await db
-      .from(TABLES.shipments)
-      .insert(shipmentPayload)
-      .select()
-      .single();
+    let shipment;
 
-    if (shipmentResult.error) {
-      throw shipmentResult.error;
+    if (isEditing) {
+      const shipmentResult = await db
+        .from(TABLES.shipments)
+        .update(shipmentPayload)
+        .eq('id', currentShipmentId)
+        .select()
+        .single();
+
+      if (shipmentResult.error) throw shipmentResult.error;
+
+      shipment = shipmentResult.data;
+
+    } else {
+      const shipmentResult = await db
+        .from(TABLES.shipments)
+        .insert({
+          ...shipmentPayload,
+          created_by: user.id,
+          status: 'Draft'
+        })
+        .select()
+        .single();
+
+      if (shipmentResult.error) throw shipmentResult.error;
+
+      shipment = shipmentResult.data;
+      currentShipmentId = shipment.id;
     }
 
-    const shipment = shipmentResult.data;
     currentShipment = shipment;
-    currentShipmentId = shipment.id;
 
+    // Vérifier les articles existants et leur état réel dans Supabase.
+    const existingItemsResult = await db
+      .from(TABLES.items)
+      .select('id,status,stock_received_at,product_id')
+      .eq('shipment_id', shipment.id);
+
+    if (existingItemsResult.error) {
+      throw existingItemsResult.error;
+    }
+
+    const existingItemStates = new Map();
+
+    (existingItemsResult.data || []).forEach(function (row) {
+      existingItemStates.set(row.id, row);
+    });
+
+    // Enregistrer ou mettre à jour les fournisseurs.
     const supplierIds = new Map();
 
     for (const supplier of suppliers) {
@@ -1082,19 +1120,38 @@ obr_total_taxes_bif: nval('cdiObrTotalTaxes')
         notes: supplier.notes
       };
 
-      const supplierResult = await db
-        .from(TABLES.suppliers)
-        .insert(supplierPayload)
-        .select()
-        .single();
+      let supplierId;
 
-      if (supplierResult.error) {
-        throw supplierResult.error;
+      if (supplier.db_id) {
+        const supplierResult = await db
+          .from(TABLES.suppliers)
+          .update(supplierPayload)
+          .eq('id', supplier.db_id)
+          .eq('shipment_id', shipment.id)
+          .select()
+          .single();
+
+        if (supplierResult.error) throw supplierResult.error;
+
+        supplierId = supplierResult.data.id;
+
+      } else {
+        const supplierResult = await db
+          .from(TABLES.suppliers)
+          .insert(supplierPayload)
+          .select()
+          .single();
+
+        if (supplierResult.error) throw supplierResult.error;
+
+        supplierId = supplierResult.data.id;
+        supplier.db_id = supplierId;
       }
 
-      supplierIds.set(supplier, supplierResult.data.id);
+      supplierIds.set(supplier, supplierId);
     }
 
+    // Enregistrer ou mettre à jour les articles.
     for (let index = 0; index < items.length; index++) {
       const item = items[index];
       const result = landed.items[index];
@@ -1147,19 +1204,52 @@ obr_total_taxes_bif: nval('cdiObrTotalTaxes')
         wholesale_price_bif: safeNumber(item.wholesale_price_bif),
         retail_price_bif: safeNumber(item.retail_price_bif),
 
-        status: 'Draft',
         notes: item.notes
       };
 
-      const itemResult = await db
-        .from(TABLES.items)
-        .insert(itemPayload);
+      if (item.db_id) {
+        const oldItem = existingItemStates.get(item.db_id);
 
-      if (itemResult.error) {
-        throw itemResult.error;
+        if (!oldItem) {
+          throw new Error(
+            'Article introuvable dans cette expédition : ' +
+            item.item_name
+          );
+        }
+
+        const protectedItem =
+          String(oldItem.status || '').toLowerCase() === 'received' ||
+          String(oldItem.status || '').toLowerCase() === 'arrived' ||
+          Boolean(oldItem.stock_received_at) ||
+          Boolean(oldItem.product_id);
+
+        if (protectedItem) {
+          // Ne jamais modifier les données financières ou le stock
+          // d'un article déjà arrivé ou réceptionné.
+          continue;
+        }
+
+        const itemResult = await db
+          .from(TABLES.items)
+          .update(itemPayload)
+          .eq('id', item.db_id)
+          .eq('shipment_id', shipment.id);
+
+        if (itemResult.error) throw itemResult.error;
+
+      } else {
+        const itemResult = await db
+          .from(TABLES.items)
+          .insert({
+            ...itemPayload,
+            status: 'Draft'
+          });
+
+        if (itemResult.error) throw itemResult.error;
       }
     }
 
+    // Enregistrer ou mettre à jour les frais d'entreprise.
     for (const cost of costs) {
       const amountUSD = convertCurrencyToUSD(
         cost.amount,
@@ -1167,10 +1257,7 @@ obr_total_taxes_bif: nval('cdiObrTotalTaxes')
         rates
       );
 
-      const amountBIF = convertUSDToBIF(
-        amountUSD,
-        rates
-      );
+      const amountBIF = convertUSDToBIF(amountUSD, rates);
 
       const costPayload = {
         shipment_id: shipment.id,
@@ -1187,19 +1274,37 @@ obr_total_taxes_bif: nval('cdiObrTotalTaxes')
         notes: cost.notes
       };
 
-      const costResult = await db
-        .from(TABLES.costs)
-        .insert(costPayload);
+      if (cost.db_id) {
+        const costResult = await db
+          .from(TABLES.costs)
+          .update(costPayload)
+          .eq('id', cost.db_id)
+          .eq('shipment_id', shipment.id);
 
-      if (costResult.error) {
-        throw costResult.error;
+        if (costResult.error) throw costResult.error;
+
+      } else {
+        const costResult = await db
+          .from(TABLES.costs)
+          .insert(costPayload)
+          .select()
+          .single();
+
+        if (costResult.error) throw costResult.error;
+
+        cost.db_id = costResult.data.id;
       }
     }
 
+    cdiEditMode = false;
+
     alert(
-      'Expédition enregistrée avec succès.\n' +
-      'Numéro : ' + (shipment.shipment_number || shipment.id) +
-      '\nCoût total : ' +
+      (isEditing
+        ? 'Expédition modifiée avec succès.'
+        : 'Expédition enregistrée avec succès.') +
+      '\nNuméro : ' +
+      (shipment.shipment_number || shipment.id) +
+      '\nCoût total calculé : ' +
       landed.total_landed_usd.toFixed(2) + ' USD' +
       '\nÉquivalent : ' +
       landed.total_landed_bif.toLocaleString() + ' BIF'
@@ -1213,7 +1318,8 @@ obr_total_taxes_bif: nval('cdiObrTotalTaxes')
     alert(
       'Erreur pendant l’enregistrement :\n' +
       (error.message || 'Erreur inconnue') +
-      '\n\nSi le dossier a déjà été créé dans Supabase, vérifiez-le avant de recommencer afin d’éviter les doublons.'
+      '\n\nVérifiez le dossier dans Supabase avant de recommencer. ' +
+      'Certaines modifications ont peut-être déjà été enregistrées.'
     );
 
     return null;
@@ -1222,7 +1328,6 @@ obr_total_taxes_bif: nval('cdiObrTotalTaxes')
     isSaving = false;
   }
 }
-
 async function setArrived(itemId) {
   try {
     const db = getCDIDatabase();
