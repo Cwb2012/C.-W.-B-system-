@@ -1155,6 +1155,153 @@ async function changeProductStock(productName, change) {
 
 const salesForm = document.getElementById('salesForm');
 
+// SALES INVOICE ITEM HELPERS
+
+async function updateSaleItemPrice(row) {
+  if (!row) return;
+
+  const itemType = row.querySelector('.sale-item-type').value;
+  const priceType = row.querySelector('.sale-price-type').value;
+  const productName = row.querySelector('.sale-product').value.trim();
+  const amountInput = row.querySelector('.sale-amount');
+
+  // Services and custom prices are entered manually.
+  if (itemType === 'SERVICE' || priceType === 'CUSTOM') return;
+
+  if (!productName) {
+    amountInput.value = '';
+    updateSaleInvoicePreview();
+    return;
+  }
+
+  const { data, error } = await supabaseClient
+    .from('products')
+    .select('name, wholesale_price_bif, retail_price_bif, selling_price')
+    .ilike('name', productName)
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    msg('salesMessage', 'Could not load product price: ' + error.message, true);
+    return;
+  }
+
+  if (!data) {
+    amountInput.value = '';
+    msg('salesMessage', 'Product not found in Inventory: ' + productName, true);
+    updateSaleInvoicePreview();
+    return;
+  }
+
+  const priceTTC = priceType === 'WHOLESALE'
+    ? num(data.wholesale_price_bif)
+    : num(data.retail_price_bif ?? data.selling_price);
+
+  if (priceTTC <= 0) {
+    amountInput.value = '';
+    msg('salesMessage', 'The selected Inventory price is zero or missing.', true);
+    updateSaleInvoicePreview();
+    return;
+  }
+
+  // Inventory prices include VAT. Sales stores the price before VAT.
+  amountInput.value = (priceTTC / 1.18).toFixed(2);
+
+  updateSaleInvoicePreview();
+}
+
+function addSaleItemRow() {
+  const container = document.getElementById('saleItemsContainer');
+  const firstRow = container.querySelector('.sale-item-row');
+  const newRow = firstRow.cloneNode(true);
+
+  newRow.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+
+  newRow.querySelector('.sale-item-type').value = 'PRODUCT';
+  newRow.querySelector('.sale-product').value = '';
+  newRow.querySelector('.sale-quantity').value = '1';
+  newRow.querySelector('.sale-price-type').value = 'RETAIL';
+  newRow.querySelector('.sale-amount').value = '';
+
+  const removeButton = document.createElement('button');
+  removeButton.type = 'button';
+  removeButton.className = 'btn light';
+  removeButton.textContent = 'Remove Item';
+  removeButton.style.marginTop = '8px';
+  removeButton.onclick = function () {
+    newRow.remove();
+    updateSaleInvoicePreview();
+  };
+
+  const buttonContainer = document.createElement('div');
+  buttonContainer.className = 'full';
+  buttonContainer.appendChild(removeButton);
+  newRow.appendChild(buttonContainer);
+
+  container.appendChild(newRow);
+  updateSaleInvoicePreview();
+}
+
+function updateSaleInvoicePreview() {
+  const rows = document.querySelectorAll(
+    '#saleItemsContainer .sale-item-row'
+  );
+
+  let subtotal = 0;
+
+  rows.forEach(row => {
+    const quantity = num(row.querySelector('.sale-quantity').value);
+    const price = num(row.querySelector('.sale-amount').value);
+
+    subtotal += quantity * price;
+  });
+
+  const vat = Math.round(subtotal * 0.18 * 100) / 100;
+  const total = subtotal + vat;
+
+  const preview = document.getElementById('saleInvoicePreview');
+
+  if (preview) {
+    preview.innerHTML =
+      'Subtotal HT: <strong>' + money(subtotal) + ' BIF</strong><br>' +
+      'VAT 18%: <strong>' + money(vat) + ' BIF</strong><br>' +
+      'Total TTC: <strong>' + money(total) + ' BIF</strong>';
+  }
+}
+
+// Update price when product, type or price category changes.
+document.getElementById('saleItemsContainer').addEventListener('change', function(e) {
+  const row = e.target.closest('.sale-item-row');
+  if (!row) return;
+
+  if (
+    e.target.classList.contains('sale-product') ||
+    e.target.classList.contains('sale-price-type')
+  ) {
+    updateSaleItemPrice(row);
+  }
+
+  if (e.target.classList.contains('sale-item-type')) {
+    if (e.target.value === 'SERVICE') {
+      row.querySelector('.sale-price-type').value = 'CUSTOM';
+    } else {
+      row.querySelector('.sale-price-type').value = 'RETAIL';
+      updateSaleItemPrice(row);
+    }
+  }
+
+  updateSaleInvoicePreview();
+});
+
+document.getElementById('saleItemsContainer').addEventListener('input', function(e) {
+  if (
+    e.target.classList.contains('sale-quantity') ||
+    e.target.classList.contains('sale-amount')
+  ) {
+    updateSaleInvoicePreview();
+  }
+});
+
 
 // LOAD SALES FROM SUPABASE
 async function loadSales() {
