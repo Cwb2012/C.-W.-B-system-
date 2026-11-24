@@ -2187,6 +2187,11 @@ function buildUI() {
       <button type="button" id="cdiPrintShipment" class="secondary">
         IMPRIMER LE RAPPORT
       </button>
+      <button type="button"
+  class="danger"
+  data-action="delete-shipment">
+  🗑️ SUPPRIMER L’EXPÉDITION
+</button>
       <p class="cdi-muted">
         Un dossier déjà enregistré ne doit pas être enregistré une deuxième fois.
         Pour consulter un dossier existant, utilisez la recherche ci-dessous.
@@ -2750,11 +2755,157 @@ function attachCDIEvents() {
       printShipment();
       return;
     }
+     if (button.dataset.action === 'delete-shipment') {
+  await deleteCurrentShipment();
+  return;
+}
 
     if (button.id === 'cdiSearchButton') {
       await cdiSearchAndRender();
       return;
     }
+     async function deleteCurrentShipment() {
+  try {
+    if (!currentShipmentId) {
+      alert('Ouvrez d’abord une expédition enregistrée.');
+      return;
+    }
+
+    const db = getCDIDatabase();
+    const shipmentId = currentShipmentId;
+
+    // Relire le dossier directement dans Supabase.
+    const shipmentResult = await db
+      .from(TABLES.shipments)
+      .select('*')
+      .eq('id', shipmentId)
+      .single();
+
+    if (shipmentResult.error) throw shipmentResult.error;
+
+    const shipment = shipmentResult.data;
+
+    // Seuls les dossiers Draft peuvent être supprimés.
+    if (String(shipment.status || 'Draft').toLowerCase() !== 'draft') {
+      alert('Suppression refusée : cette expédition n’est plus en statut Draft.');
+      return;
+    }
+
+    // Vérifier l'état réel de tous les articles.
+    const itemResult = await db
+      .from(TABLES.items)
+      .select('id,status,stock_received_at,product_id')
+      .eq('shipment_id', shipmentId);
+
+    if (itemResult.error) throw itemResult.error;
+
+    const protectedItem = (itemResult.data || []).some(function (item) {
+      return (
+        String(item.status || 'Draft').toLowerCase() !== 'draft' ||
+        Boolean(item.stock_received_at) ||
+        Boolean(item.product_id)
+      );
+    });
+
+    if (protectedItem) {
+      alert(
+        'Suppression refusée : au moins un article est arrivé ' +
+        'ou a déjà été ajouté à l’Inventaire.'
+      );
+      return;
+    }
+
+    const shipmentNumber =
+      shipment.shipment_number || shipment.id;
+
+    if (!confirm(
+      'ATTENTION ! Voulez-vous vraiment supprimer définitivement ' +
+      'l’expédition ' + shipmentNumber +
+      ' et ses documents associés ?'
+    )) {
+      return;
+    }
+
+    // Récupérer les documents archivés.
+    const documentResult = await db
+      .from(TABLES.docs)
+      .select('id,document_path')
+      .eq('shipment_id', shipmentId);
+
+    if (documentResult.error) throw documentResult.error;
+
+    const documentPaths = (documentResult.data || [])
+      .map(doc => doc.document_path)
+      .filter(Boolean);
+
+    // Supprimer les fichiers du stockage.
+    if (documentPaths.length) {
+      const storageResult = await db.storage
+        .from(BUCKET)
+        .remove(documentPaths);
+
+      if (storageResult.error) throw storageResult.error;
+    }
+
+    // Supprimer les enregistrements associés.
+    const deleteDocs = await db
+      .from(TABLES.docs)
+      .delete()
+      .eq('shipment_id', shipmentId);
+
+    if (deleteDocs.error) throw deleteDocs.error;
+
+    const deleteCosts = await db
+      .from(TABLES.costs)
+      .delete()
+      .eq('shipment_id', shipmentId);
+
+    if (deleteCosts.error) throw deleteCosts.error;
+
+    const deleteItems = await db
+      .from(TABLES.items)
+      .delete()
+      .eq('shipment_id', shipmentId);
+
+    if (deleteItems.error) throw deleteItems.error;
+
+    const deleteSuppliers = await db
+      .from(TABLES.suppliers)
+      .delete()
+      .eq('shipment_id', shipmentId);
+
+    if (deleteSuppliers.error) throw deleteSuppliers.error;
+
+    // Supprimer le dossier principal en dernier.
+    const deleteShipment = await db
+      .from(TABLES.shipments)
+      .delete()
+      .eq('id', shipmentId);
+
+    if (deleteShipment.error) throw deleteShipment.error;
+
+    alert('Expédition supprimée avec succès.');
+
+    // Réinitialiser le formulaire et actualiser la liste.
+    suppliers = [];
+    items = [];
+    costs = [];
+    currentDocuments = [];
+    currentShipment = null;
+    currentShipmentId = null;
+
+    cdiNewShipment();
+
+    await loadAndRenderShipmentList();
+
+  } catch (error) {
+    console.error('CDI delete shipment error:', error);
+    alert(
+      'Erreur pendant la suppression :\n' +
+      (error.message || 'Erreur inconnue')
+    );
+  }
+}
 
     if (button.id === 'cdiNewShipment') {
       cdiNewShipment();
