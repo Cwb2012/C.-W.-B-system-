@@ -1170,9 +1170,12 @@ async function saveShipment() {
         shipment_id: shipment.id,
         supplier_id: supplierIds.get(supplier),
 
-        item_name: item.item_name,
+                item_name: item.item_name,
         category: item.category,
         unit: item.unit,
+
+        capacity_kg: safeNumber(item.capacity_kg),
+        capacity_litre: safeNumber(item.capacity_litre),
 
         carton_quantity: item.carton_quantity,
         pieces_per_carton: item.pieces_per_carton,
@@ -2287,6 +2290,10 @@ function renderItems() {
         ${cdiField('Nom de la marchandise', 'cdiItemName' + index, item.item_name, 'text', `data-cdi-list="items" data-cdi-index="${index}" data-cdi-field="item_name" ${readOnly ? 'disabled' : ''}`)}
         ${cdiField('Catégorie', 'cdiItemCategory' + index, item.category, 'text', `data-cdi-list="items" data-cdi-index="${index}" data-cdi-field="category" ${readOnly ? 'disabled' : ''}`)}
         ${cdiField('Unité', 'cdiItemUnit' + index, item.unit, 'text', `data-cdi-list="items" data-cdi-index="${index}" data-cdi-field="unit" ${readOnly ? 'disabled' : ''}`)}
+                <div class="cdi-grid">
+          ${cdiField('Capacité en kg', 'cdiCapacityKg' + index, item.capacity_kg, 'number', `min="0" step="any" data-cdi-list="items" data-cdi-index="${index}" data-cdi-field="capacity_kg" ${readOnly ? 'disabled' : ''}`)}
+          ${cdiField('Capacité en litre', 'cdiCapacityLitre' + index, item.capacity_litre, 'number', `min="0" step="any" data-cdi-list="items" data-cdi-index="${index}" data-cdi-field="capacity_litre" ${readOnly ? 'disabled' : ''}`)}
+        </div>
 
         <div class="cdi-grid">
           ${cdiField('Nombre de cartons', 'cdiCartons' + index, item.carton_quantity, 'number', `min="0" step="any" data-cdi-list="items" data-cdi-index="${index}" data-cdi-field="carton_quantity" ${readOnly ? 'disabled' : ''}`)}
