@@ -440,12 +440,48 @@ retail_price_bif:num(document.getElementById('inv_retail_price').value),
 selling_price:num(document.getElementById('inv_retail_price').value)
 };
 
-msg('inventoryMessage','Saving...');
+if(!product.name){
+msg('inventoryMessage','Please enter a product name.',true);
+return;
+}
 
-const {error}=await supabaseClient.from('products').insert([product]);
+msg('inventoryMessage','Checking existing inventory...');
 
-if(error){
-msg('inventoryMessage','Error saving product: '+error.message,true);
+const {data:products,error:searchError}=await supabaseClient
+.from('products')
+.select('id,name,quantity');
+
+if(searchError){
+msg('inventoryMessage','Error checking inventory: '+searchError.message,true);
+return;
+}
+
+const normalizedName=product.name.trim().toLowerCase();
+
+const matches=(products||[]).filter(p=>
+(p.name||'').trim().toLowerCase()===normalizedName
+);
+
+if(matches.length>1){
+msg('inventoryMessage',
+'ERROR: More than one product has this name. No stock was changed. Please check Inventory.',
+true);
+return;
+}
+
+if(matches.length===1){
+
+const existing=matches[0];
+const oldQuantity=num(existing.quantity);
+const newQuantity=oldQuantity+product.quantity;
+
+const {error:updateError}=await supabaseClient
+.from('products')
+.update({quantity:newQuantity})
+.eq('id',existing.id);
+
+if(updateError){
+msg('inventoryMessage','Error updating stock: '+updateError.message,true);
 return;
 }
 
@@ -455,9 +491,33 @@ document.getElementById('inv_buying_price').value=0;
 document.getElementById('inv_wholesale_price').value=0;
 document.getElementById('inv_retail_price').value=0;
 
-msg('inventoryMessage','Product saved successfully to Supabase.');
+msg('inventoryMessage',
+'Existing product found. Stock increased from '+oldQuantity+' to '+newQuantity+'. Existing prices were preserved.');
+
+loadInventory();
+return;
+}
+
+const {error:insertError}=await supabaseClient
+.from('products')
+.insert([product]);
+
+if(insertError){
+msg('inventoryMessage','Error saving product: '+insertError.message,true);
+return;
+}
+
+e.target.reset();
+document.getElementById('inv_quantity').value=0;
+document.getElementById('inv_buying_price').value=0;
+document.getElementById('inv_wholesale_price').value=0;
+document.getElementById('inv_retail_price').value=0;
+
+msg('inventoryMessage','New product saved successfully to Supabase.');
+
 loadInventory();
 });
+
 
 async function loadInventory(){
 const b=document.getElementById('inventoryTableBody');
