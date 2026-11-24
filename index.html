@@ -171,9 +171,24 @@
       Total TTC: <strong id="saleTotal">0 BIF</strong>
     </div>
 
-    <button class="btn" type="submit">
-      Save Sale & Generate Invoice
-    </button>
+    
+<button class="btn secondary" type="button"
+        onclick="previewSaleInvoice()">
+  👁️ Preview Invoice
+</button>
+
+<button class="btn" type="submit">
+  💾 Confirm & Save Sale
+</button>
+
+<div id="saleInvoicePreviewArea" style="display:none;margin-top:20px">
+  <div id="saleInvoicePreviewContent"></div>
+  <button class="btn secondary" type="button"
+          onclick="window.print()">
+    🖨️ Print Invoice
+  </button>
+</div>
+
 
   </form>
 
@@ -1265,12 +1280,19 @@ async function updateSaleItemPrice(row) {
   updateSaleInvoicePreview();
 }
 
+
 function addSaleItemRow() {
   const container = document.getElementById('saleItemsContainer');
+  if (!container) return;
+
   const firstRow = container.querySelector('.sale-item-row');
+  if (!firstRow) return;
+
   const newRow = firstRow.cloneNode(true);
 
-  newRow.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+  newRow.querySelectorAll('[id]').forEach(el => {
+    el.removeAttribute('id');
+  });
 
   newRow.querySelector('.sale-item-type').value = 'PRODUCT';
   newRow.querySelector('.sale-product').value = '';
@@ -1283,6 +1305,7 @@ function addSaleItemRow() {
   removeButton.className = 'btn light';
   removeButton.textContent = 'Remove Item';
   removeButton.style.marginTop = '8px';
+
   removeButton.onclick = function () {
     newRow.remove();
     updateSaleInvoicePreview();
@@ -1297,6 +1320,8 @@ function addSaleItemRow() {
   updateSaleInvoicePreview();
 }
 
+
+
 function updateSaleInvoicePreview() {
   const rows = document.querySelectorAll(
     '#saleItemsContainer .sale-item-row'
@@ -1305,14 +1330,23 @@ function updateSaleInvoicePreview() {
   let subtotal = 0;
 
   rows.forEach(row => {
-    const quantity = num(row.querySelector('.sale-quantity').value);
-    const price = num(row.querySelector('.sale-amount').value);
+    const quantity = num(
+      row.querySelector('.sale-quantity').value
+    );
 
-    subtotal += quantity * price;
+    const price = num(
+      row.querySelector('.sale-amount').value
+    );
+
+    if (quantity > 0 && price >= 0) {
+      subtotal += quantity * price;
+    }
   });
 
-  const vat = Math.round(subtotal * 0.18 * 100) / 100;
-  const total = subtotal + vat;
+  subtotal = Math.round(subtotal * 100) / 100;
+
+  const vat = Math.round(subtotal * 18) / 100;
+  const total = Math.round((subtotal + vat) * 100) / 100;
 
   const preview = document.getElementById('saleInvoicePreview');
 
@@ -1323,6 +1357,7 @@ function updateSaleInvoicePreview() {
       'Total TTC: <strong>' + money(total) + ' BIF</strong>';
   }
 }
+
 
 // Update price when product, type or price category changes.
 document.getElementById('saleItemsContainer').addEventListener('change', function(e) {
