@@ -1101,11 +1101,19 @@ async function showQuotes() {
   class="cwb-g-input"
   placeholder="Rechercher par numéro ou nom du client..."
 >
+<h3>Ouvrir un devis</h3>
+
+<input
+  type="text"
+  id="quoteSearch"
+  class="cwb-g-input"
+  placeholder="Rechercher par numéro ou nom du client..."
+>
 
 <h3>Devis enregistrés</h3>
 
 ${tableBox(
-      ["Numéro", "Client", "Véhicule", "Total TTC", "Statut", "Impression"],
+["Numéro", "Client", "Véhicule", "Total TTC", "Statut", "Impression"],
       rows.map((r, i) => `
         <tr>
           <td>${escapeHTML(r.quote_number || "")}</td>
