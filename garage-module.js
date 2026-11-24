@@ -989,93 +989,333 @@ async function showIntakes() {
      2. DEVIS
   ===================================================== */
 
-  async function showQuotes() {
-    const rows = await getRows(TABLES.quotes, "created_at");
+  
+async function showQuotes() {
+  const rows = await getRows(TABLES.quotes, "created_at");
 
-    showPage(`
-      ${pageHeader("Devis de réparation",
-        "Préparer un devis pour le client.")}
+  const makeLine = (category, index) => `
+    <div class="cwb-g-card" data-quote-line="${category}">
+      <strong>${category === "part" ? "Pièce" : "Produit / réparation"} ${index + 1}</strong>
 
-      ${formBox("Créer un devis", `
-        ${field("Nom du client", "customer_name", "text", true)}
-        ${field("Téléphone", "customer_phone")}
-        ${field("Adresse", "customer_address")}
-        ${field("Véhicule", "vehicle_name", "text", true)}
-        ${field("Modèle", "vehicle_model")}
-        ${field("Plaque", "plate_number")}
-        ${field("Couleur", "vehicle_color")}
-        ${field("Validité du devis", "validity")}
-        ${area("Description des réparations", "repair_description")}
-        ${field("Montant des pièces (BIF)", "parts_amount", "number")}
-        ${field("Main-d'œuvre (BIF)", "labour_amount", "number")}
-        ${field("Remise (BIF)", "discount_amount", "number")}
-        ${field("TVA (%)", "tax_rate", "number")}
-        ${area("Notes", "notes")}
-      `, "Enregistrer le devis")}
+      <label class="cwb-g-label">
+        Désignation
+        <input class="cwb-g-input" type="text"
+          data-line-name required>
+      </label>
 
-      
-<h3>Devis enregistrés</h3>
+      <label class="cwb-g-label">
+        Quantité
+        <input class="cwb-g-input" type="number"
+          min="0" step="0.01" value="1" data-line-qty>
+      </label>
 
-${tableBox(
-  ["Numéro", "Client", "Véhicule", "Total", "Statut", "Impression"],
-  rows.map((r, i) => `
-    <tr>
-      <td>${escapeHTML(r.quote_number || "")}</td>
-      <td>${escapeHTML(r.customer_name)}</td>
-      <td>${escapeHTML(r.vehicle_name)}</td>
-      <td>${money(r.total_amount)}</td>
-      <td>${escapeHTML(r.status)}</td>
-      <td>
-        <button type="button" data-garage-print="${i}">
-          🖨️ Imprimer
-        </button>
-      </td>
-    </tr>
-  `)
-)}
-`);
+      <label class="cwb-g-label">
+        Prix unitaire (BIF)
+        <input class="cwb-g-input" type="number"
+          min="0" step="1" value="0" data-line-price>
+      </label>
 
-    attachGaragePrintButtons(rows, "quote");
-    bindForm(async values => {
-      const parts = Number(values.parts_amount || 0);
-      const labour = Number(values.labour_amount || 0);
-      const discount = Number(values.discount_amount || 0);
-      const rate = Number(values.tax_rate || 18);
+      <p>Montant : <strong data-line-total>0 BIF</strong></p>
 
-      const subtotal = parts + labour;
-      const taxable = Math.max(0, subtotal - discount);
-      const tax = taxable * rate / 100;
-      const total = taxable + tax;
+      <button type="button" class="cwb-g-button"
+        data-remove-line>
+        Supprimer cette ligne
+      </button>
+    </div>
+  `;
 
-      const saved = await saveRow(TABLES.quotes, {
-        quote_date: today(),
-        customer_name: values.customer_name,
-        customer_phone: values.customer_phone || null,
-        customer_address: values.customer_address || null,
-        vehicle_name: values.vehicle_name,
-        vehicle_model: values.vehicle_model || null,
-        plate_number: values.plate_number || null,
-        vehicle_color: values.vehicle_color || null,
-        validity: values.validity || null,
-        repair_description: values.repair_description || null,
-        parts_amount: parts,
-        labour_amount: labour,
-        discount_amount: discount,
-        subtotal_amount: subtotal,
-        taxable_amount: taxable,
-        tax_rate: rate,
-        tax_amount: tax,
-        total_amount: total,
-        notes: values.notes || null,
-        lines: []
-      });
+  const partsHTML = Array.from(
+    { length: 5 },
+    (_, i) => makeLine("part", i)
+  ).join("");
 
-      notify("Devis enregistré : " +
-        (saved.quote_number || "numéro généré par Supabase"));
+  showPage(`
+    ${pageHeader("Devis de réparation",
+      "Créer un devis détaillé pour le client.")}
 
-      await showQuotes();
-    });
+    ${formBox("Nouveau devis", `
+      <h3>Informations du client</h3>
+
+      ${field("Nom du client", "customer_name", "text", true)}
+      ${field("Téléphone", "customer_phone")}
+      ${field("Adresse", "customer_address")}
+      ${field("Véhicule", "vehicle_name", "text", true)}
+      ${field("Modèle", "vehicle_model")}
+      ${field("Plaque", "plate_number")}
+      ${field("Couleur", "vehicle_color")}
+      ${field("Validité du devis", "validity")}
+      ${area("Description des réparations", "repair_description")}
+
+      <h3>1. Pièces à remplacer</h3>
+      <div id="quoteParts">${partsHTML}</div>
+
+      <button type="button" class="cwb-g-button"
+        id="addQuotePart">
+        + Ajouter une pièce
+      </button>
+
+      <h3>2. Produits et réparations</h3>
+      <div id="quoteProducts">
+        ${makeLine("product_repair", 0)}
+      </div>
+
+      <button type="button" class="cwb-g-button"
+        id="addQuoteProduct">
+        + Ajouter un produit ou une réparation
+      </button>
+
+      <h3>3. Main-d'œuvre</h3>
+      ${field("Montant de la main-d'œuvre (BIF)",
+        "labour_amount", "number")}
+
+      <h3>4. Calcul du devis</h3>
+      ${field("Remise (BIF)", "discount_amount", "number")}
+      <input type="hidden" name="tax_rate" value="18">
+
+      <div class="cwb-g-card">
+        <p>Pièces : <strong id="quotePartsTotal">0 BIF</strong></p>
+        <p>Produits et réparations :
+          <strong id="quoteProductsTotal">0 BIF</strong>
+        </p>
+        <p>Main-d'œuvre : <strong id="quoteLabourTotal">0 BIF</strong></p>
+        <p>Sous-total HT : <strong id="quoteSubtotal">0 BIF</strong></p>
+        <p>Remise : <strong id="quoteDiscount">0 BIF</strong></p>
+        <p>Montant taxable : <strong id="quoteTaxable">0 BIF</strong></p>
+        <p>TVA (18 %) : <strong id="quoteTax">0 BIF</strong></p>
+        <h3>Total TTC : <strong id="quoteGrandTotal">0 BIF</strong></h3>
+      </div>
+
+      ${area("Notes complémentaires", "notes")}
+    `, "Enregistrer le devis")}
+
+    <h3>Devis enregistrés</h3>
+
+    ${tableBox(
+      ["Numéro", "Client", "Véhicule", "Total TTC", "Statut", "Impression"],
+      rows.map((r, i) => `
+        <tr>
+          <td>${escapeHTML(r.quote_number || "")}</td>
+          <td>${escapeHTML(r.customer_name || "")}</td>
+          <td>${escapeHTML(r.vehicle_name || "")}</td>
+          <td>${money(r.total_amount)}</td>
+          <td>${escapeHTML(r.status || "En attente")}</td>
+          <td>
+            <button type="button"
+              data-garage-print="${i}">
+              Imprimer
+            </button>
+          </td>
+        </tr>
+      `)
+    )}
+  `);
+
+  const page = root.querySelector("#cwbGaragePage");
+  const form = page.querySelector(".cwb-g-form");
+
+  let partIndex = 5;
+  let productIndex = 1;
+
+  const formatMoney = amount =>
+    money(Math.round(Number(amount || 0)));
+
+  function calculateQuote() {
+    const readLines = category => {
+      return Array.from(
+        form.querySelectorAll(`[data-quote-line="${category}"]`)
+      ).map(row => {
+        const name = row.querySelector("[data-line-name]").value.trim();
+        const quantity = Number(
+          row.querySelector("[data-line-qty]").value || 0
+        );
+        const unitPrice = Number(
+          row.querySelector("[data-line-price]").value || 0
+        );
+        const total = quantity * unitPrice;
+
+        row.querySelector("[data-line-total]").textContent =
+          formatMoney(total);
+
+        return {
+          category,
+          item_name: name,
+          quantity,
+          unit_price: unitPrice,
+          total
+        };
+      }).filter(line => line.item_name);
+    };
+
+    const parts = readLines("part");
+    const products = readLines("product_repair");
+
+    const partsTotal = parts.reduce((sum, line) =>
+      sum + line.total, 0);
+
+    const productsTotal = products.reduce((sum, line) =>
+      sum + line.total, 0);
+
+    const labour = Number(form.elements.labour_amount.value || 0);
+    const discount = Number(form.elements.discount_amount.value || 0);
+
+    const subtotal = partsTotal + productsTotal + labour;
+    const taxable = Math.max(0, subtotal - discount);
+    const tax = Math.round(taxable * 18) / 100;
+    const total = taxable + tax;
+
+    page.querySelector("#quotePartsTotal").textContent =
+      formatMoney(partsTotal);
+
+    page.querySelector("#quoteProductsTotal").textContent =
+      formatMoney(productsTotal);
+
+    page.querySelector("#quoteLabourTotal").textContent =
+      formatMoney(labour);
+
+    page.querySelector("#quoteSubtotal").textContent =
+      formatMoney(subtotal);
+
+    page.querySelector("#quoteDiscount").textContent =
+      formatMoney(discount);
+
+    page.querySelector("#quoteTaxable").textContent =
+      formatMoney(taxable);
+
+    page.querySelector("#quoteTax").textContent =
+      formatMoney(tax);
+
+    page.querySelector("#quoteGrandTotal").textContent =
+      formatMoney(total);
+
+    return {
+      parts,
+      products,
+      partsTotal,
+      productsTotal,
+      labour,
+      discount,
+      subtotal,
+      taxable,
+      tax,
+      total
+    };
   }
+
+  page.querySelector("#addQuotePart").addEventListener("click", () => {
+    const container = page.querySelector("#quoteParts");
+    container.insertAdjacentHTML(
+      "beforeend",
+      makeLine("part", partIndex++)
+    );
+    calculateQuote();
+  });
+
+  page.querySelector("#addQuoteProduct").addEventListener("click", () => {
+    const container = page.querySelector("#quoteProducts");
+    container.insertAdjacentHTML(
+      "beforeend",
+      makeLine("product_repair", productIndex++)
+    );
+    calculateQuote();
+  });
+
+  form.addEventListener("input", event => {
+    if (
+      event.target.matches("[data-line-name]") ||
+      event.target.matches("[data-line-qty]") ||
+      event.target.matches("[data-line-price]") ||
+      event.target.name === "labour_amount" ||
+      event.target.name === "discount_amount"
+    ) {
+      calculateQuote();
+    }
+  });
+
+  form.addEventListener("click", event => {
+    const button = event.target.closest("[data-remove-line]");
+    if (!button) return;
+
+    const line = button.closest("[data-quote-line]");
+    if (line) {
+      line.remove();
+      calculateQuote();
+    }
+  });
+
+  calculateQuote();
+
+  attachGaragePrintButtons(rows, "quote");
+
+  bindForm(async values => {
+    const result = calculateQuote();
+
+    const allLines = [
+      ...result.parts,
+      ...result.products
+    ];
+
+    const invalidLine = allLines.some(line =>
+      !Number.isFinite(line.quantity) ||
+      line.quantity <= 0 ||
+      !Number.isFinite(line.unit_price) ||
+      line.unit_price < 0
+    );
+
+    if (invalidLine) {
+      throw new Error(
+        "Vérifie les quantités et les prix des lignes du devis."
+      );
+    }
+
+    if (
+      !Number.isFinite(result.labour) || result.labour < 0 ||
+      !Number.isFinite(result.discount) || result.discount < 0
+    ) {
+      throw new Error("Vérifie la main-d'œuvre et la remise.");
+    }
+
+    if (result.discount > result.subtotal) {
+      throw new Error("La remise ne peut pas dépasser le sous-total.");
+    }
+
+    if (!allLines.length && result.labour <= 0) {
+      throw new Error("Ajoute au moins une ligne ou un montant de main-d'œuvre.");
+    }
+
+    const saved = await saveRow(TABLES.quotes, {
+      quote_date: today(),
+      customer_name: values.customer_name,
+      customer_phone: values.customer_phone || null,
+      customer_address: values.customer_address || null,
+      vehicle_name: values.vehicle_name,
+      vehicle_model: values.vehicle_model || null,
+      plate_number: values.plate_number || null,
+      vehicle_color: values.vehicle_color || null,
+      validity: values.validity || null,
+      repair_description: values.repair_description || null,
+
+      lines: allLines,
+
+      parts_amount: result.partsTotal,
+      labour_amount: result.labour,
+      discount_amount: result.discount,
+      subtotal_amount: result.subtotal,
+      taxable_amount: result.taxable,
+      tax_rate: 18,
+      tax_amount: result.tax,
+      total_amount: result.total,
+      notes: values.notes || null
+    });
+
+    notify(
+      "Devis enregistré : " +
+      (saved.quote_number || "numéro généré par Supabase")
+    );
+
+    await showQuotes();
+  });
+}
+
 
   /* =====================================================
      3. CONTRE-EXPERTISE ASSURANCE
