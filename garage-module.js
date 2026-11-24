@@ -1088,9 +1088,18 @@ async function showQuotes() {
       ${area("Notes complémentaires", "notes")}
     `, "Enregistrer le devis")}
 
-    <h3>Devis enregistrés</h3>
+    <h3>Ouvrir un devis</h3>
 
-    ${tableBox(
+<input
+  type="text"
+  id="quoteSearch"
+  class="cwb-g-input"
+  placeholder="Rechercher par numéro ou nom du client..."
+>
+
+<h3>Devis enregistrés</h3>
+
+${tableBox(
       ["Numéro", "Client", "Véhicule", "Total TTC", "Statut", "Impression"],
       rows.map((r, i) => `
         <tr>
