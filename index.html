@@ -1355,6 +1355,111 @@ function updateSaleInvoicePreview() {
   }
 }
 
+function previewSaleInvoice() {
+  const customer = document.getElementById('sale_customer').value.trim();
+  const invoiceNumber = document.getElementById('sale_invoice').value.trim();
+  const date = document.getElementById('sale_date').value || today();
+
+  if (!customer) {
+    msg('salesMessage', 'Please enter the customer name.', true);
+    document.getElementById('sale_customer').focus();
+    return;
+  }
+
+  const rows = document.querySelectorAll(
+    '#saleItemsContainer .sale-item-row'
+  );
+
+  let subtotal = 0;
+  let itemsHTML = '';
+
+  rows.forEach((row, index) => {
+    const type = row.querySelector('.sale-item-type').value;
+    const name = row.querySelector('.sale-product').value.trim();
+    const quantity = num(row.querySelector('.sale-quantity').value);
+    const price = num(row.querySelector('.sale-amount').value);
+
+    if (!name || quantity <= 0 || price <= 0) return;
+
+    const lineTotal = quantity * price;
+    subtotal += lineTotal;
+
+    const safeName = name.replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;',
+      '"': '&quot;', "'": '&#39;'
+    })[c]);
+
+    itemsHTML += `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${safeName}</td>
+        <td>${type}</td>
+        <td>${quantity}</td>
+        <td>${money(price)} BIF</td>
+        <td>${money(lineTotal)} BIF</td>
+      </tr>`;
+  });
+
+  if (!itemsHTML) {
+    msg('salesMessage', 'Please enter at least one complete item.', true);
+    return;
+  }
+
+  subtotal = Math.round(subtotal * 100) / 100;
+  const vat = Math.round(subtotal * 18) / 100;
+  const total = Math.round((subtotal + vat) * 100) / 100;
+
+  const content = document.getElementById('saleInvoicePreviewContent');
+
+  content.innerHTML = `
+    <div style="padding:20px;border:1px solid #ccc;background:white;color:#111">
+      <h2 style="text-align:center">C.W.B System</h2>
+      <h3 style="text-align:center">Camel Work and Business company</h3>
+      <p style="text-align:center">Better Quality is our priority</p>
+      <p style="text-align:center">
+        Bujumbura, Chaussée du Peuple Murundi No. 54<br>
+        Tel: 67481564 / 62180032<br>
+        NIF: 4002652933
+      </p>
+      <hr>
+      <h2 style="text-align:center">SALES INVOICE</h2>
+      <p><strong>Invoice:</strong> ${
+        invoiceNumber || 'Generated automatically when saved'
+      }</p>
+      <p><strong>Customer:</strong> ${customer.replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;',
+        '"': '&quot;', "'": '&#39;'
+      })[c])}</p>
+      <p><strong>Date:</strong> ${date}</p>
+
+      <table style="width:100%;border-collapse:collapse" border="1" cellpadding="7">
+        <thead>
+          <tr>
+            <th>No.</th><th>Item</th><th>Type</th>
+            <th>Qty</th><th>Unit Price HT</th><th>Total HT</th>
+          </tr>
+        </thead>
+        <tbody>${itemsHTML}</tbody>
+      </table>
+
+      <div style="text-align:right;margin-top:20px">
+        <p>Subtotal HT: <strong>${money(subtotal)} BIF</strong></p>
+        <p>VAT 18%: <strong>${money(vat)} BIF</strong></p>
+        <h3>Total TTC: ${money(total)} BIF</h3>
+      </div>
+      <p style="text-align:center;margin-top:30px">
+        Thank you for your business.
+      </p>
+    </div>
+  `;
+
+  document.getElementById('saleInvoicePreviewArea').style.display = 'block';
+  document.getElementById('saleInvoicePreviewArea').scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  });
+}
+
 
 // Update price when product, type or price category changes.
 document.getElementById('saleItemsContainer').addEventListener('change', function(e) {
