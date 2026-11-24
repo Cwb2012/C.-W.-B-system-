@@ -1000,7 +1000,7 @@ async function showQuotes() {
       <label class="cwb-g-label">
         Désignation
         <input class="cwb-g-input" type="text"
-          data-line-name required>
+          data-line-name>
       </label>
 
       <label class="cwb-g-label">
@@ -1160,7 +1160,7 @@ async function showQuotes() {
 
     const subtotal = partsTotal + productsTotal + labour;
     const taxable = Math.max(0, subtotal - discount);
-    const tax = Math.round(taxable * 18) / 100;
+    const tax = Math.round(taxable * 18 / 100);
     const total = taxable + tax;
 
     page.querySelector("#quotePartsTotal").textContent =
