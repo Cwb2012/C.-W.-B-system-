@@ -2664,13 +2664,14 @@ function attachCDIEvents() {
           'other_costs_bif','wholesale_price_bif','retail_price_bif','amount'
         ];
 
-        target[index][field] = numericFields.includes(field)
-          ? safeNumber(element.value)
-          : element.value;
-      }
-    }
+        target[index][field] =
+  (field === 'capacity_kg' || field === 'capacity_litre')
+    ? nullableCapacity(element.value)
+    : numericFields.includes(field)
+      ? safeNumber(element.value)
+      : element.value;
+          }
   });
-
   root.addEventListener('change', async function (event) {
     const element = event.target;
 
