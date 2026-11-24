@@ -1095,21 +1095,22 @@ async function showQuotes() {
 
     <h3>Ouvrir un devis</h3>
 
-<input
-  type="text"
-  id="quoteSearch"
-  class="cwb-g-input"
-  placeholder="Rechercher par numéro ou nom du client..."
->
-<h3>Ouvrir un devis</h3>
+<div class="cwb-g-card">
+  <input
+    type="text"
+    id="quoteSearch"
+    class="cwb-g-input"
+    placeholder="Numéro du devis ou nom du client..."
+  >
 
-<input
-  type="text"
-  id="quoteSearch"
-  class="cwb-g-input"
-  placeholder="Rechercher par numéro ou nom du client..."
->
-
+  <button
+    type="button"
+    class="cwb-g-button"
+    id="searchQuoteButton"
+  >
+    🔍 Rechercher un devis
+  </button>
+</div>
 <h3>Devis enregistrés</h3>
 
 ${tableBox(
