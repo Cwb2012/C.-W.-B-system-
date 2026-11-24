@@ -1134,22 +1134,27 @@ ${tableBox(
   `);
    
 const page = root.querySelector("#cwbGaragePage");
+const form = page.querySelector(".cwb-g-form");
 
 const searchInput = page.querySelector("#quoteSearch");
+const searchButton = page.querySelector("#searchQuoteButton");
 
-if (searchInput) {
-  searchInput.addEventListener("input", () => {
-    const search = searchInput.value.trim().toLowerCase();
+function filterQuotes() {
+  const search = searchInput.value.trim().toLowerCase();
 
-    page.querySelectorAll("tbody tr").forEach(row => {
-      row.style.display = row.textContent.toLowerCase().includes(search)
-        ? ""
-        : "none";
-    });
+  page.querySelectorAll("tbody tr").forEach(row => {
+    row.style.display =
+      row.textContent.toLowerCase().includes(search) ? "" : "none";
   });
 }
-  const page = root.querySelector("#cwbGaragePage");
-  const form = page.querySelector(".cwb-g-form");
+
+if (searchInput) {
+  searchInput.addEventListener("input", filterQuotes);
+}
+
+if (searchButton) {
+  searchButton.addEventListener("click", filterQuotes);
+}
 
   let partIndex = 5;
   let productIndex = 1;
