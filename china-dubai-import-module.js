@@ -2286,11 +2286,11 @@ function renderSuppliers() {
   renderDocumentSupplierOptions();
 }
 
-function renderItems() {
+function renderEditableItems() {
   const container = document.getElementById('cdiItemsList');
   if (!container) return;
 
-  const readOnly = Boolean(currentShipmentId);
+  const readOnly = Boolean(currentShipmentId) && !cdiEditMode;
 
   container.innerHTML = items.map(function (item, index) {
     const supplierOptions = [
@@ -3171,6 +3171,11 @@ function renderSuppliers() {
 }
 
 function renderItems() {
+  if (cdiEditMode) {
+    renderEditableItems();
+    return;
+  }
+
   const list = document.getElementById('cdiItemsList');
   if (!list) return;
 
