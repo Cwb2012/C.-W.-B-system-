@@ -1131,7 +1131,22 @@ ${tableBox(
       `)
     )}
   `);
+   
+const page = root.querySelector("#cwbGaragePage");
 
+const searchInput = page.querySelector("#quoteSearch");
+
+if (searchInput) {
+  searchInput.addEventListener("input", () => {
+    const search = searchInput.value.trim().toLowerCase();
+
+    page.querySelectorAll("tbody tr").forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(search)
+        ? ""
+        : "none";
+    });
+  });
+}
   const page = root.querySelector("#cwbGaragePage");
   const form = page.querySelector(".cwb-g-form");
 
