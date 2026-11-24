@@ -124,9 +124,12 @@ function addItem(data = {}) {
       ? String(data.supplierIndex)
       : '',
 
-    item_name: data.item_name || '',
+        item_name: data.item_name || '',
     category: data.category || '',
     unit: data.unit || 'pieces',
+
+    capacity_kg: safeNumber(data.capacity_kg),
+    capacity_litre: safeNumber(data.capacity_litre),
 
     carton_quantity: safeNumber(data.carton_quantity),
     pieces_per_carton: safeNumber(data.pieces_per_carton),
