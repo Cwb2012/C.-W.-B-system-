@@ -2636,6 +2636,7 @@ function attachCDIEvents() {
           'carton_quantity','pieces_per_carton','cbm_per_carton',
           'carton_length_cm','carton_width_cm','carton_height_cm',
           'net_weight_per_carton_kg','gross_weight_per_carton_kg',
+          'capacity_kg','capacity_litre',
           'purchase_unit_price','transport_cost_bif','customs_cost_bif',
           'other_costs_bif','wholesale_price_bif','retail_price_bif','amount'
         ];
