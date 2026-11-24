@@ -224,6 +224,11 @@ function printGarageDocument(type, r) {
         ["Couleur", r.vehicle_color],
         ["Description des réparations", r.repair_description],
         ["Pièces", money(r.parts_amount)],
+        ["Produits et réparations", money(
+        (Array.isArray(r.lines) ? r.lines : [])
+       .filter(line => line.category === "product_repair")
+       .reduce((sum, line) => sum + Number(line.total || 0), 0)
+        )],
         ["Main-d'œuvre", money(r.labour_amount)],
         ["Sous-total", money(r.subtotal_amount)],
         ["Remise", money(r.discount_amount)],
