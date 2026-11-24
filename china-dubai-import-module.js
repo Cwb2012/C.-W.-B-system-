@@ -2669,8 +2669,9 @@ function attachCDIEvents() {
     ? nullableCapacity(element.value)
     : numericFields.includes(field)
       ? safeNumber(element.value)
-      : element.value;
-          }
+              : element.value;
+      }
+    }
   });
   root.addEventListener('change', async function (event) {
     const element = event.target;
