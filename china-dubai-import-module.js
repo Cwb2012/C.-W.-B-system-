@@ -146,8 +146,8 @@ function addItem(data = {}) {
     category: data.category || '',
     unit: data.unit || 'pieces',
 
-    capacity_kg: safeNumber(data.capacity_kg),
-    capacity_litre: safeNumber(data.capacity_litre),
+    capacity_kg: nullableCapacity(data.capacity_kg),
+    capacity_litre: nullableCapacity(data.capacity_litre),
 
     carton_quantity: safeNumber(data.carton_quantity),
     pieces_per_carton: safeNumber(data.pieces_per_carton),
@@ -1192,8 +1192,8 @@ async function saveShipment() {
         category: item.category,
         unit: item.unit,
 
-        capacity_kg: safeNumber(item.capacity_kg),
-        capacity_litre: safeNumber(item.capacity_litre),
+        capacity_kg: nullableCapacity(item.capacity_kg),
+        capacity_litre: nullableCapacity(item.capacity_litre),
 
         carton_quantity: item.carton_quantity,
         pieces_per_carton: item.pieces_per_carton,
