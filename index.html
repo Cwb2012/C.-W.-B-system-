@@ -77,77 +77,129 @@
 </section><div class="table-wrap"><table><thead><tr><th>Customer</th><th>Vehicle</th><th>Mechanic</th><th>Status</th><th>Job Cost</th><th>Payment</th></tr></thead><tbody id="garageTableBody"></tbody></table></div></div>
 
 <div id="sales" class="card hidden"><h2>Sales & Invoice</h2><p class="small">Sales are saved in Supabase. Product sales reduce Inventory; Service sales do not change stock. VAT: 18%.</p>   
-<form id="salesForm">
-  <div class="form-grid">
-    <div>
-      <label>Customer</label>
-      <input id="sale_customer">
-    </div>
-    <div>
-      <label>Invoice Number (leave blank for automatic number)</label>
-      <input id="sale_invoice">
-    </div>
-    <div>
-      <label>Payment Status</label>
-      <select id="sale_payment">
-        <option>Paid</option>
-        <option>Partially Paid</option>
-        <option>Unpaid</option>
-      </select>
-    </div>
-    <div>
-      <label>Date</label>
-      <input id="sale_date" type="date">
-    </div>
-  </div>
 
-  <h3>Invoice Items</h3>
-  <div id="saleItemsContainer">
-    <div class="sale-item-row form-grid">
+  
+<div id="sales" class="card hidden">
+  <h2>Sales & Invoice</h2>
+  <p class="small">
+    Sales are saved in Supabase. Product sales reduce Inventory;
+    Service sales do not change stock. VAT: 18%.
+  </p>
+
+  <form id="salesForm">
+
+    <div class="form-grid">
       <div>
-        <label>Item Type</label>
-        <select id="sale_item_type" class="sale-item-type">
-          <option value="PRODUCT">Product</option>
-          <option value="SERVICE">Service</option>
+        <label>Customer</label>
+        <input id="sale_customer" required>
+      </div>
+
+      <div>
+        <label>Invoice Number (leave blank for automatic number)</label>
+        <input id="sale_invoice">
+      </div>
+
+      <div>
+        <label>Payment Status</label>
+        <select id="sale_payment">
+          <option>Paid</option>
+          <option>Partially Paid</option>
+          <option>Unpaid</option>
         </select>
       </div>
+
       <div>
-        <label>Product / Service Name</label>
-        <input id="sale_product" class="sale-product" required>
-      </div>
-      <div>
-        <label>Quantity</label>
-        <input id="sale_quantity" class="sale-quantity" type="number" min="1" step="1" value="1" required>
-      </div>
-      <div>
-        <label>Price Type</label>
-        <select class="sale-price-type">
-          <option value="RETAIL">Retail</option>
-          <option value="WHOLESALE">Wholesale</option>
-          <option value="CUSTOM">Custom / Service</option>
-        </select>
-      </div>
-      <div>
-        <label>Unit Price Before VAT (BIF)</label>
-        <input id="sale_amount" class="sale-amount" type="number" min="0" step="0.01" required>
+        <label>Date</label>
+        <input id="sale_date" type="date">
       </div>
     </div>
+
+    <h3>Invoice Items</h3>
+
+    <div id="saleItemsContainer">
+
+      <div class="sale-item-row form-grid">
+
+        <div>
+          <label>Item Type</label>
+          <select id="sale_item_type" class="sale-item-type">
+            <option value="PRODUCT">Product</option>
+            <option value="SERVICE">Service</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Product / Service Name</label>
+          <input id="sale_product" class="sale-product" required>
+        </div>
+
+        <div>
+          <label>Quantity</label>
+          <input id="sale_quantity" class="sale-quantity"
+                 type="number" min="1" step="1" value="1" required>
+        </div>
+
+        <div>
+          <label>Price Type</label>
+          <select class="sale-price-type">
+            <option value="RETAIL">Retail</option>
+            <option value="WHOLESALE">Wholesale</option>
+            <option value="CUSTOM">Custom / Service</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Unit Price Before VAT (BIF)</label>
+          <input id="sale_amount" class="sale-amount"
+                 type="number" min="0" step="0.01" required>
+        </div>
+
+      </div>
+
+    </div>
+
+    <button class="btn secondary" type="button"
+            onclick="addSaleItemRow()">
+      + Add Another Item
+    </button>
+
+    <div id="saleInvoicePreview" class="stat" style="margin-top:15px">
+      Subtotal HT: <strong id="saleSubtotal">0 BIF</strong>
+      <br>
+      VAT 18%: <strong id="saleVAT">0 BIF</strong>
+      <br>
+      Total TTC: <strong id="saleTotal">0 BIF</strong>
+    </div>
+
+    <button class="btn" type="submit">
+      Save Sale & Generate Invoice
+    </button>
+
+  </form>
+
+  <div id="salesMessage" class="message"></div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Invoice</th>
+          <th>Customer</th>
+          <th>Product / Service</th>
+          <th>Qty</th>
+          <th>Unit Price Before VAT</th>
+          <th>Total TTC</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="salesTableBody"></tbody>
+    </table>
   </div>
-    <button class="btn secondary" type="button" onclick="addSaleItemRow()">
-    + Add Another Item
-  </button>
 
-  <button class="btn secondary" type="button" onclick="addSaleItemRow()">
-    + Add Another Item
-  </button>
+</div>
 
-  <div id="saleInvoicePreview" class="stat" style="margin-top:15px">
-    Invoice total will appear here.
-  </div>
-
-  <button class="btn" type="submit">Save Sale & Generate Invoice</button>
-</form>
-               <div id="salesMessage" class="message"></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Invoice</th><th>Customer</th><th>Product / Service</th><th>Qty</th><th>Unit Price Before VAT</th><th>Total TTC</th><th>Status</th><th>Action</th></tr></thead><tbody id="salesTableBody"></tbody></table></div></div>
 
 <div id="purchases" class="card hidden"><h2>Purchases & Suppliers</h2><form id="purchaseForm"><div class="form-grid"><div><label>Supplier</label><input id="purchase_supplier"></div><div><label>Product</label><input id="purchase_product" required></div><div><label>Amount</label><input id="purchase_amount" type="number" min="0" step="0.01" required></div><div><label>Payment Status</label><select id="purchase_payment"><option>Paid</option><option>Partially Paid</option><option>Unpaid</option></select></div><div><label>Date</label><input id="purchase_date" type="date"></div></div><button class="btn" type="submit">Save Purchase</button></form><div id="purchaseMessage" class="message"></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Supplier</th><th>Product</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody id="purchaseTableBody"></tbody></table></div></div>
 
