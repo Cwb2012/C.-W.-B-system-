@@ -144,7 +144,7 @@ function addItem(data = {}) {
 
         item_name: data.item_name || '',
     category: data.category || '',
-    unit: data.unit || 'pieces',
+    unit: String(data.unit || 'pieces').trim().toLowerCase(),
 
     capacity_kg: nullableCapacity(data.capacity_kg),
     capacity_litre: nullableCapacity(data.capacity_litre),
@@ -1190,7 +1190,7 @@ async function saveShipment() {
 
                 item_name: item.item_name,
         category: item.category,
-        unit: item.unit,
+        unit: String(item.unit || 'pieces').trim().toLowerCase(),
 
         capacity_kg: nullableCapacity(item.capacity_kg),
         capacity_litre: nullableCapacity(item.capacity_litre),
