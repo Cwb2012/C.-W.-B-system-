@@ -49,6 +49,24 @@ let cdiEditMode = false;
     const number = Number(value);
     return Number.isFinite(number) ? number : 0;
   }
+   
+  // Optional product capacity: blank or zero means "not specified".
+  function nullableCapacity(value) {
+    if (
+      value === null ||
+      value === undefined ||
+      String(value).trim() === ''
+    ) {
+      return null;
+    }
+
+    const number = Number(value);
+    return Number.isFinite(number) && number > 0
+      ? number
+      : null;
+  }
+
+   
 
   function roundMoney(value) {
     return Math.round(
