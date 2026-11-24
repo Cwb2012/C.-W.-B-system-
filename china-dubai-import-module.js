@@ -2988,6 +2988,11 @@ function buildCDIInterface() {
       <input id="cdiItemName" placeholder="Nom de la marchandise">
       <input id="cdiItemCategory" placeholder="Catégorie">
       <input id="cdiItemUnit" placeholder="Unité" value="pieces">
+      <label>Capacité en kg</label>
+<input type="number" id="cdiItemCapacityKg" min="0" step="any" placeholder="Exemple : 1.8">
+
+<label>Capacité en litre</label>
+<input type="number" id="cdiItemCapacityLitre" min="0" step="any" placeholder="Exemple : 1.5">
 
       <label>Nombre de cartons</label>
       <input type="number" id="cdiItemCartons" min="1" step="1">
@@ -3303,7 +3308,8 @@ function clearCDIForm() {
     'cdiSupplierName', 'cdiSupplierContact',
     'cdiSupplierInvoice', 'cdiSupplierNotes',
     'cdiItemName', 'cdiItemCategory', 'cdiItemUnit',
-        'cdiItemCartons', 'cdiItemPieces', 'cdiItemCbmTotal',
+    'cdiItemCapacityKg', 'cdiItemCapacityLitre',
+    'cdiItemCartons', 'cdiItemPieces', 'cdiItemCbmTotal',
     'cdiItemNetWeight', 'cdiItemGrossWeight',
     'cdiItemPurchasePrice', 'cdiItemTransport',
     'cdiItemCustoms', 'cdiItemOther',
@@ -3403,7 +3409,7 @@ async function handleCDIClick(event) {
     }
 
     
-    if (action === 'add-item') {
+        if (action === 'add-item') {
       const previousItemCount = items.length;
 
       try {
@@ -3412,19 +3418,29 @@ async function handleCDIClick(event) {
           item_name: val('cdiItemName'),
           category: val('cdiItemCategory'),
           unit: val('cdiItemUnit') || 'pieces',
+
+          capacity_kg: nval('cdiItemCapacityKg'),
+          capacity_litre: nval('cdiItemCapacityLitre'),
+
           carton_quantity: nval('cdiItemCartons'),
           pieces_per_carton: nval('cdiItemPieces'),
-                    cbm_entry_mode: 'total',
+
+          cbm_entry_mode: 'total',
           cbm: nval('cdiItemCbmTotal'),
+
           net_weight_per_carton_kg: nval('cdiItemNetWeight'),
           gross_weight_per_carton_kg: nval('cdiItemGrossWeight'),
+
           purchase_currency: val('cdiItemCurrency'),
           purchase_unit_price: nval('cdiItemPurchasePrice'),
+
           transport_cost_bif: nval('cdiItemTransport'),
           customs_cost_bif: nval('cdiItemCustoms'),
           other_costs_bif: nval('cdiItemOther'),
+
           wholesale_price_bif: nval('cdiItemWholesale'),
           retail_price_bif: nval('cdiItemRetail'),
+
           notes: val('cdiItemNotes')
         });
 
