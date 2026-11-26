@@ -1646,7 +1646,8 @@ ${tableBox(
    
 const page = root.querySelector("#cwbGaragePage");
 const form = page.querySelector(".cwb-g-form");
-
+const form = page.querySelector(".cwb-g-form");
+let editingQuoteId = null;
 const searchInput = page.querySelector("#quoteSearch");
 const searchButton = page.querySelector("#searchQuoteButton");
 
@@ -1666,12 +1667,98 @@ if (searchInput) {
 if (searchButton) {
   searchButton.addEventListener("click", filterQuotes);
 }
+async function openQuote(index) {
+  const quote = rows[index];
 
-  let partIndex = 5;
-  let productIndex = 1;
+  if (!quote) {
+    notify("Devis introuvable.");
+    return;
+  }
+
+  editingQuoteId = quote.id;
+
+  form.elements.customer_name.value = quote.customer_name || "";
+  form.elements.customer_phone.value = quote.customer_phone || "";
+  form.elements.customer_address.value = quote.customer_address || "";
+  form.elements.vehicle_name.value = quote.vehicle_name || "";
+  form.elements.vehicle_model.value = quote.vehicle_model || "";
+  form.elements.plate_number.value = quote.plate_number || "";
+  form.elements.vehicle_color.value = quote.vehicle_color || "";
+  form.elements.validity.value = quote.validity || "";
+  form.elements.repair_description.value = quote.repair_description || "";
+  form.elements.labour_amount.value = quote.labour_amount || 0;
+  form.elements.discount_amount.value = quote.discount_amount || 0;
+  form.elements.notes.value = quote.notes || "";
+   
+const savedLines = Array.isArray(quote.lines) ? quote.lines : [];
+
+const parts = savedLines.filter(line => line.category === "part");
+const products = savedLines.filter(line => line.category === "product_repair");
+
+const partsContainer = page.querySelector("#quoteParts");
+const productsContainer = page.querySelector("#quoteProducts");
+
+partsContainer.innerHTML = "";
+productsContainer.innerHTML = "";
+
+const partCount = Math.max(5, parts.length);
+const productCount = Math.max(1, products.length);
+
+for (let i = 0; i < partCount; i++) {
+  partsContainer.insertAdjacentHTML(
+    "beforeend",
+    makeLine("part", i)
+  );
+}
+
+for (let i = 0; i < productCount; i++) {
+  productsContainer.insertAdjacentHTML(
+    "beforeend",
+    makeLine("product_repair", i)
+  );
+}
+
+function fillLines(category, saved) {
+  const lineRows = page.querySelectorAll(
+    `[data-quote-line="${category}"]`
+  );
+
+  saved.forEach((line, index) => {
+    const row = lineRows[index];
+    if (!row) return;
+
+    row.querySelector("[data-line-name]").value = line.item_name || "";
+    row.querySelector("[data-line-qty]").value = line.quantity || 0;
+    row.querySelector("[data-line-price]").value = line.unit_price || 0;
+  });
+}
+
+fillLines("part", parts);
+fillLines("product_repair", products);
+
+partIndex = partCount;
+productIndex = productCount;
+
+calculateQuote();
+
+
+  notify("Devis chargé : " + quote.quote_number);
+}
+
+page.addEventListener("click", event => {
+  const button = event.target.closest("[data-open-quote]");
+  if (!button) return;
+
+  const index = Number(button.dataset.openQuote);
+  openQuote(index);
+});
+
+let partIndex = 5;
+let productIndex = 1;
 
   const formatMoney = amount =>
     money(Math.round(Number(amount || 0)));
+   
 
   function calculateQuote() {
     const readLines = category => {
@@ -1836,39 +1923,55 @@ if (searchButton) {
       throw new Error("Ajoute au moins une ligne ou un montant de main-d'œuvre.");
     }
 
-    const saved = await saveRow(TABLES.quotes, {
-      quote_date: today(),
-      customer_name: values.customer_name,
-      customer_phone: values.customer_phone || null,
-      customer_address: values.customer_address || null,
-      vehicle_name: values.vehicle_name,
-      vehicle_model: values.vehicle_model || null,
-      plate_number: values.plate_number || null,
-      vehicle_color: values.vehicle_color || null,
-      validity: values.validity || null,
-      repair_description: values.repair_description || null,
+    
+const quoteValues = {
+  customer_name: values.customer_name,
+  customer_phone: values.customer_phone || null,
+  customer_address: values.customer_address || null,
+  vehicle_name: values.vehicle_name,
+  vehicle_model: values.vehicle_model || null,
+  plate_number: values.plate_number || null,
+  vehicle_color: values.vehicle_color || null,
+  validity: values.validity || null,
+  repair_description: values.repair_description || null,
 
-      lines: allLines,
+  lines: allLines,
 
-      parts_amount: result.partsTotal,
-      labour_amount: result.labour,
-      discount_amount: result.discount,
-      subtotal_amount: result.subtotal,
-      taxable_amount: result.taxable,
-      tax_rate: 18,
-      tax_amount: result.tax,
-      total_amount: result.total,
-      notes: values.notes || null
-    });
+  parts_amount: result.partsTotal,
+  labour_amount: result.labour,
+  discount_amount: result.discount,
+  subtotal_amount: result.subtotal,
+  taxable_amount: result.taxable,
+  tax_rate: 18,
+  tax_amount: result.tax,
+  total_amount: result.total,
+  notes: values.notes || null
+};
 
-    notify(
-      "Devis enregistré : " +
-      (saved.quote_number || "numéro généré par Supabase")
-    );
+let saved;
 
-    await showQuotes();
+if (editingQuoteId) {
+  saved = await updateRow(
+    TABLES.quotes,
+    editingQuoteId,
+    quoteValues
+  );
+} else {
+  saved = await saveRow(TABLES.quotes, {
+    ...quoteValues,
+    quote_date: today()
   });
 }
+
+editingQuoteId = null;
+
+notify(
+  "Devis enregistré : " +
+  (saved.quote_number || "numéro généré par Supabase")
+);
+
+await showQuotes();
+
 
 
   /* =====================================================
