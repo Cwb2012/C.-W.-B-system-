@@ -1971,8 +1971,7 @@ notify(
 );
 
 await showQuotes();
-
-
+});
 
   /* =====================================================
      3. CONTRE-EXPERTISE ASSURANCE
