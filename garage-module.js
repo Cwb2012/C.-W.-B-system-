@@ -177,109 +177,453 @@
       </div>
     `;
   }
+
+
 /* =========================================
    C.W.B GARAGE — IMPRESSION DES DOCUMENTS
+   Devis et factures : format professionnel
 ========================================= */
 
 function printGarageDocument(type, r) {
 
-  const documents = {
+  if (!r) {
+    notify("Aucune donnée disponible pour imprimer.", true);
+    return;
+  }
 
-    intake: {
-      title: "FICHE DE RÉCEPTION DU VÉHICULE",
-      number: r.intake_number,
-      fields: [
-        ["Client", r.customer_name],
-        ["Téléphone", r.customer_phone],
-        ["Adresse", r.customer_address],
-        ["Véhicule", r.vehicle_name],
-        ["Modèle", r.vehicle_model],
-        ["Plaque", r.plate_number],
-        ["VIN", r.vin_number],
-        ["Couleur", r.vehicle_color],
-        ["Kilométrage", r.mileage],
-        ["Carburant", r.fuel_level],
-        ["Plainte du client", r.customer_complaint],
-        ["État carrosserie", r.body_condition],
-        ["État peinture", r.paint_condition],
-        ["Vitres et éclairage", r.glass_condition],
-        ["Dommages visibles", r.visible_damage],
-        ["Accessoires reçus", r.received_items_notes],
-        ["Notes inspection", r.inspection_notes],
-        ["Réceptionnaire", r.receiver_name],
-        ["Date de réception", r.received_at]
-      ]
-    },
+  const esc = value =>
+    escapeHTML(String(value ?? ""));
 
-    quote: {
-      title: "DEVIS DE RÉPARATION",
-      number: r.quote_number,
-      fields: [
-        ["Client", r.customer_name],
-        ["Téléphone", r.customer_phone],
-        ["Adresse", r.customer_address],
-        ["Véhicule", r.vehicle_name],
-        ["Modèle", r.vehicle_model],
-        ["Plaque", r.plate_number],
-        ["Couleur", r.vehicle_color],
-        ["Description des réparations", r.repair_description],
-        ["Pièces", money(r.parts_amount)],
-        ["Produits et réparations", money(
-        (Array.isArray(r.lines) ? r.lines : [])
-       .filter(line => line.category === "product_repair")
-       .reduce((sum, line) => sum + Number(line.total || 0), 0)
-        )],
-        ["Main-d'œuvre", money(r.labour_amount)],
-        ["Sous-total", money(r.subtotal_amount)],
-        ["Remise", money(r.discount_amount)],
-        ["TVA", (r.tax_rate || 0) + " %"],
-        ["Montant TVA", money(r.tax_amount)],
-        ["TOTAL À PAYER", money(r.total_amount)],
-        ["Validité", r.validity],
-        ["Statut", r.status],
-        ["Notes", r.notes]
-      ]
-    },
+  const amount = value => money(Number(value || 0));
 
-    invoice: {
-      title: "FACTURE GARAGE",
-      number: r.invoice_number || r.Invoice_number,
-      fields: [
-        ["Client", r.customer_name],
-        ["Téléphone", r.customer_phone || r.Customer_phone],
-        ["Véhicule", r.Vehicle_name],
-        ["Modèle", r.Vehicle_model],
-        ["Plaque", r.Vehicle_plate],
-        ["Travaux", r.Job_description || r.repaire_descrption],
-        ["Mécanicien", r.mechanic_name || r.machanic_name],
-        ["Coût des pièces", money(r.parts_cost)],
-        ["Main-d'œuvre", money(r.labor_cost)],
-        ["TOTAL FACTURE", money(
-          r.final_coast || r.Job_cost || r.cost || r.estimated_cost
-        )],
-        ["Montant payé", money(r.paid_amount)],
-        ["Statut paiement", r.Payment_status],
-        ["Date", r.Job_date],
-        ["Notes", r.Notes]
-      ]
+  const getLineTotal = line => {
+    if (line.total !== undefined && line.total !== null) {
+      return Number(line.total || 0);
     }
 
+    return Number(line.quantity || 0) *
+           Number(line.unit_price || 0);
   };
 
-  const doc = documents[type];
+  const getCategory = line =>
+    String(line.category || "").toLowerCase().trim();
 
-  if (!doc) return;
+  const getLines = value =>
+    Array.isArray(value) ? value : [];
 
-  const rows = doc.fields
-    .filter(item => item[1] !== null &&
-                    item[1] !== undefined &&
-                    item[1] !== "")
-    .map(item => `
-      <tr>
-        <th>${escapeHTML(item[0])}</th>
-        <td>${escapeHTML(item[1])}</td>
-      </tr>
-    `).join("");
+  const makeLineRows = lines => {
+
+    if (!lines.length) {
+      return `
+        <tr>
+          <td colspan="4" class="empty">
+            Aucune ligne détaillée enregistrée
+          </td>
+        </tr>
+      `;
+    }
+
+    return lines.map((line, index) => {
+
+      const quantity = Number(line.quantity || 0);
+      const unitPrice = Number(line.unit_price || 0);
+      const total = getLineTotal(line);
+
+      return `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${esc(line.item_name || line.description || "")}</td>
+          <td class="center">${quantity}</td>
+          <td class="number">${amount(unitPrice)}</td>
+          <td class="number">${amount(total)}</td>
+        </tr>
+      `;
+
+    }).join("");
+  };
+
+  const makeSection = (title, lines, fallbackAmount) => {
+
+    const total = lines.length
+      ? lines.reduce((sum, line) => sum + getLineTotal(line), 0)
+      : Number(fallbackAmount || 0);
+
+    return `
+      <h3>${esc(title)}</h3>
+
+      <table class="items">
+        <thead>
+          <tr>
+            <th>N°</th>
+            <th>Désignation</th>
+            <th>Qté</th>
+            <th>Prix unitaire</th>
+            <th>Montant</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          ${lines.length
+            ? makeLineRows(lines)
+            : `
+              <tr>
+                <td>1</td>
+                <td>${esc(title)}</td>
+                <td>1</td>
+                <td class="number">${amount(total)}</td>
+                <td class="number">${amount(total)}</td>
+              </tr>
+            `
+          }
+        </tbody>
+      </table>
+
+      <div class="section-total">
+        Total ${esc(title)} : ${amount(total)}
+      </div>
+    `;
+  };
+
+  let documentContent = "";
+  let documentTitle = "";
+  let documentNumber = "";
+
+  /* =========================================
+     1. FICHE DE RÉCEPTION
+  ========================================= */
+
+  if (type === "intake") {
+
+    documentTitle = "FICHE DE RÉCEPTION DU VÉHICULE";
+    documentNumber = r.intake_number;
+
+    const fields = [
+      ["Client", r.customer_name],
+      ["Téléphone", r.customer_phone],
+      ["Adresse", r.customer_address],
+      ["Véhicule", r.vehicle_name],
+      ["Modèle", r.vehicle_model],
+      ["Plaque", r.plate_number],
+      ["VIN", r.vin_number],
+      ["Couleur", r.vehicle_color],
+      ["Kilométrage", r.mileage],
+      ["Carburant", r.fuel_level],
+      ["Plainte du client", r.customer_complaint],
+      ["État carrosserie", r.body_condition],
+      ["État peinture", r.paint_condition],
+      ["Vitres et éclairage", r.glass_condition],
+      ["Dommages visibles", r.visible_damage],
+      ["Accessoires reçus", r.received_items_notes],
+      ["Notes inspection", r.inspection_notes],
+      ["Réceptionnaire", r.receiver_name],
+      ["Date de réception", r.received_at]
+    ];
+
+    documentContent = `
+      <h3>Informations de réception</h3>
+
+      <table class="info">
+        ${fields
+          .filter(item => item[1] !== null &&
+                          item[1] !== undefined &&
+                          item[1] !== "")
+          .map(item => `
+            <tr>
+              <th>${esc(item[0])}</th>
+              <td>${esc(item[1])}</td>
+            </tr>
+          `).join("")}
+      </table>
+    `;
+  }
+
+  /* =========================================
+     2. DEVIS DE RÉPARATIONS
+  ========================================= */
+
+  else if (type === "quote") {
+
+    documentTitle = "DEVIS DE RÉPARATIONS";
+    documentNumber = r.quote_number;
+
+    const lines = getLines(r.lines);
+
+    const parts = lines.filter(line =>
+      ["part", "parts", "piece", "pièce"].includes(
+        getCategory(line)
+      )
+    );
+
+    const products = lines.filter(line =>
+      ["product_repair", "product", "repair"].includes(
+        getCategory(line)
+      )
+    );
+
+    const labourLines = lines.filter(line =>
+      ["labour", "labor", "main_doeuvre", "main-d'oeuvre"].includes(
+        getCategory(line)
+      )
+    );
+
+    const productTotal = products.reduce(
+      (sum, line) => sum + getLineTotal(line), 0
+    );
+
+    const labourTotal = labourLines.length
+      ? labourLines.reduce(
+          (sum, line) => sum + getLineTotal(line), 0
+        )
+      : Number(r.labour_amount || 0);
+
+    const partsTotal = Number(r.parts_amount || 0);
+
+    const subtotal = Number(
+      r.subtotal_amount ||
+      (partsTotal + productTotal + labourTotal)
+    );
+
+    const discount = Number(r.discount_amount || 0);
+    const taxRate = Number(r.tax_rate ?? 18);
+    const tax = Number(r.tax_amount || 0);
+    const total = Number(r.total_amount || (subtotal - discount + tax));
+
+    documentContent = `
+
+      <div class="info-grid">
+
+        <div>
+          <h3>Informations du client</h3>
+          <p><strong>Client :</strong> ${esc(r.customer_name)}</p>
+          <p><strong>Téléphone :</strong> ${esc(r.customer_phone)}</p>
+          <p><strong>Adresse :</strong> ${esc(r.customer_address)}</p>
+        </div>
+
+        <div>
+          <h3>Informations du véhicule</h3>
+          <p><strong>Véhicule :</strong> ${esc(r.vehicle_name)}</p>
+          <p><strong>Modèle :</strong> ${esc(r.vehicle_model)}</p>
+          <p><strong>Immatriculation :</strong> ${esc(r.plate_number)}</p>
+          <p><strong>Couleur :</strong> ${esc(r.vehicle_color)}</p>
+        </div>
+
+      </div>
+
+      <h3>Description des réparations</h3>
+      <div class="description">
+        ${esc(r.repair_description || "Non renseignée")}
+      </div>
+
+      ${makeSection("Pièces à remplacer", parts, partsTotal)}
+
+      ${makeSection(
+        "Produits et réparations",
+        products,
+        productTotal
+      )}
+
+      <h3>Main-d'œuvre</h3>
+
+      ${labourLines.length
+        ? `
+          <table class="items">
+            <thead>
+              <tr>
+                <th>N°</th>
+                <th>Désignation</th>
+                <th>Qté</th>
+                <th>Prix unitaire</th>
+                <th>Montant</th>
+              </tr>
+            </thead>
+            <tbody>${makeLineRows(labourLines)}</tbody>
+          </table>
+        `
+        : `
+          <div class="description">
+            Montant de la main-d'œuvre : ${amount(labourTotal)}
+          </div>
+        `
+      }
+
+      <div class="totals">
+        <div><span>Total pièces</span><strong>${amount(partsTotal)}</strong></div>
+        <div><span>Produits et réparations</span><strong>${amount(productTotal)}</strong></div>
+        <div><span>Main-d'œuvre</span><strong>${amount(labourTotal)}</strong></div>
+        <div><span>Sous-total HT</span><strong>${amount(subtotal)}</strong></div>
+        <div><span>Remise</span><strong>${amount(discount)}</strong></div>
+        <div><span>TVA (${taxRate} %)</span><strong>${amount(tax)}</strong></div>
+        <div class="grand-total">
+          <span>TOTAL TTC</span>
+          <strong>${amount(total)}</strong>
+        </div>
+      </div>
+
+      <div class="conditions">
+        <p><strong>Validité du devis :</strong> ${esc(r.validity || "Non précisée")}</p>
+        <p><strong>Statut :</strong> ${esc(r.status || "En attente")}</p>
+        <p><strong>Notes :</strong> ${esc(r.notes || "")}</p>
+      </div>
+    `;
+  }
+
+  /* =========================================
+     3. FACTURE GARAGE
+  ========================================= */
+
+  else if (type === "invoice") {
+
+    documentTitle = "FACTURE DE RÉPARATIONS";
+    documentNumber = r.invoice_number || r.Invoice_number;
+
+    const lines = getLines(r.quotation_lines);
+
+    const parts = lines.filter(line =>
+      ["part", "parts", "piece", "pièce"].includes(
+        getCategory(line)
+      )
+    );
+
+    const products = lines.filter(line =>
+      ["product_repair", "product", "repair"].includes(
+        getCategory(line)
+      )
+    );
+
+    const labourLines = lines.filter(line =>
+      ["labour", "labor", "main_doeuvre", "main-d'oeuvre"].includes(
+        getCategory(line)
+      )
+    );
+
+    const partsTotal = Number(
+      r.parts_cost || r.Parts_coast || 0
+    );
+
+    const productTotal = products.reduce(
+      (sum, line) => sum + getLineTotal(line), 0
+    );
+
+    const labourTotal = Number(r.labor_cost || r.Job_cost || 0);
+
+    const subtotal = Number(
+      r.garage_subtotal_ht ||
+      r.quotation_total ||
+      (partsTotal + productTotal + labourTotal)
+    );
+
+    const discount = Number(r.quotation_discount || 0);
+    const taxRate = Number(r.garage_tax_rate ?? 18);
+    const tax = Number(r.garage_tax_amount || r.quotation_tax || 0);
+
+    const total = Number(
+      r.garage_total_ttc ||
+      r.final_coast ||
+      r.Job_cost ||
+      r.cost ||
+      r.estimated_cost ||
+      (subtotal - discount + tax)
+    );
+
+    const paid = Number(r.paid_amount || 0);
+    const balance = Math.max(0, total - paid);
+
+    documentContent = `
+
+      <div class="info-grid">
+
+        <div>
+          <h3>Informations du client</h3>
+          <p><strong>Client :</strong> ${esc(r.customer_name)}</p>
+          <p><strong>Téléphone :</strong> ${esc(r.customer_phone || r.Customer_phone)}</p>
+          <p><strong>Adresse :</strong> ${esc(r.customer_address)}</p>
+        </div>
+
+        <div>
+          <h3>Informations du véhicule</h3>
+          <p><strong>Véhicule :</strong> ${esc(r.Vehicle_name || r.vehicle_name)}</p>
+          <p><strong>Modèle :</strong> ${esc(r.Vehicle_model || r.vehicle_model)}</p>
+          <p><strong>Plaque :</strong> ${esc(r.Vehicle_plate)}</p>
+          <p><strong>Couleur :</strong> ${esc(r.Vehicle_color)}</p>
+        </div>
+
+      </div>
+
+      <h3>Référence du devis</h3>
+      <p>${esc(r.quotation_number || "Non renseignée")}</p>
+
+      <h3>Travaux effectués</h3>
+      <div class="description">
+        ${esc(r.Job_description || r.repaire_descrption || "")}
+      </div>
+
+      ${makeSection(
+        "Pièces à remplacer",
+        parts,
+        partsTotal
+      )}
+
+      ${makeSection(
+        "Produits et réparations",
+        products,
+        productTotal
+      )}
+
+      <h3>Main-d'œuvre</h3>
+
+      ${labourLines.length
+        ? `
+          <table class="items">
+            <thead>
+              <tr>
+                <th>N°</th>
+                <th>Désignation</th>
+                <th>Qté</th>
+                <th>Prix unitaire</th>
+                <th>Montant</th>
+              </tr>
+            </thead>
+            <tbody>${makeLineRows(labourLines)}</tbody>
+          </table>
+        `
+        : `
+          <div class="description">
+            Main-d'œuvre : ${amount(labourTotal)}
+          </div>
+        `
+      }
+
+      <div class="totals">
+        <div><span>Sous-total HT</span><strong>${amount(subtotal)}</strong></div>
+        <div><span>Remise</span><strong>${amount(discount)}</strong></div>
+        <div><span>TVA (${taxRate} %)</span><strong>${amount(tax)}</strong></div>
+        <div class="grand-total">
+          <span>TOTAL TTC</span>
+          <strong>${amount(total)}</strong>
+        </div>
+        <div><span>Montant payé</span><strong>${amount(paid)}</strong></div>
+        <div class="balance">
+          <span>Reste à payer</span><strong>${amount(balance)}</strong>
+        </div>
+      </div>
+
+      <div class="conditions">
+        <p><strong>Mécanicien :</strong> ${esc(r.mechanic_name || r.machanic_name)}</p>
+        <p><strong>Statut de paiement :</strong> ${esc(r.Payment_status)}</p>
+        <p><strong>Date :</strong> ${esc(r.Job_date || r.service_date)}</p>
+        <p><strong>Notes :</strong> ${esc(r.Notes || r.notes || "")}</p>
+      </div>
+    `;
+  }
+
+  else {
+    notify("Type de document non reconnu.", true);
+    return;
+  }
+
+  /* =========================================
+     4. OUVERTURE DE LA FENÊTRE D'IMPRESSION
+  ========================================= */
 
   const win = window.open("", "_blank");
 
@@ -290,43 +634,97 @@ function printGarageDocument(type, r) {
 
   win.document.write(`
     <!DOCTYPE html>
-    <html>
+    <html lang="fr">
+
     <head>
       <meta charset="UTF-8">
-      <title>${escapeHTML(doc.title)}</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+
+      <title>${esc(documentTitle)}</title>
 
       <style>
+
+        * {
+          box-sizing: border-box;
+        }
+
         body {
           font-family: Arial, sans-serif;
-          padding: 25px;
           color: #222;
+          margin: 0;
+          padding: 25px;
+          font-size: 12px;
         }
 
         .header {
           text-align: center;
-          border-bottom: 3px solid #173b63;
-          padding-bottom: 15px;
+          border-bottom: 4px solid #173b63;
+          padding-bottom: 12px;
           margin-bottom: 20px;
         }
 
         .header h1 {
           color: #b51f2a;
-          margin: 0;
+          font-size: 27px;
+          margin: 0 0 5px;
         }
 
         .header p {
-          margin: 5px;
+          margin: 4px;
+        }
+
+        .slogan {
+          font-weight: bold;
+          color: #173b63;
         }
 
         h2 {
           text-align: center;
-          margin: 25px 0;
+          color: #173b63;
+          margin: 20px 0 8px;
+          font-size: 21px;
         }
 
         .number {
           text-align: center;
           font-weight: bold;
           margin-bottom: 20px;
+          font-size: 13px;
+        }
+
+        h3 {
+          background: #173b63;
+          color: white;
+          padding: 8px;
+          font-size: 13px;
+          margin-top: 20px;
+          margin-bottom: 8px;
+        }
+
+        .info-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 15px;
+        }
+
+        .info-grid > div {
+          border: 1px solid #bbb;
+          padding: 8px;
+        }
+
+        .info-grid h3 {
+          margin: -8px -8px 8px;
+        }
+
+        .info-grid p {
+          margin: 6px 0;
+        }
+
+        .description {
+          border: 1px solid #bbb;
+          padding: 10px;
+          min-height: 30px;
+          white-space: pre-wrap;
         }
 
         table {
@@ -336,21 +734,83 @@ function printGarageDocument(type, r) {
 
         th, td {
           border: 1px solid #aaa;
-          padding: 10px;
+          padding: 8px;
           text-align: left;
           vertical-align: top;
         }
 
-        th {
+        .items thead th {
+          background: #e8edf3;
+          color: #173b63;
+        }
+
+        .items .center {
+          text-align: center;
+        }
+
+        .items .number {
+          text-align: right;
+          margin: 0;
+        }
+
+        .empty {
+          text-align: center;
+          color: #777;
+        }
+
+        .section-total {
+          text-align: right;
+          font-weight: bold;
+          padding: 8px;
+          border: 1px solid #ddd;
+          border-top: none;
+        }
+
+        .info th {
           width: 35%;
           background: #eee;
+        }
+
+        .totals {
+          width: 55%;
+          margin: 20px 0 20px auto;
+          border: 1px solid #aaa;
+          padding: 10px;
+        }
+
+        .totals > div {
+          display: flex;
+          justify-content: space-between;
+          padding: 6px;
+          gap: 15px;
+          border-bottom: 1px solid #ddd;
+        }
+
+        .totals .grand-total {
+          background: #173b63;
+          color: white;
+          font-size: 16px;
+          font-weight: bold;
+          padding: 12px 8px;
+        }
+
+        .totals .balance {
+          font-weight: bold;
+          color: #b51f2a;
+        }
+
+        .conditions {
+          margin-top: 20px;
+          border: 1px solid #bbb;
+          padding: 10px;
         }
 
         .signatures {
           display: flex;
           justify-content: space-between;
-          margin-top: 65px;
           gap: 30px;
+          margin-top: 65px;
+          page-break-inside: avoid;
         }
 
         .signatures div {
@@ -362,14 +822,49 @@ function printGarageDocument(type, r) {
 
         .footer {
           text-align: center;
-          margin-top: 40px;
-          font-size: 12px;
+          margin-top: 35px;
+          padding-top: 10px;
+          border-top: 1px solid #aaa;
+          font-size: 11px;
+        }
+
+        .print-button {
+          display: block;
+          margin: 25px auto;
+          padding: 12px 25px;
+          background: #173b63;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          font-weight: bold;
+          cursor: pointer;
+        }
+
+        @page {
+          size: A4;
+          margin: 12mm;
         }
 
         @media print {
-          button { display: none; }
-          body { padding: 10px; }
+          body {
+            padding: 0;
+            font-size: 11px;
+          }
+
+          .print-button {
+            display: none;
+          }
+
+          h3, .grand-total {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+
+          tr {
+            page-break-inside: avoid;
+          }
         }
+
       </style>
     </head>
 
@@ -378,21 +873,19 @@ function printGarageDocument(type, r) {
       <div class="header">
         <h1>C.W.B SYSTEM</h1>
         <p>Camel Work and Business company</p>
-        <strong>Better Quality is our priority</strong>
+        <p class="slogan">Better Quality is our priority</p>
         <p>Bujumbura, Chaussée du Peuple Murundi No. 54</p>
         <p>Tél : 67481564 / 62180032</p>
         <p>NIF : 4002652933</p>
       </div>
 
-      <h2>${escapeHTML(doc.title)}</h2>
+      <h2>${esc(documentTitle)}</h2>
 
       <div class="number">
-        N° : ${escapeHTML(doc.number || "Non disponible")}
+        N° : ${esc(documentNumber || "Non disponible")}
       </div>
 
-      <table>
-        ${rows}
-      </table>
+      ${documentContent}
 
       <div class="signatures">
         <div>Signature du client</div>
@@ -403,8 +896,8 @@ function printGarageDocument(type, r) {
         C.W.B System • Master Version 2
       </div>
 
-      <button onclick="window.print()">
-        IMPRIMER LE DOCUMENT
+      <button class="print-button" onclick="window.print()">
+        IMPRIMER / ENREGISTRER EN PDF
       </button>
 
     </body>
@@ -412,9 +905,7 @@ function printGarageDocument(type, r) {
   `);
 
   win.document.close();
-}
-
-
+}   
 /* Ajouter les boutons aux documents enregistrés */
 
 function attachGaragePrintButtons(rows, type) {
