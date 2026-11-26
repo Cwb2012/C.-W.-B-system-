@@ -93,6 +93,19 @@
     if (error) throw error;
     return data;
   }
+   
+async function updateRow(table, id, values) {
+  const { data, error } = await db
+    .from(table)
+    .update(values)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
 
   function field(label, name, type = "text", required = false) {
     return `
@@ -1605,7 +1618,7 @@ async function showQuotes() {
 <h3>Devis enregistrés</h3>
 
 ${tableBox(
-["Numéro", "Client", "Véhicule", "Total TTC", "Statut", "Impression"],
+["Numéro", "Client", "Véhicule", "Total TTC", "Statut", "Actions"]
       rows.map((r, i) => `
         <tr>
           <td>${escapeHTML(r.quote_number || "")}</td>
@@ -1614,11 +1627,18 @@ ${tableBox(
           <td>${money(r.total_amount)}</td>
           <td>${escapeHTML(r.status || "En attente")}</td>
           <td>
-            <button type="button"
-              data-garage-print="${i}">
-              Imprimer
-            </button>
-          </td>
+  <button type="button"
+    class="cwb-g-button"
+    data-open-quote="${i}">
+    Ouvrir
+  </button>
+
+  <button type="button"
+    class="cwb-g-button"
+    data-garage-print="${i}">
+    Imprimer
+  </button>
+</td>
         </tr>
       `)
     )}
