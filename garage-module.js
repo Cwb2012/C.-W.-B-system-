@@ -1618,8 +1618,8 @@ async function showQuotes() {
 <h3>Devis enregistrés</h3>
 
 ${tableBox(
-["Numéro", "Client", "Véhicule", "Total TTC", "Statut", "Actions"]
-      rows.map((r, i) => `
+  ["Numéro", "Client", "Véhicule", "Total TTC", "Statut", "Actions"],
+  rows.map((r, i) => `
         <tr>
           <td>${escapeHTML(r.quote_number || "")}</td>
           <td>${escapeHTML(r.customer_name || "")}</td>
@@ -1645,7 +1645,6 @@ ${tableBox(
   `);
    
 const page = root.querySelector("#cwbGaragePage");
-const form = page.querySelector(".cwb-g-form");
 const form = page.querySelector(".cwb-g-form");
 let editingQuoteId = null;
 const searchInput = page.querySelector("#quoteSearch");
@@ -1970,9 +1969,9 @@ notify(
   (saved.quote_number || "numéro généré par Supabase")
 );
 
-await showQuotes();
+  await showQuotes();
 });
-
+} 
   /* =====================================================
      3. CONTRE-EXPERTISE ASSURANCE
   ===================================================== */
