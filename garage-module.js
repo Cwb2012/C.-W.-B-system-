@@ -1743,14 +1743,21 @@ calculateQuote();
   notify("Devis chargé : " + quote.quote_number);
 }
 
-page.addEventListener("click", event => {
+page.addEventListener("click", async event => {
   const button = event.target.closest("[data-open-quote]");
   if (!button) return;
 
   const index = Number(button.dataset.openQuote);
-  openQuote(index);
-});
 
+  try {
+    await openQuote(index);
+  } catch (error) {
+    console.error("Erreur ouverture devis :", error);
+    notify(
+      "Erreur ouverture devis : " + (error.message || error)
+    );
+  }
+});
   const formatMoney = amount =>
     money(Math.round(Number(amount || 0)));
    
