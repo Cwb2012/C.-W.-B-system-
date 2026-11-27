@@ -1751,9 +1751,6 @@ page.addEventListener("click", event => {
   openQuote(index);
 });
 
-let partIndex = 5;
-let productIndex = 1;
-
   const formatMoney = amount =>
     money(Math.round(Number(amount || 0)));
    
