@@ -1649,7 +1649,6 @@ const form = page.querySelector(".cwb-g-form");
 let editingQuoteId = null;
 const searchInput = page.querySelector("#quoteSearch");
 const searchButton = page.querySelector("#searchQuoteButton");
-
 function filterQuotes() {
   const search = searchInput.value.trim().toLowerCase();
 
