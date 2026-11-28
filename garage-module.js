@@ -2055,6 +2055,39 @@ notify(
       await showInsurance();
     });
   }
+  // OUVRIR UNE CONTRE-EXPERTISE
+page.addEventListener("click", async event => {
+  const button = event.target.closest("[data-open-insurance]");
+  if (!button) return;
+
+  const index = Number(button.dataset.openInsurance);
+  const rows = await getRows(TABLES.insurance, "created_at");
+  const review = rows[index];
+
+  if (!review) {
+    notify("Contre-expertise introuvable.", true);
+    return;
+  }
+
+  notify("Dossier sélectionné : " + (review.review_number || ""));
+});
+
+// IMPRIMER UNE CONTRE-EXPERTISE
+page.addEventListener("click", async event => {
+  const button = event.target.closest("[data-print-insurance]");
+  if (!button) return;
+
+  const index = Number(button.dataset.printInsurance);
+  const rows = await getRows(TABLES.insurance, "created_at");
+  const review = rows[index];
+
+  if (!review) {
+    notify("Contre-expertise introuvable.", true);
+    return;
+  }
+
+  printGarageDocument("insurance", review);
+});
 
   /* =====================================================
      4. ACTIVITES GARAGE
