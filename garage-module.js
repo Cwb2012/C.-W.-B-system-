@@ -2006,34 +2006,26 @@ notify(
           ["En attente", "En cours", "Terminé"])}
       `, "Enregistrer la contre-expertise")}
 
+      
       <h3>Dossiers enregistrés</h3>
       ${tableBox(
-  ["Numéro", "Assurance", "Référence", "Approuvé", "Décision", "Actions"],
-  rows.map((r, i) => `
-    <tr>
-      <td>${escapeHTML(r.review_number || "")}</td>
-      <td>${escapeHTML(r.insurance_company || "")}</td>
-      <td>${escapeHTML(r.insurance_reference || "")}</td>
-      <td>${money(r.approved_amount)}</td>
-      <td>${escapeHTML(r.decision || "")}</td>
-      <td>
-        <button type="button" data-open-insurance="${i}">Ouvrir</button>
-        <button type="button" data-print-insurance="${i}">Imprimer</button>
-      </td>
-    </tr>
-  `)
-)}
+        ["Numéro", "Assurance", "Référence", "Approuvé", "Décision", "Actions"],
+        rows.map((r, i) => `
           <tr>
             <td>${escapeHTML(r.review_number || "")}</td>
             <td>${escapeHTML(r.insurance_company || "")}</td>
             <td>${escapeHTML(r.insurance_reference || "")}</td>
             <td>${money(r.approved_amount)}</td>
             <td>${escapeHTML(r.decision || "")}</td>
+            <td>
+              <button type="button" data-open-insurance="${i}">Ouvrir</button>
+              <button type="button" data-print-insurance="${i}">Imprimer</button>
+            </td>
           </tr>
         `)
       )}
     `);
-
+     
     bindForm(async values => {
       const saved = await saveRow(TABLES.insurance, {
         insurance_company: values.insurance_company,
