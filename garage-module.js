@@ -2008,8 +2008,21 @@ notify(
 
       <h3>Dossiers enregistrés</h3>
       ${tableBox(
-        ["Numéro", "Assurance", "Référence", "Approuvé", "Décision"],
-        rows.map(r => `
+  ["Numéro", "Assurance", "Référence", "Approuvé", "Décision", "Actions"],
+  rows.map((r, i) => `
+    <tr>
+      <td>${escapeHTML(r.review_number || "")}</td>
+      <td>${escapeHTML(r.insurance_company || "")}</td>
+      <td>${escapeHTML(r.insurance_reference || "")}</td>
+      <td>${money(r.approved_amount)}</td>
+      <td>${escapeHTML(r.decision || "")}</td>
+      <td>
+        <button type="button" data-open-insurance="${i}">Ouvrir</button>
+        <button type="button" data-print-insurance="${i}">Imprimer</button>
+      </td>
+    </tr>
+  `)
+)}
           <tr>
             <td>${escapeHTML(r.review_number || "")}</td>
             <td>${escapeHTML(r.insurance_company || "")}</td>
