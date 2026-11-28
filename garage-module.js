@@ -1647,6 +1647,10 @@ ${tableBox(
 const page = root.querySelector("#cwbGaragePage");
 const form = page.querySelector(".cwb-g-form");
 let editingQuoteId = null;
+
+let partIndex = 5;
+let productIndex = 1;
+
 const searchInput = page.querySelector("#quoteSearch");
 const searchButton = page.querySelector("#searchQuoteButton");
 function filterQuotes() {
