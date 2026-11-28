@@ -1746,22 +1746,31 @@ calculateQuote();
 
   notify("Devis chargé : " + quote.quote_number);
 }
-
-page.addEventListener("click", async event => {
+page.onclick = async function(event) {
   const button = event.target.closest("[data-open-quote]");
+
   if (!button) return;
 
   const index = Number(button.dataset.openQuote);
 
   try {
     await openQuote(index);
+
+    form.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
   } catch (error) {
     console.error("Erreur ouverture devis :", error);
+
     notify(
-      "Erreur ouverture devis : " + (error.message || error)
+      "Erreur ouverture devis : " + (error.message || error),
+      true
     );
   }
-});
+};
+
   const formatMoney = amount =>
     money(Math.round(Number(amount || 0)));
    
